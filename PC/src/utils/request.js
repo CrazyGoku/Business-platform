@@ -2,10 +2,10 @@ import axios from 'axios'
 import { Message } from 'element-ui'
 import store from '@/store'
 import { getToken } from '@/utils/auth'
-
+import { BASE_URL } from '@/api/config'
 // create an axios instance
 const service = axios.create({
-  baseURL: process.env.VUE_APP_BASE_API, // api 的 base_url
+  baseURL: BASE_URL, // api 的 base_url
   withCredentials: true, // 跨域请求时发送 cookies
   timeout: 5000 // request timeout
 })

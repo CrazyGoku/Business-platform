@@ -1,12 +1,7 @@
 import login from './login'
-import article from './article'
-import search from './remoteSearch'
-import transaction from './transaction'
-
+import CommodityAdd from './PurchaseAndSale/DataEditing/CommodityAdd'
 export default {
   ...login,
-  ...article,
-  ...search,
-  ...transaction
+  ...CommodityAdd
 }
 

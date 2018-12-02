@@ -17,7 +17,6 @@ import i18n from './lang' // Internationalization
 import './icons' // icon
 import './errorLog' // error log
 import './permission' // permission control
-
 import * as filters from './filters' // global filters
 
 import { mockXHR } from '../mock' // simulation data
@@ -36,7 +35,7 @@ Object.keys(filters).forEach(key => {
 })
 
 Vue.config.productionTip = false
-
+// loginAuth()
 new Vue({
   el: '#app',
   router,
