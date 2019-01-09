@@ -1,0 +1,402 @@
+<template>
+  <div>
+    <div class="handle-bar">
+      <el-button
+        type="primary"
+        icon="el-icon-circle-plus-outline"
+        size="mini"
+        @click="addDialog = true"
+      >
+        添加
+      </el-button>
+      <el-button type="primary" icon="el-icon-remove-outline" size="mini" @click="moreDel">
+        批量删除
+      </el-button>
+    </div>
+    <div class="search-bar">
+      <el-input v-model="filterData.orderId" placeholder="请输入单据编号" size="mini">
+        <template slot="prepend">
+          单据编号
+        </template>
+      </el-input>
+      <el-select
+        v-model="filterData.supplier"
+        clearable
+        size="mini"
+        placeholder="请选择供应商名"
+      >
+        <el-option
+          v-for="item in suppliersList"
+          :key="item.id"
+          :label="item.name"
+          :value="item.id"
+        />
+      </el-select>
+      <el-date-picker
+        v-model="filterData.pickTime"
+        :picker-options="pickerOptions"
+        type="daterange"
+        align="right"
+        unlink-panels
+        size="mini"
+        range-separator="至"
+        start-placeholder="单据日期（起）"
+        end-placeholder="单据日期（止）"
+      />
+      <div style="width: 20px;">
+        <el-button type="primary" size="mini">
+          查询
+        </el-button>
+      </div>
+    </div>
+    <div class="flex-center">
+      <select-table
+        v-model="selectArr"
+        :is-select="true"
+        :data="orderStorageList"
+        :pagination-data="paginationData"
+        @paginationChange="getSellApplyData"
+      >
+        <el-table-column
+          slot="handle"
+          :fixed="true"
+          label="操作"
+          width="200"
+          align="center"
+        >
+          <template slot-scope="scope">
+            <el-button
+              type="text"
+              size="small"
+              @click.native.prevent="deleteRow(scope.$index,scope.row,false)"
+            >
+              删除
+            </el-button>
+            <el-button
+              type="text"
+              size="small"
+              @click.native.prevent="editRow(scope.$index,scope.row)"
+            >
+              编辑
+            </el-button>
+            <el-button
+              type="text"
+              size="small"
+              @click.native.prevent="readRow(scope.$index,scope.row)"
+            >
+              查看详情
+            </el-button>
+          </template>
+        </el-table-column>
+      </select-table>
+    </div>
+    <el-dialog :visible.sync="orderVisible" title="订单详情">
+      <el-table :data="orderDetails">
+        <el-table-column
+          type="index"
+          fixed
+          align="center"
+          width="20"
+        />
+        <el-table-column
+          v-for="(item,index) in orderDetailMap"
+          :key="index"
+          :fixed="index<1?true:false"
+          :show-overflow-tooltip="true"
+          :label="item.name"
+          resizable
+          align="center"
+          min-width="100"
+        >
+          <template slot-scope="scope">
+            <!--{{ orderDetails[] }}-->
+            <div>
+              {{ scope.row[item.key] }}
+            </div>
+          </template>
+        </el-table-column>
+      </el-table>
+    </el-dialog>
+    <el-dialog :visible.sync="addVisible" :title="isEdit?'编辑订单':'添加退货订单'">
+      <div class="dialog-content-input">
+        <el-input v-model="chioceSelect.remark" placeholder="请输入备注" size="mini">
+          <template slot="prepend">
+            备注
+          </template>
+        </el-input>
+      </div>
+      <el-table
+        v-if="choiceGoodsSku.length"
+        :data="choiceGoodsSku"
+        style="width: 100%"
+      >
+        <el-table-column
+          label="操作"
+          align="center"
+          width="100"
+        >
+          <template scope="scope">
+            <!--<el-button size="small" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>-->
+            <el-button size="mini" type="danger" @click="deleteChoiceRow(scope.$index, scope.row)">
+              删除
+            </el-button>
+          </template>
+        </el-table-column>
+        <el-table-column label="数量" width="180" align="center">
+          <template scope="scope">
+            <el-input
+              v-model="scope.row.quantity"
+              size="small"
+              @input="quantityChange(scope.row)"
+            />
+          </template>
+        </el-table-column>
+        <el-table-column label="备注" width="180" align="center">
+          <template scope="scope">
+            <el-input
+              v-model="scope.row.remark"
+              size="small"
+            />
+          </template>
+        </el-table-column>
+      </el-table>
+      <span slot="footer" class="dialog-footer">
+        <el-button v-if="choiceGoodsSku.length" style="float: right" size="mini" type="primary" @click="comfirm">
+          确认添加
+        </el-button>
+      </span>
+    </el-dialog>
+    <el-dialog :visible.sync="addDialog" width="80%" title="选择销售订单退货">
+      <select-table
+        :data="sellOrderList"
+        :pagination-data="paginationData"
+        @paginationChange="getSellApplyFun"
+      >
+        <el-table-column
+          slot="handle"
+          :fixed="true"
+          label="操作"
+          width="200"
+          align="center"
+        >
+          <template slot-scope="scope">
+            <el-button
+              type="text"
+              size="small"
+              @click.native.prevent="addBtnFun(scope.$index,scope.row,false)"
+            >
+              退货
+            </el-button>
+          </template>
+        </el-table-column>
+      </select-table>
+      <span slot="footer" class="dialog-footer">
+        <el-button style="float: right" size="mini" type="primary" @click="addDialog = false">
+          取消
+        </el-button>
+      </span>
+    </el-dialog>
+  </div>
+</template>
+
+<script>
+import common from '@/mixins/common'
+import {
+  getSuppliers,
+  getSellApply,
+  delOrderApply,
+  getSellApplyDetails,
+  postSellApply
+} from '@/service/PurchaseAndSale/Sale/common.js'
+import SelectTable from '@/components/SelectTable/SelectTable'// 列表组件
+import { orderDetailMap, statusMap } from '@/views/PurchaseAndSale/Purchase/config.js'
+import { dataFormat } from '@/utils/index.js'
+import salecommon from '../mixins/salecommon'
+import addMixin from '../mixins/addMixin'
+
+export default {
+  name: 'SalesOrdersReturn',
+  components: { SelectTable },
+  mixins: [common, salecommon, addMixin],
+  data() {
+    return {
+      filterData: {
+        orderId: '',
+        pickTime: '',
+        supplier: ''
+      },
+      addDialog: false,
+      suppliersList: [],
+      orderStorageList: [],
+      paginationData2: {
+        page: 1,
+        pageSize: 10
+      },
+      sellOrderList: [],
+      selectArr: [],
+      orderDetails: {},
+      detailsMap: {},
+      orderVisible: false,
+      orderDetailMap
+    }
+  },
+  computed: {},
+  watch: {},
+  mounted() {
+    this.getSuppliersData()
+    this.getSellApplyData()
+    this.getSellApplyFun()
+  },
+  methods: {
+    getSuppliersData() {
+      const params = {
+        storeId: this.storeId
+      }
+      getSuppliers(params).then(res => {
+        this.suppliersList = res.data.data
+      })
+    },
+    // dialog获取销售订单
+    getSellApplyFun() {
+      const params = {
+        storeId: this.storeId,
+        page: this.paginationData2.page,
+        pageSize: this.paginationData2.pageSize,
+        type: '1'
+      }
+      getSellApply(params).then(res => {
+        const data = res.data.data
+        this.sellOrderList = data
+        this.paginationData2 = data.pageVo
+      })
+    },
+    getSellApplyData() {
+      const params = {
+        storeId: this.storeId,
+        page: this.paginationData.page,
+        pageSize: this.paginationData.pageSize,
+        type: '3'
+      }
+      getSellApply(params).then(res => {
+        const data = res.data.data
+        this.orderStorageList = data
+        this.paginationData = data.pageVo
+      })
+    },
+    moreDel() {
+      this.deleteRow('', '', true)
+    },
+    deleteRow(index, row, more) {
+      const params = {
+        storeId: this.storeId
+      }
+      if (!more) {
+        params.ids = row.id
+      } else {
+        const arr = []
+        this.selectArr.forEach(item => {
+          arr.push(item.id)
+        })
+        params.ids = arr.join(',')
+      }
+      delOrderApply(params).then(res => {
+        if (res.data.code !== 1001) {
+          this.$message({
+            showClose: true,
+            message: '删除失败',
+            type: 'error'
+          })
+          return
+        }
+        this.$message({
+          showClose: true,
+          message: '删除成功',
+          type: 'success'
+        })
+        this.getSellApplyData()
+      })
+      console.log(row)
+    },
+    editRow(index, row) {
+    },
+    readRow(index, row) {
+      const params = {
+        storeId: this.storeId
+      }
+      const path = row.id
+      getSellApplyDetails(params, path).then(res => {
+        const data = res.data.data
+        const _data = dataFormat(data)
+        if (_data.length > 0) {
+          if (!this.isGetSkuMap) {
+            const sku = eval(_data[0].goodsSkuSku)
+            sku.forEach(v => {
+              this.orderDetailMap.push({ key: v.key, name: v.key })
+            })
+            this.isGetSkuMap = true
+          }
+          _data.forEach(v => {
+            let _itemSKU = {}
+            const _sku = eval(v.goodsSkuSku)
+            _sku.forEach(item => {
+              _itemSKU = { [item.key]: item.value }
+              Object.assign(v, _itemSKU)
+            })
+          })
+        }
+
+        this.orderDetails = _data
+        this.orderVisible = true
+      })
+    },
+    comfirm() {
+      const data = {}
+      data.userId = this.userId
+      data.storeId = this.storeId
+      data.type = 3
+      data.resultOrderId = this.chioceSelect.resultOrderId
+      data.remark = this.chioceSelect.remark
+      data.inWarehouseId = this.chioceSelect.inWarehouseId
+      data.prodcingWay = 1
+      data.clientId = this.chioceSelect.client
+      let inTotalQuantity = 0
+      let totalDiscountMoney = 0
+      let discountMoney = 0
+      let totalMoney = 0
+      let orderMoney = 0
+      const details = []
+      this.choiceGoodsSku.forEach(v => {
+        const _detail = {}
+        inTotalQuantity += parseFloat(v.quantity)
+        totalDiscountMoney += parseFloat(v.discountMoney)
+        discountMoney += parseFloat(v.discountMoney)
+        totalMoney += parseFloat(v.money)
+        console.log(totalMoney)
+        _detail.id = v.id
+        _detail.type = 1
+        _detail.goodsSkuId = v.goodsSkuId
+        _detail.quantity = v.quantity
+        _detail.money = v.money
+        _detail.discountMoney = v.discountMoney
+        _detail.remark = v.remark
+        details.push(_detail)
+      })
+      orderMoney = totalMoney - totalDiscountMoney
+      data.details = details
+      data.inTotalQuantity = inTotalQuantity
+      data.totalDiscountMoney = totalDiscountMoney * -1
+      data.discountMoney = discountMoney * -1
+      data.totalMoney = totalMoney * -1
+      data.orderMoney = orderMoney * -1
+      console.log(data)
+      postSellApply(data).then(res => {
+        console.log(res)
+      })
+    }
+  }
+}
+</script>
+
+<style lang='scss' scoped>
+
+</style>

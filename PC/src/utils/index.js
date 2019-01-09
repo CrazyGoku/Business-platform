@@ -293,3 +293,24 @@ export function uniqueArr(arr) {
 export function isExternal(path) {
   return /^(https?:|mailto:|tel:)/.test(path)
 }
+
+/**
+ * 格式化数据
+ * @param data
+ * @returns {Array}
+ */
+export function dataFormat(data) {
+  const formatData = []
+  const commonData = {}
+  Object.keys(data).forEach(function(key) {
+    if (typeof data[key] !== 'object') {
+      Object.assign(commonData, { [key]: data[key] })
+    }
+  })
+  data.details.forEach(item => {
+    const _data = {}
+    Object.assign(_data, item, commonData)
+    formatData.push(_data)
+  })
+  return formatData
+}

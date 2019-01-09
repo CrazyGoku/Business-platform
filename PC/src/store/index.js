@@ -6,6 +6,9 @@ import permission from './modules/permission'
 import tagsView from './modules/tagsView'
 import user from './modules/user'
 import getters from './getters'
+import * as actions from './actions'
+import state from './state'
+import mutations from './mutations'
 
 Vue.use(Vuex)
 
@@ -17,7 +20,10 @@ const store = new Vuex.Store({
     tagsView,
     user
   },
-  getters
+  getters,
+  actions,
+  state,
+  mutations
 })
 
 export default store

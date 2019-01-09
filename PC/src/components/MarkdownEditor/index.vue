@@ -1,6 +1,6 @@
 <template>
   <div :style="{height:height+'px',zIndex:zIndex}" class="simplemde-container">
-    <textarea :id="id"/>
+    <textarea :id="id" />
   </div>
 </template>
 

@@ -2,31 +2,37 @@
   <div>
     <div class="search-bar">
       <el-input v-model="filterData.vagueFilter" placeholder="商品名称/货号/条码/规格" size="mini">
-        <template slot="prepend">筛选条件</template>
+        <template slot="prepend">
+          筛选条件
+        </template>
       </el-input>
       <el-select v-model="filterData.brandFilter" filterable placeholder="请选择条码状态" size="mini">
         <el-option
           v-for="item in options"
           :key="item.value"
           :label="item.label"
-          :value="item.value"/>
+          :value="item.value"
+        />
       </el-select>
       <el-select v-model="filterData.openStatusFilter" placeholder="请选择上架状态" size="mini">
         <el-option
           v-for="item in options"
           :key="item.value"
           :label="item.label"
-          :value="item.value"/>
+          :value="item.value"
+        />
       </el-select>
       <div style="width: 20px;">
-        <el-button type="primary" size="mini">查询</el-button>
+        <el-button type="primary" size="mini">
+          查询
+        </el-button>
       </div>
     </div>
     <div class="flex-center">
       <TransverseShrinkBox ref="TransverseShrinkBox">
-        <Tree :add="true" :delete-c="true" @deleteHandle="deleteHandle" @addHandle="addHandle"/>
+        <Tree :add="true" :delete-c="true" @deleteHandle="deleteHandle" @addHandle="addHandle" />
       </TransverseShrinkBox>
-      <select-table :is-select="true" v-model="selectArr" :data="commodityList" :pagination-data="paginationData">
+      <select-table v-model="selectArr" :is-select="true" :data="commodityList" :pagination-data="paginationData">
         <el-table-column
           slot="handle"
           :fixed="true"
@@ -46,7 +52,6 @@
         </el-table-column>
       </select-table>
     </div>
-
   </div>
 </template>
 

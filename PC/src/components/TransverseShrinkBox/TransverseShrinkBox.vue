@@ -1,10 +1,12 @@
 <template>
   <div ref="TransverseShrinkBox">
     <transition name="slide-fade2">
-      <slot v-if="show"/>
+      <slot v-if="show" />
     </transition>
     <transition name="slide-fade">
-      <div v-if="show2" class="tab-bar" @click="test2"><span>展</span><span>开</span></div>
+      <div v-if="show2" class="tab-bar" @click="test2">
+        <span>展</span><span>开</span>
+      </div>
     </transition>
   </div>
 </template>

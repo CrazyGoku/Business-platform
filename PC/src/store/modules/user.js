@@ -13,7 +13,9 @@ const user = {
     roles: [],
     setting: {
       articlePlatform: []
-    }
+    },
+    storeId: '',
+    userId: ''
   },
 
   mutations: {
@@ -40,6 +42,12 @@ const user = {
     },
     SET_ROLES: (state, roles) => {
       state.roles = roles
+    },
+    SET_STORE_ID: (state, storeId) => {
+      state.storeId = storeId
+    },
+    SET_USER_ID: (state, userId) => {
+      state.userId = userId
     }
   },
 
@@ -77,6 +85,8 @@ const user = {
           commit('SET_NAME', data.name)
           commit('SET_AVATAR', data.avatar)
           commit('SET_INTRODUCTION', data.introduction)
+          commit('SET_USER_ID', 'dcb71baa-f384-11e8-b25b-54ee75c0f47a')
+          commit('SET_STORE_ID', 1)
           resolve(response)
         }).catch(error => {
           reject(error)

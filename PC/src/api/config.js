@@ -1,2 +1,2 @@
-// export const BASE_URL = 'http://192.168.11.172:9900/servlet/json'
-export const BASE_URL = '/api'
+export const BASE_URL = 'http://47.98.174.111'
+export const MOCK_URL = '/api'

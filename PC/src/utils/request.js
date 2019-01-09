@@ -2,10 +2,11 @@ import axios from 'axios'
 import { Message } from 'element-ui'
 import store from '@/store'
 import { getToken } from '@/utils/auth'
-import { BASE_URL } from '@/api/config'
+import { BASE_URL, MOCK_URL } from '@/api/config'
+import qs from 'qs'
 // create an axios instance
 const service = axios.create({
-  baseURL: BASE_URL, // api 的 base_url
+  // baseURL: BASE_URL, // api 的 base_url
   withCredentials: true, // 跨域请求时发送 cookies
   timeout: 5000 // request timeout
 })
@@ -13,11 +14,15 @@ const service = axios.create({
 // request interceptor
 service.interceptors.request.use(
   config => {
-    // Do something before request is sent
-    if (store.getters.token) {
-      // 让每个请求携带token-- ['X-Token']为自定义key 请根据实际情况自行修改
-      config.headers['X-Token'] = getToken()
-    }
+    console.log(config)
+    if (config.url.split('/').includes('pps')) {
+      config.baseURL = BASE_URL
+    } else {
+      config.baseURL = MOCK_URL
+    } // Do something before request is sent
+    // if (store.getters.token) {
+    //   config.headers['token'] = getToken()
+    // }
     return config
   },
   error => {
