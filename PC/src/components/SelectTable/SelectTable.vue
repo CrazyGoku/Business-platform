@@ -35,8 +35,11 @@
         min-width="100"
       >
         <template slot-scope="scope">
-          <p v-if="item.key.split('.').length>1">
+          <p v-if="item.key.split('.').length==2">
             {{ scope.row[item.key.split('.')[0]][item.key.split('.')[1]] }}
+          </p>
+          <p v-else-if="item.key.split('.').length==3">
+            {{ scope.row[item.key.split('.')[0]][item.key.split('.')[1]][item.key.split('.')[2]] }}
           </p>
           <div v-else-if="item.key==='img'" class="table-img" />
           <div v-else-if="(typeof scope.row[item.key]) === 'object'">

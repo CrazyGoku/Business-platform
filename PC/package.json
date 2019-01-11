@@ -14,12 +14,12 @@
     "precommit": "lint-staged",
     "svgo": "svgo -f src/icons/svg --config=src/icons/svgo.yml"
   },
-//  "lint-staged": {
-//    "src/**/*.{js,vue}": [
-//      "eslint --fix",
-//      "git add"
-//    ]
-//  },
+  "lint-staged": {
+    "src/**/*.{js,vue}": [
+      "eslint --fix",
+      "git add"
+    ]
+  },
   "keywords": [
     "vue",
     "element-ui",

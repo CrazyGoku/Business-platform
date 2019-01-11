@@ -1,26 +1,56 @@
 <template>
   <div>
     <div class="search-bar">
-      <el-input v-model="filterData.orderId" placeholder="请输入单据编号" size="mini">
+      <el-input v-model="filterData.id" placeholder="单据编号" size="mini">
         <template slot="prepend">
           单据编号
         </template>
       </el-input>
+      <el-input v-model="filterData.supplierName" placeholder="客户名" size="mini">
+        <template slot="prepend">
+          客户名
+        </template>
+      </el-input>
       <el-select
-        v-model="filterData.supplier"
-        clearable
+        v-model="filterData.supplierName"
         size="mini"
+        clearable
         placeholder="请选择供应商名"
+        @clear="searchBtn"
       >
         <el-option
           v-for="item in suppliersList"
           :key="item.id"
           :label="item.name"
-          :value="item.id"
+          :value="item.name"
+        />
+      </el-select>
+      <el-select
+        v-model="filterData.type"
+        size="mini"
+        clearable
+        @clear="searchBtn"
+        placeholder="单据类型"
+      >
+        <el-option
+          label="零售单"
+          value="1"
+        />
+        <el-option
+          label="销售出库单"
+          value="2"
+        />
+        <el-option
+          label="销售退货单"
+          value="3"
+        />
+        <el-option
+          label="销售换货单"
+          value="4"
         />
       </el-select>
       <el-date-picker
-        v-model="filterData.pickTime"
+        v-model="pickTime"
         :picker-options="pickerOptions"
         type="daterange"
         align="right"
@@ -31,7 +61,7 @@
         end-placeholder="单据日期（止）"
       />
       <div style="width: 20px;">
-        <el-button type="primary" size="mini">
+        <el-button type="primary" size="mini" @click="searchBtn">
           查询
         </el-button>
       </div>
@@ -77,17 +107,17 @@ import common from '@/mixins/common'
 import { getSuppliers, postRedDashed } from '@/service/PurchaseAndSale/Purchase/common.js'
 import { getProcurementAllResult, getProcurementResultDetails } from '@/service/PurchaseAndSale/Purchase/PurchaseAllResult'
 import SelectTable from '@/components/SelectTable/SelectTable'// 列表组件
+import {statusMap,clearMap} from '@/views/PurchaseAndSale/config.js'
+import { parseTime } from '@/utils'
+
 export default {
   name: 'PurchaseAllResult',
   components: { SelectTable },
   mixins: [common],
   data() {
     return {
-      filterData: {
-        orderId: '',
-        pickTime: '',
-        supplier: ''
-      },
+      filterData: {},
+      pickTime: '',
       resultList: [],
       suppliersList: []
     }
@@ -99,6 +129,10 @@ export default {
     this.getProcurementAllResultFun()
   },
   methods: {
+    searchBtn() {
+      this.paginationData.page = 1
+      this.getProcurementAllResultFun()
+    },
     getSuppliersData() {
       const params = {
         storeId: this.storeId
@@ -108,13 +142,27 @@ export default {
       })
     },
     getProcurementAllResultFun() {
+
+      if (!this.filterData.id) {
+        delete this.filterData.id
+      }
+      this.filterData.startTime = this.pickTime ? parseTime(this.pickTime[0]) : ''
+      this.filterData.endTime = this.pickTime ? parseTime(this.pickTime[1]) : ''
       const params = {
         storeId: this.storeId,
         page: this.paginationData.page,
-        pageSize: this.paginationData.pageSize
+        pageSize: this.paginationData.pageSize,
+        ...this.filterData
       }
       getProcurementAllResult(params).then(res => {
         const data = res.data.data
+        let typeMap = {
+          1: '零售单', 2: '销售出库单', 3: '销售退货单', 4: '销售换货单'
+        }
+        data.items.forEach(item => {
+          item.type = typeMap[item.type]
+          item.procurementApplyOrderVo.clearStatus = clearMap[item.procurementApplyOrderVo.clearStatus]
+        })
         this.resultList = data
         this.paginationData = data.pageVo
       })

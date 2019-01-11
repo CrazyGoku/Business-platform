@@ -11,13 +11,13 @@
       </el-button>
     </div>
     <div class="search-bar">
-      <el-input v-model="filterData.orderId" placeholder="请输入单据编号" size="mini">
+      <el-input v-model="filterData.id" placeholder="请输入单据编号" size="mini">
         <template slot="prepend">
           单据编号
         </template>
       </el-input>
       <el-select
-        v-model="filterData.supplier"
+        v-model="filterData.supplierName"
         clearable
         size="mini"
         placeholder="请选择供应商名"
@@ -26,11 +26,11 @@
           v-for="item in suppliersList"
           :key="item.id"
           :label="item.name"
-          :value="item.id"
+          :value="item.name"
         />
       </el-select>
       <el-date-picker
-        v-model="filterData.pickTime"
+        v-model="pickTime"
         :picker-options="pickerOptions"
         type="daterange"
         align="right"
@@ -41,7 +41,7 @@
         end-placeholder="单据日期（止）"
       />
       <div style="width: 20px;">
-        <el-button type="primary" size="mini">
+        <el-button type="primary" size="mini" @click="searchBtn">
           查询
         </el-button>
       </div>
@@ -286,234 +286,249 @@
 </template>
 
 <script>
-import common from '@/mixins/common'
-import { getSuppliers, getOrderApply, delOrderApply, getOrderApplyDetails, postOrderApply, putOrderApply } from '@/service/PurchaseAndSale/Purchase/common.js'
-import SelectTable from '@/components/SelectTable/SelectTable'// 列表组件
-import { orderDetailMap } from '@/views/PurchaseAndSale/Purchase/config.js'
-import { dataFormat } from '@/utils/index.js'
-import purchasecommon from '../mixins/purchasecommon'
-import addMixin from '../mixins/addMixin.js'
-import { statusMap, orderApplyMap } from '../config'
-export default {
-  name: 'PurchaseOrder',
-  components: { SelectTable },
-  mixins: [common, purchasecommon, addMixin],
-  data() {
-    return {
-      filterData: {
-        orderId: '',
-        pickTime: '',
-        supplier: ''
-      },
-      suppliersList: [],
-      orderStorageList: [],
-      paginationData: {
-        page: 1,
-        pageSize: 10
-      },
-      selectArr: [],
-      orderDetails: {},
-      detailsMap: {},
-      orderVisible: false,
-      orderDetailMap,
-      isGetSkuMap: false
-    }
-  },
-  computed: {},
-  watch: {},
-  mounted() {
-    this.getSuppliersData()
-    this.getOrderApplyData()
-  },
-  methods: {
-    getSuppliersData() {
-      const params = {
-        storeId: this.storeId
+  import common from '@/mixins/common'
+  import {
+    getSuppliers,
+    getOrderApply,
+    delOrderApply,
+    getOrderApplyDetails,
+    postOrderApply,
+    putOrderApply
+  } from '@/service/PurchaseAndSale/Purchase/common.js'
+  import SelectTable from '@/components/SelectTable/SelectTable'// 列表组件
+  import {orderDetailMap} from '@/views/PurchaseAndSale/Purchase/config.js'
+  import {dataFormat} from '@/utils/index.js'
+  import purchasecommon from '../mixins/purchasecommon'
+  import addMixin from '../mixins/addMixin.js'
+  import {statusMap, orderApplyMap} from '../config'
+  import { parseTime } from '@/utils'
+  export default {
+    name: 'PurchaseOrder',
+    components: {SelectTable},
+    mixins: [common, purchasecommon, addMixin],
+    data() {
+      return {
+        filterData: {},
+        pickTime:'',
+        suppliersList: [],
+        orderStorageList: [],
+        paginationData: {
+          page: 1,
+          pageSize: 10
+        },
+        selectArr: [],
+        orderDetails: {},
+        detailsMap: {},
+        orderVisible: false,
+        orderDetailMap,
+        isGetSkuMap: false
       }
-      getSuppliers(params).then(res => {
-        this.suppliersList = res.data.data
-      })
     },
-    getOrderApplyData() {
-      const params = {
-        storeId: this.storeId,
-        page: this.paginationData.page,
-        pageSize: this.paginationData.pageSize,
-        type: '1'
-      }
-      getOrderApply(params).then(res => {
-        const data = res.data.data
-        data.items.forEach(v => {
-          v.status = v.orderStatus
-          v.type = orderApplyMap[v.type]
-          v.orderStatus = statusMap[v.orderStatus]
-        })
-        this.orderStorageList = data
-        this.paginationData = data.pageVo
-      })
+    computed: {},
+    watch: {},
+    mounted() {
+      this.getSuppliersData()
+      this.getOrderApplyData()
     },
-    // moreDel() {
-    //   this.deleteRow('', '', true)
-    // },
-    deleteRow(index, row, more) {
-      const params = {
-        storeId: this.storeId
-      }
-      if (!more) {
-        params.ids = row.id
-      } else {
-        const arr = []
-        this.selectArr.forEach(item => {
-          arr.push(item.id)
+    methods: {
+      searchBtn() {
+        this.paginationData.page = 1
+        this.getOrderApplyData()
+      },
+      getSuppliersData() {
+        const params = {
+          storeId: this.storeId
+        }
+        getSuppliers(params).then(res => {
+          this.suppliersList = res.data.data
         })
-        params.ids = arr.join(',')
-      }
-      delOrderApply(params).then(res => {
-        if (res.data.code !== 1001) {
+      },
+      getOrderApplyData() {
+        if(!this.filterData.id){
+          delete this.filterData.id
+        }
+        this.filterData.startTime = this.pickTime ? parseTime(this.pickTime[0]) : ''
+        this.filterData.endTime = this.pickTime ? parseTime(this.pickTime[1]) : ''
+        const params = {
+          storeId: this.storeId,
+          page: this.paginationData.page,
+          pageSize: this.paginationData.pageSize,
+          type: '1',
+          ...this.filterData
+        }
+        getOrderApply(params).then(res => {
+          const data = res.data.data
+          data.items.forEach(v => {
+            v.status = v.orderStatus
+            v.type = orderApplyMap[v.type]
+            v.orderStatus = statusMap[v.orderStatus]
+          })
+          this.orderStorageList = data
+          this.paginationData = data.pageVo
+        })
+      },
+      // moreDel() {
+      //   this.deleteRow('', '', true)
+      // },
+      deleteRow(index, row, more) {
+        const params = {
+          storeId: this.storeId
+        }
+        if (!more) {
+          params.ids = row.id
+        } else {
+          const arr = []
+          this.selectArr.forEach(item => {
+            arr.push(item.id)
+          })
+          params.ids = arr.join(',')
+        }
+        delOrderApply(params).then(res => {
+          if (res.data.code !== 1001) {
+            this.$message({
+              showClose: true,
+              message: '删除失败',
+              type: 'error'
+            })
+            return
+          }
           this.$message({
             showClose: true,
-            message: '删除失败',
-            type: 'error'
+            message: '删除成功',
+            type: 'success'
           })
-          return
-        }
-        this.$message({
-          showClose: true,
-          message: '删除成功',
-          type: 'success'
+          this.getOrderApplyData()
         })
-        this.getOrderApplyData()
-      })
-      console.log(row)
-    },
-    editRow(index, row) {
-      console.log(row)
-      this.choiceGoodsSku = []
-      this.isEdit = true
-      const params = {
-        storeId: this.storeId
-      }
-      this.chioceSelect.id = row.id
-      const path = row.id
-      getOrderApplyDetails(params, path).then(res => {
-        console.log(res)
-        const data = res.data.data
-        this.chioceSelect.inWarehouseId = data.inWarehouseId
-        this.chioceSelect.supplierId = data.supplierId
-        data.details.forEach(v => {
-          v.goodsSkuSku = eval(v.goodsSkuSku)
-          let sku = ''
-          v.goodsSkuSku.forEach((item, index) => {
-            let _sku = ''
-            if (v.goodsSkuSku.length === index + 1) {
-              _sku = item.key + ':' + item.value
-            } else {
-              _sku = item.key + ':' + item.value + ','
+        console.log(row)
+      },
+      editRow(index, row) {
+        console.log(row)
+        this.choiceGoodsSku = []
+        this.isEdit = true
+        const params = {
+          storeId: this.storeId
+        }
+        this.chioceSelect.id = row.id
+        const path = row.id
+        getOrderApplyDetails(params, path).then(res => {
+          console.log(res)
+          const data = res.data.data
+          this.chioceSelect.inWarehouseId = data.inWarehouseId
+          this.chioceSelect.supplierId = data.supplierId
+          data.details.forEach(v => {
+            v.goodsSkuSku = eval(v.goodsSkuSku)
+            let sku = ''
+            v.goodsSkuSku.forEach((item, index) => {
+              let _sku = ''
+              if (v.goodsSkuSku.length === index + 1) {
+                _sku = item.key + ':' + item.value
+              } else {
+                _sku = item.key + ':' + item.value + ','
+              }
+              sku += _sku
+            })
+            v.goodsSkuSku = sku
+            const _data = {
+              id: v.goodsSkuId,
+              quantity: v.quantity,
+              money: v.money,
+              discountMoney: v.discountMoney,
+              remark: v.remark,
+              purchasePrice: (v.money + v.discountMoney * v.quantity) / v.quantity,
+              sku: v.goodsSkuSku
             }
-            sku += _sku
+            this.choiceGoodsSku.push(_data)
           })
-          v.goodsSkuSku = sku
-          const _data = {
-            id: v.goodsSkuId,
-            quantity: v.quantity,
-            money: v.money,
-            discountMoney: v.discountMoney,
-            remark: v.remark,
-            purchasePrice: (v.money + v.discountMoney * v.quantity) / v.quantity,
-            sku: v.goodsSkuSku
-          }
-          this.choiceGoodsSku.push(_data)
+          this.choiceOutWarehouse(data.inWarehouseId)
+          this.addVisible = true
         })
-        this.choiceOutWarehouse(data.inWarehouseId)
-        this.addVisible = true
-      })
-    },
-    readRow(index, row) {
-      const params = {
-        storeId: this.storeId
-      }
-      const path = row.id
-      getOrderApplyDetails(params, path).then(res => {
-        const data = res.data.data
-        const _data = dataFormat(data)
-        if (_data.length > 0) {
-          if (!this.isGetSkuMap) {
-            const sku = eval(_data[0].goodsSkuSku)
-            sku.forEach(v => {
-              this.orderDetailMap.push({ key: v.key, name: v.key })
+      },
+      readRow(index, row) {
+        const params = {
+          storeId: this.storeId
+        }
+        const path = row.id
+        getOrderApplyDetails(params, path).then(res => {
+          const data = res.data.data
+          const _data = dataFormat(data)
+          if (_data.length > 0) {
+            if (!this.isGetSkuMap) {
+              const sku = eval(_data[0].goodsSkuSku)
+              sku.forEach(v => {
+                this.orderDetailMap.push({key: v.key, name: v.key})
+              })
+              this.isGetSkuMap = true
+            }
+            _data.forEach(v => {
+              let _itemSKU = {}
+              const _sku = eval(v.goodsSkuSku)
+              _sku.forEach(item => {
+                _itemSKU = {[item.key]: item.value}
+                Object.assign(v, _itemSKU)
+              })
             })
-            this.isGetSkuMap = true
           }
-          _data.forEach(v => {
-            let _itemSKU = {}
-            const _sku = eval(v.goodsSkuSku)
-            _sku.forEach(item => {
-              _itemSKU = { [item.key]: item.value }
-              Object.assign(v, _itemSKU)
+          this.orderDetails = _data
+          this.orderVisible = true
+        })
+      },
+      comfirm() {
+        const data = {}
+        data.userId = this.userId
+        data.storeId = this.storeId
+        data.supplierId = this.chioceSelect.supplierId
+        data.inWarehouseId = this.chioceSelect.inWarehouseId
+        data.type = 1
+        data.id = this.chioceSelect.id
+        let inTotalQuantity = 0
+        let orderMoney = 0
+        let totalDiscountMoney = 0
+        let totalMoney = 0
+        const details = []
+        this.choiceGoodsSku.forEach(v => {
+          let _detail = {}
+          inTotalQuantity += Number(v.quantity)
+          totalDiscountMoney += Number(v.discountMoney)
+          totalMoney += Number(v.money)
+          _detail = {
+            'type': 1,
+            'goodsSkuId': v.id,
+            'quantity': v.quantity,
+            'money': v.money,
+            'discountMoney': v.discountMoney,
+            'remark': v.remark
+          }
+          details.push(_detail)
+        })
+        orderMoney = totalMoney - totalDiscountMoney
+        data.inTotalQuantity = inTotalQuantity
+        data.totalDiscountMoney = totalDiscountMoney
+        data.orderMoney = orderMoney
+        data.totalMoney = totalMoney
+        data.details = details
+        const func = this.isEdit ? putOrderApply : postOrderApply
+        const magSuccess = this.isEdit ? '成功编辑订单' : '成功添加订单'
+        const failSuccess = this.isEdit ? '编辑订单失败' : '添加订单失败'
+        func(data).then(res => {
+          if (res.data.code !== 1001) {
+            this.$message({
+              showClose: true,
+              message: failSuccess,
+              type: 'error'
             })
-          })
-        }
-        this.orderDetails = _data
-        this.orderVisible = true
-      })
-    },
-    comfirm() {
-      const data = { }
-      data.userId = this.userId
-      data.storeId = this.storeId
-      data.supplierId = this.chioceSelect.supplierId
-      data.inWarehouseId = this.chioceSelect.inWarehouseId
-      data.type = 1
-      data.id = this.chioceSelect.id
-      let inTotalQuantity = 0
-      let orderMoney = 0
-      let totalDiscountMoney = 0
-      let totalMoney = 0
-      const details = []
-      this.choiceGoodsSku.forEach(v => {
-        let _detail = {}
-        inTotalQuantity += Number(v.quantity)
-        totalDiscountMoney += Number(v.discountMoney)
-        totalMoney += Number(v.money)
-        _detail = {
-          'type': 1,
-          'goodsSkuId': v.id,
-          'quantity': v.quantity,
-          'money': v.money,
-          'discountMoney': v.discountMoney,
-          'remark': v.remark
-        }
-        details.push(_detail)
-      })
-      orderMoney = totalMoney - totalDiscountMoney
-      data.inTotalQuantity = inTotalQuantity
-      data.totalDiscountMoney = totalDiscountMoney
-      data.orderMoney = orderMoney
-      data.totalMoney = totalMoney
-      data.details = details
-      const func = this.isEdit ? putOrderApply : postOrderApply
-      const magSuccess = this.isEdit ? '成功编辑订单' : '成功添加订单'
-      const failSuccess = this.isEdit ? '编辑订单失败' : '添加订单失败'
-      func(data).then(res => {
-        if (res.data.code !== 1001) {
+            return
+          }
           this.$message({
             showClose: true,
-            message: failSuccess,
-            type: 'error'
+            message: magSuccess,
+            type: 'success'
           })
-          return
-        }
-        this.$message({
-          showClose: true,
-          message: magSuccess,
-          type: 'success'
+          this.addVisible = false
+          this.getOrderApplyData()
         })
-        this.addVisible = false
-        this.getOrderApplyData()
-      })
+      }
     }
   }
-}
 </script>
 
 <style lang='scss' scoped>

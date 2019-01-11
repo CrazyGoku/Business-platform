@@ -313,6 +313,21 @@ const PurchaseAndSaleRouter = {
       ]
     },
     {
+      path: 'Report',
+      name: 'Report',
+      component: () => import('@/views/PurchaseAndSale/Report/Report.vue'),
+      meta: { title: '报表', iconfont: '&#xe671;' },
+      redirect: 'noredirect',
+      children: [
+        {
+          path: 'SearchStock',
+          component: () => import('@/views/PurchaseAndSale/Report/Pages/SearchStock.vue'),
+          name: 'SearchStock',
+          meta: { title: '查库存', iconfont: '&#xe631;' }
+        }
+      ]
+    },
+    {
       path: 'Setting',
       name: 'Setting',
       component: () => import('@/views/PurchaseAndSale/Setting/Setting.vue'),

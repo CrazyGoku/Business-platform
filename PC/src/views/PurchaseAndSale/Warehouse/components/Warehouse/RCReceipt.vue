@@ -1,47 +1,23 @@
 <template>
-  <div class="warrap" />
-</template>
-
-<script>
-import common from '@/mixins/common'
-
-export default {
-  name: 'RCReceipt',
-  mixins: [common],
-  data() {
-    return {}
-  },
-  computed: {},
-  watch: {},
-  mounted() {
-  },
-  methods: {}
-}
-</script>
-
-<style lang='scss' scoped>
-
-</style>
-<template>
   <div>
     <div class="search-bar">
-      <el-input v-model="filterData.orderId" placeholder='请输入单据编号' size="mini">
-        <template slot="prepend">单据编号</template>
+      <el-input v-model="filterData.id" placeholder="请输入单据编号" size="mini">
+        <template slot="prepend">
+          单据编号
+        </template>
       </el-input>
-      <el-select
-        v-model="filterData.supplier"
-        clearable
+      <el-cascader
+        v-model="selectedOptions"
+        :options="targetOption"
+        style="margin:0 10px 10px 0"
         size="mini"
-        placeholder="请选择供应商名">
-        <el-option
-          v-for="item in suppliersList"
-          :key="item.id"
-          :label="item.name"
-          :value="item.id">
-        </el-option>
-      </el-select>
+        placeholder="请选择来往单位"
+        filterable
+        clearable
+      />
       <el-date-picker
-        v-model="filterData.pickTime"
+        v-model="pickTime"
+        :picker-options="pickerOptions"
         type="daterange"
         align="right"
         unlink-panels
@@ -49,12 +25,14 @@ export default {
         range-separator="至"
         start-placeholder="单据日期（起）"
         end-placeholder="单据日期（止）"
-        :picker-options="pickerOptions">
-      </el-date-picker>
+      />
       <div style="width: 20px;">
-        <el-button type="primary" size="mini">查询</el-button>
+        <el-button type="primary" size="mini" @click="searchBtn">
+          查询
+        </el-button>
       </div>
     </div>
+
     <div class="flex-center">
       <select-table :is-select="true" v-model="selectArr" :data="orderStorageList" :pagination-data="paginationData"
                     @paginationChange="getOrderStorageData"
@@ -77,9 +55,9 @@ export default {
             <el-button
               type="text"
               size="small"
-              @click.native.prevent="editRow(scope.$index,scope.row)"
+              @click.native.prevent="getHandle(scope.$index,scope.row)"
             >
-              编辑
+              收货
             </el-button>
             <el-button
               type="text"
@@ -97,21 +75,42 @@ export default {
 
 <script>
   import common from '@/mixins/common'
-  import {getOrderStorage,postRedDashed} from '@/service/PurchaseAndSale/Warehouse/common.js'
+  import {
+    getOrderStorage,
+    postRedDashed,
+    getSellResultDetails,
+    postStorage,
+    getSellApplyDetails,
+    getProcurementApplyDetails
+  } from '@/service/PurchaseAndSale/Warehouse/common.js'
   import SelectTable from '@/components/SelectTable/SelectTable'// 列表组件
   import {
-    getSuppliers
+    getSuppliers,getClients
   } from '@/service/PurchaseAndSale/common'
+  import {statusMap} from "../../../config";
+  import { parseTime } from '@/utils'
+
   export default {
     name: "RCReceipt",
     mixins: [common],
     data() {
       return {
         filterData: {
-          orderId: '',
-          pickTime: '',
-          supplier: ''
         },
+        pickTime:'',
+        targetOption: [
+          {
+            value: 'kehu',
+            label: '客户',
+            children: []
+          },
+          {
+            value: 'gongyingshang',
+            label: '供应商',
+            children: []
+          }
+        ],
+        selectedOptions:[],
         suppliersList: [],
         orderStorageList: [],
         paginationData: {
@@ -122,50 +121,169 @@ export default {
       }
     },
     mounted() {
-      this.getSuppliersData()
+      this.getSuppliersFun()
       this.getOrderStorageData()
+      this.getClientsFun()
     },
     methods: {
-      getSuppliersData() {
-        let params = {
+      searchBtn() {
+        this.paginationData.page = 1
+        this.getOrderStorageData()
+      },
+      getSuppliersFun() {
+        const params = {
           storeId: this.storeId
         }
         getSuppliers(params).then(res => {
           this.suppliersList = res.data.data
+          const _suppliersList = []
+          this.suppliersList.forEach(v => {
+            const _data = {
+              value: v.name,
+              label: v.name
+            }
+            _suppliersList.push(_data)
+          })
+          this.targetOption[1].children = _suppliersList
+        })
+      },
+      getClientsFun() {
+        const params = {
+          disabled: 0
+        }
+        getClients(params).then(res => {
+          const data = res.data.data
+          const _clientsList = []
+          data.forEach(v => {
+            const _data = {
+              value: v.name,
+              label: v.name + '--' + v.username
+            }
+            _clientsList.push(_data)
+          })
+          this.targetOption[0].children = _clientsList
         })
       },
       getOrderStorageData() {
-        let params = {
+        if(!this.filterData.id){
+          delete this.filterData.id
+        }
+        if(this.selectedOptions.length>0){
+          this.filterData.targetName = this.selectedOptions[1]
+        }else{
+          delete this.filterData.targetName
+        }
+        this.filterData.startTime = this.pickTime ? parseTime(this.pickTime[0]) : ''
+        this.filterData.endTime = this.pickTime ? parseTime(this.pickTime[1]) : ''
+        const params = {
           storeId: this.storeId,
           page: this.paginationData.page,
-          pageSize: this.paginationData.pageSize
+          pageSize: this.paginationData.pageSize,
+          ...this.filterData
         }
         let path = '2'
         getOrderStorage(params, path).then(res => {
           let data = res.data.data
+          data.items.forEach(item => {
+            item.orderStatus = statusMap[item.orderStatus]
+          })
           this.orderStorageList = data
           this.paginationData = data.pageVo
         })
       },
       deleteRow(index, row, more) {
       },
-      editRow(index, row) {
-      },
-      redRow(index, row){
+      getHandle(index, row) {
         let params = {
-          storeId:this.storeId,
+          storeId: this.storeId,
+        }
+        let path = row.id
+        let orderDetail = {}
+        let func = ''
+        let _type = ''
+        let _detailType = ''
+        if (row.typeName === "销售退货申请单" || row.typeName === '销售换货申请单') {
+          func = getSellApplyDetails
+          _type = '2'
+          _detailType = '1'
+        } else {
+          func = getProcurementApplyDetails
+          _type = '4'
+          _detailType = '0'
+        }
+        func(params, path).then(res => {
+          if (res.data.code !== 1001) {
+            this.$message({
+              showClose: true,
+              message: '获取来源订单失败',
+              type: 'error'
+            })
+            return
+          }
+          orderDetail = res.data.data
+        })
+        this.$prompt('此操作将确认收货, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          inputPlaceholder: '可以输入备注',
+        }).then((value) => {
+          let params = {
+            sellApplyOrderVo: {}
+          }
+          params.remark = value.value ? value.value : ''
+          params.applyOrderId = orderDetail.id
+          params.quantity = orderDetail.inNotReceivedQuantity
+          params.storeId = this.storeId
+          params.userId = this.userId
+          params.type = _type
+          let _details = []
+          orderDetail.details.forEach(v => {
+            let _detail = {}
+            _detail.changeQuantity = v.quantity
+            _detail.goodsSkuId = v.goodsSkuId
+            _detail.id = v.id
+            _detail.type = _detailType
+            _details.push(_detail)
+          })
+          params.sellApplyOrderVo.details = _details
+          postStorage(params).then(res => {
+            if (res.data.code !== 1001) {
+              this.$message({
+                showClose: true,
+                message: '收货失败',
+                type: 'error'
+              })
+              return
+            }
+            this.$message({
+              showClose: true,
+              message: '收货成功',
+              type: 'success'
+            })
+            this.getOrderStorageData()
+          })
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消操作'
+          });
+        });
+      },
+      redRow(index, row) {
+        let params = {
+          storeId: this.storeId,
           id: row.id,
           userId: this.userId
         }
         this.$prompt('此操作将红冲此订单, 是否继续?', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
-          inputPlaceholder:'可以输入备注',
+          inputPlaceholder: '可以输入备注',
         }).then((value) => {
-          if(value.value){
+          if (value.value) {
             params.remark = value.value
           }
-          postRedDashed(params).then(res=>{
+          postRedDashed(params).then(res => {
             if (res.data.code !== 1001) {
               this.$message({
                 showClose: true,
@@ -187,11 +305,8 @@ export default {
             message: '已取消操作'
           });
         });
-
       }
-
     },
-
     computed: {},
     watch: {},
     components: {SelectTable}

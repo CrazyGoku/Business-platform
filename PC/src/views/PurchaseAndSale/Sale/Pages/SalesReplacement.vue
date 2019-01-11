@@ -14,26 +14,28 @@
       </el-button>
     </div>
     <div class="search-bar">
-      <el-input v-model="filterData.orderId" placeholder="请输入单据编号" size="mini">
+      <el-input v-model="filterData.membershipNumber" placeholder="会员卡号" size="mini">
+        <template slot="prepend">
+          会员卡号
+        </template>
+      </el-input>
+      <el-input v-model="filterData.id" placeholder="单据编号" size="mini">
         <template slot="prepend">
           单据编号
         </template>
       </el-input>
-      <el-select
-        v-model="filterData.supplier"
-        clearable
-        size="mini"
-        placeholder="请选择供应商名"
-      >
-        <el-option
-          v-for="item in suppliersList"
-          :key="item.id"
-          :label="item.name"
-          :value="item.id"
-        />
-      </el-select>
+      <el-input v-model="filterData.clientName" placeholder="客户名" size="mini">
+        <template slot="prepend">
+          客户名
+        </template>
+      </el-input>
+      <el-input v-model="filterData.phone" placeholder="电话" size="mini">
+        <template slot="prepend">
+          电话
+        </template>
+      </el-input>
       <el-date-picker
-        v-model="filterData.pickTime"
+        v-model="pickTime"
         :picker-options="pickerOptions"
         type="daterange"
         align="right"
@@ -44,7 +46,7 @@
         end-placeholder="单据日期（止）"
       />
       <div style="width: 20px;">
-        <el-button type="primary" size="mini">
+        <el-button type="primary" size="mini" @click="searchBtn">
           查询
         </el-button>
       </div>
@@ -126,17 +128,17 @@ import { getSuppliers, getSellApply, delOrderApply, getSellApplyDetails } from '
 import SelectTable from '@/components/SelectTable/SelectTable'// 列表组件
 import { orderDetailMap } from '@/views/PurchaseAndSale/Purchase/config.js'
 import { dataFormat } from '@/utils/index.js'
+import { parseTime } from '@/utils'
+import {statusMap} from '@/views/PurchaseAndSale/config.js'
+
 export default {
   name: 'SalesReplacement',
   components: { SelectTable },
   mixins: [common],
   data() {
     return {
-      filterData: {
-        orderId: '',
-        pickTime: '',
-        supplier: ''
-      },
+      filterData: {},
+      pickTime:'',
       suppliersList: [],
       orderStorageList: [],
       paginationData: {
@@ -158,6 +160,10 @@ export default {
     this.getSellApplyData()
   },
   methods: {
+    searchBtn() {
+      this.paginationData.page = 1
+      this.getSellApplyData()
+    },
     getSuppliersData() {
       const params = {
         storeId: this.storeId
@@ -167,14 +173,23 @@ export default {
       })
     },
     getSellApplyData() {
+      if(!this.filterData.id){
+        delete this.filterData.id
+      }
+      this.filterData.startTime = this.pickTime ? parseTime(this.pickTime[0]) : ''
+      this.filterData.endTime = this.pickTime ? parseTime(this.pickTime[1]) : ''
       const params = {
         storeId: this.storeId,
         page: this.paginationData.page,
         pageSize: this.paginationData.pageSize,
-        type: '4'
+        type: '4',
+        ...this.filterData
       }
       getSellApply(params).then(res => {
         const data = res.data.data
+        data.items.forEach(item => {
+          item.orderStatus = statusMap[item.orderStatus]
+        })
         this.orderStorageList = data
         this.paginationData = data.pageVo
       })

@@ -5,8 +5,30 @@
 </template>
 
 <script>
+  import {StockEarlyWarning} from '@/service/PurchaseAndSale/common.js'
+  import warehouseList from '@/mixins/warehouseList.js'
 export default{
-  name: 'App'
+  name: 'App',
+  data(){
+    return{
+      warningList:[]
+    }
+  },
+  // mixins:[warehouseList],
+  methods:{
+    StockEarlyWarningFun(warehouseId){
+      let params = {
+        storeId : this.$store.getters.storeId,
+        flag:2,
+        page:1,
+        pageSize:10,
+        warehouseId
+      }
+      StockEarlyWarning(params).then(res=>{
+        this.warningList.push(res.data.items)
+      })
+    }
+  }
 }
 </script>
 <style lang="scss">

@@ -1,5 +1,56 @@
 <template>
   <div>
+    <div class="search-bar">
+      <el-input v-model="filterData.id" placeholder="请输入单据编号" size="mini">
+        <template slot="prepend">
+          单据编号
+        </template>
+      </el-input>
+      <el-select
+        v-model="filterData.supplierName"
+        clearable
+        size="mini"
+        placeholder="请选择供应商名"
+      >
+        <el-option
+          v-for="item in supplierList"
+          :key="item.id"
+          :label="item.name"
+          :value="item.name"
+        />
+      </el-select>
+      <el-select
+        v-model="filterData.type"
+        clearable
+        size="mini"
+        placeholder="请选择订单类型"
+      >
+        <el-option
+          label="采购订单"
+          value="1"
+        />
+        <el-option
+          label="采购退货申请"
+          value="2"
+        />
+      </el-select>
+      <el-date-picker
+        v-model="pickTime"
+        :picker-options="pickerOptions"
+        type="daterange"
+        align="right"
+        unlink-panels
+        size="mini"
+        range-separator="至"
+        start-placeholder="单据日期（起）"
+        end-placeholder="单据日期（止）"
+      />
+      <div style="width: 20px;">
+        <el-button type="primary" size="mini" @click="searchBtn">
+          查询
+        </el-button>
+      </div>
+    </div>
     <div class="flex-center">
       <select-table
         :data="applyList"
@@ -87,13 +138,16 @@ import common from '@/mixins/common'
 import { postFundOrder, getBankFund, getFundAdvance } from '@/service/PurchaseAndSale/Fund/common.js'
 import { getFundOut } from '@/service/PurchaseAndSale/Fund/PayByOrder.js'
 import SelectTable from '@/components/SelectTable/SelectTable'// 列表组件
-
+import supplierList from '@/mixins/supplierList.js'
+import { parseTime } from '@/utils'
 export default {
   name: 'PayByOrder',
   components: { SelectTable },
-  mixins: [common],
+  mixins: [common,supplierList],
   data() {
     return {
+      filterData: {},
+      pickTime:'',
       applyList: [],
       addVisible: false,
       payParams: {
@@ -121,12 +175,22 @@ export default {
     this.getBankFundFun()
   },
   methods: {
+    searchBtn() {
+      this.paginationData.page = 1
+      this.getFundOutFun()
+    },
     getFundOutFun() {
+      if(!this.filterData.id){
+        delete this.filterData.id
+      }
+      this.filterData.startTime = this.pickTime ? parseTime(this.pickTime[0]) : ''
+      this.filterData.endTime = this.pickTime ? parseTime(this.pickTime[1]) : ''
       const params = {
         storeId: this.storeId,
         type: 1,
         page: this.paginationData.page,
-        pageSize: this.paginationData.pageSize
+        pageSize: this.paginationData.pageSize,
+        ...this.filterData
       }
       getFundOut(params).then(res => {
         const data = res.data.data

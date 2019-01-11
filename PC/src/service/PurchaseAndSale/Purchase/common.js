@@ -14,10 +14,25 @@ export function getOrderApply(params) {
     params
   })
 }
+export function getOrderResult(params) {
+  return request({
+    url: '/pps/procurement/result',
+    method: 'get',
+    params
+  })
+}
 // 查看订单详情
 export function getOrderApplyDetails(params, path) {
   return request({
     url: '/pps/procurement/apply/detail/' + path,
+    method: 'get',
+    params
+  })
+}
+// 查看订单详情
+export function getOrderResultDetails(params, path) {
+  return request({
+    url: '/pps/procurement/result/detail/' + path,
     method: 'get',
     params
   })

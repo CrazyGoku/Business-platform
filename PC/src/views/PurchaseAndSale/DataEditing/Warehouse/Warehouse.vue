@@ -9,13 +9,13 @@
       </el-button>
     </div>
     <div class="search-bar">
-      <el-input v-model="filterData.warehouseId" placeholder="仓库编号/名称" size="mini">
+      <el-input v-model="filterData.name" placeholder="仓库名称" size="mini">
         <template slot="prepend">
-          筛选条件
+          仓库名称
         </template>
       </el-input>
       <div style="width: 20px;">
-        <el-button type="primary" size="mini" @click="findWarehouseByIdFun">
+        <el-button type="primary" size="mini" @click="searchBtn">
           查询
         </el-button>
       </div>
@@ -129,7 +129,6 @@ export default {
         pageSize: 10
       },
       filterData: {
-        warehouseId: ''
       },
       dialogVisible1: false,
       dialogTitle1: '',
@@ -200,20 +199,16 @@ export default {
       const params = {
         storeId: this.storeId,
         page: this.paginationData.page,
-        pageSize: this.paginationData.pageSize
+        pageSize: this.paginationData.pageSize,
+        ...this.filterData
       }
       getWarehouseData(params).then(res => {
         this.warehouseList = res.data.data
       })
     },
-    findWarehouseByIdFun() {
-      const params = {
-        storeId: this.storeId
-      }
-      const path = this.filterData.warehouseId
-      findWarehouseById(params, path).then(res => {
-
-      })
+    searchBtn(){
+      this.paginationData.page = 1
+      this.getWarehouseDataFun()
     },
     cancleHandle1() {
       this.warehouseDetail = {}

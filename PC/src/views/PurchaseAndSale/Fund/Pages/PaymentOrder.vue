@@ -1,36 +1,33 @@
 <template>
   <div>
+
     <div class="handle-bar">
       <el-button
         type="primary"
         icon="el-icon-circle-plus-outline"
         size="mini"
-        @click="addBtn"
+        @click=""
       >
         添加
       </el-button>
     </div>
     <div class="search-bar">
-      <el-input v-model="filterData.orderId" placeholder="请输入单据编号" size="mini">
+      <el-input v-model="filterData.id" placeholder="请输入单据编号" size="mini">
         <template slot="prepend">
           单据编号
         </template>
       </el-input>
-      <el-select
-        v-model="filterData.supplier"
-        clearable
+      <el-cascader
+        v-model="selectedOptions"
+        :options="targetOption"
+        style="margin:0 10px 10px 0"
         size="mini"
-        placeholder="请选择供应商名"
-      >
-        <el-option
-          v-for="item in suppliersList"
-          :key="item.id"
-          :label="item.name"
-          :value="item.id"
-        />
-      </el-select>
+        placeholder="请选择来往单位"
+        filterable
+        clearable
+      />
       <el-date-picker
-        v-model="filterData.pickTime"
+        v-model="pickTime"
         :picker-options="pickerOptions"
         type="daterange"
         align="right"
@@ -41,11 +38,12 @@
         end-placeholder="单据日期（止）"
       />
       <div style="width: 20px;">
-        <el-button type="primary" size="mini">
+        <el-button type="primary" size="mini" @click="searchBtn">
           查询
         </el-button>
       </div>
     </div>
+
     <div class="flex-center">
       <select-table
         v-model="selectArr"
@@ -78,9 +76,9 @@
 
 <script>
 import common from '@/mixins/common'
-import { getSuppliers, getOrderFund, postRedDashed } from '@/service/PurchaseAndSale/Fund/common.js'
+import { getSuppliers, getOrderFund, postRedDashed,getClients } from '@/service/PurchaseAndSale/Fund/common.js'
 import SelectTable from '@/components/SelectTable/SelectTable'// 列表组件
-
+import { parseTime } from '@/utils'
 export default {
   name: 'PaymentOrder',
   components: { SelectTable },
@@ -88,10 +86,21 @@ export default {
   data() {
     return {
       filterData: {
-        orderId: '',
-        pickTime: '',
-        supplier: ''
       },
+      pickTime:'',
+      targetOption: [
+        {
+          value: 'kehu',
+          label: '客户',
+          children: []
+        },
+        {
+          value: 'gongyingshang',
+          label: '供应商',
+          children: []
+        }
+      ],
+      selectedOptions:[],
       suppliersList: [],
       orderFundList: [],
       paginationData: {
@@ -105,27 +114,75 @@ export default {
   computed: {},
   watch: {},
   mounted() {
-    this.getSuppliersData()
+    this.getSuppliersFun()
     this.getOrderFundData()
+    this.getClientsFun()
   },
   methods: {
-    getSuppliersData() {
+    searchBtn() {
+      this.paginationData.page = 1
+      this.getOrderFundData()
+    },
+    getSuppliersFun() {
       const params = {
         storeId: this.storeId
       }
       getSuppliers(params).then(res => {
         this.suppliersList = res.data.data
+        const _suppliersList = []
+        this.suppliersList.forEach(v => {
+          const _data = {
+            value: v.name,
+            label: v.name
+          }
+          _suppliersList.push(_data)
+        })
+        this.targetOption[1].children = _suppliersList
+      })
+    },
+    getClientsFun() {
+      const params = {
+        disabled: 0
+      }
+      getClients(params).then(res => {
+        const data = res.data.data
+        const _clientsList = []
+        data.forEach(v => {
+          const _data = {
+            value: v.name,
+            label: v.name + '--' + v.username
+          }
+          _clientsList.push(_data)
+        })
+        this.targetOption[0].children = _clientsList
       })
     },
     getOrderFundData() {
+      if(!this.filterData.id){
+        delete this.filterData.id
+      }
+      if(this.selectedOptions.length>0){
+        this.filterData.targetName = this.selectedOptions[1]
+      }else{
+        delete this.filterData.targetName
+      }
+      this.filterData.startTime = this.pickTime ? parseTime(this.pickTime[0]) : ''
+      this.filterData.endTime = this.pickTime ? parseTime(this.pickTime[1]) : ''
       const params = {
         storeId: this.storeId,
         page: this.paginationData.page,
-        pageSize: this.paginationData.pageSize
+        pageSize: this.paginationData.pageSize,
+        ...this.filterData
       }
       const path = '2'
       getOrderFund(params, path).then(res => {
         const data = res.data.data
+        let typeMap = {
+          1: '收款单', 2: '付款单', 3: '预收款单', 4: '预付款单'
+        }
+        data.items.forEach(item => {
+          item.type = typeMap[item.type]
+        })
         this.orderFundList = data
         this.paginationData = data.pageVo
       })

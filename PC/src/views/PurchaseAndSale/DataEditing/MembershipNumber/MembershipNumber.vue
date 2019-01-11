@@ -10,6 +10,29 @@
         添加
       </el-button>
     </div>
+    <div class="search-bar">
+      <el-input v-model="filterData.number" placeholder="会员卡号" size="mini">
+        <template slot="prepend">
+          会员卡号
+        </template>
+      </el-input>
+      <el-select v-model="filterData.disabled" size="mini" clearable placeholder="请选择是否禁用">
+        <el-option
+          label="是"
+          value="1"
+        />
+        <el-option
+          label="否"
+          value="0"
+        />
+      </el-select>
+      <div style="width: 20px;">
+        <el-button type="primary" size="mini" @click="searchBtn">
+          查询
+        </el-button>
+      </div>
+    </div>
+
     <div class="flex-center">
       <select-table
         :data="clientsList"
@@ -71,7 +94,7 @@ import {
   putClientsMembershipNumber,
   delClientsMembershipNumber
 } from '@/service/PurchaseAndSale/DataEditing/MembershipNumber.js'
-
+import {disabledMap} from '@/views/PurchaseAndSale/config.js'
 export default {
   name: 'MembershipNumber',
   components: {
@@ -81,6 +104,7 @@ export default {
   data() {
     return {
       clientsList: [],
+      filterData:{},
       addData: {
         number: ''
       },
@@ -103,6 +127,10 @@ export default {
     this.getClientsMembershipNumberFun()
   },
   methods: {
+    searchBtn(){
+      this.paginationData.page = 1
+      this.getClientsMembershipNumberFun()
+    },
     addBtn() {
       this.isEdit = false
       this.addData = {
@@ -114,10 +142,14 @@ export default {
       const params = {
         storeId: this.storeId,
         page: this.paginationData.page,
-        pageSize: this.paginationData.pageSize
+        pageSize: this.paginationData.pageSize,
+        ...this.filterData
       }
       getClientsMembershipNumber(params).then(res => {
         const data = res.data.data
+        data.items.forEach(v=>{
+          v.disabled = disabledMap[v.disabled]
+        })
         this.clientsList = data
         this.paginationData = data.pageVo
       })

@@ -2,8 +2,7 @@
   <div>
     <div class="search-bar">
       <el-select
-        v-model="filterData.warehousesId"
-        clearable
+        v-model="filterData.warehouseId"
         size="mini"
         placeholder="请选择仓库名"
       >
@@ -14,6 +13,31 @@
           :value="item.id"
         />
       </el-select>
+
+      <el-select
+        v-model="filterData.typeId"
+        clearable
+        size="mini"
+        placeholder="请选择商品分类"
+      >
+        <el-option
+          v-for="item in commodityTypeList"
+          :key="item.id"
+          :label="item.name"
+          :value="item.id"
+        />
+      </el-select>
+
+      <el-input v-model="filterData.id" placeholder="商品货号" size="mini">
+        <template slot="prepend">
+          商品货号
+        </template>
+      </el-input>
+      <el-input v-model="filterData.name" placeholder="商品名" size="mini">
+        <template slot="prepend">
+          商品名
+        </template>
+      </el-input>
       <div style="width: 20px;">
         <el-button type="primary" size="mini" @click="getStockByWarehouseFun">
           查询
@@ -50,16 +74,16 @@
       width="60%"
     >
       <div class="dialog-content-input">
-        <el-input v-model="opening.quantity" placeholder="请输入期初数量" size="mini" @input="opening.totalMoney = opening.quantity*opening.money.toFixed(2)">
+        <NumberInput v-model="opening.quantity">
           <template slot="prepend">
             期初数量
           </template>
-        </el-input>
-        <el-input v-model="opening.money" placeholder="请输入期初成本价格" size="mini" @input="opening.totalMoney = opening.quantity*opening.money.toFixed(2)">
+        </NumberInput>
+        <NumberInput v-model="opening.money">
           <template slot="prepend">
             期初成本价格
           </template>
-        </el-input>
+        </NumberInput>
         <el-input v-model="opening.totalMoney" :disabled="true" placeholder="请输入期初金额" size="mini">
           <template slot="prepend">
             期初金额
@@ -84,18 +108,18 @@ import { putInventoryOpening } from '@/service/PurchaseAndSale/Setting/InitialIn
 import SelectTable from '@/components/SelectTable/SelectTable'// 列表组件
 
 import common from '@/mixins/common'
-
+import commodityTypeList from '@/mixins/commodityTypeList.js'
 export default {
   name: 'InitialInventoryPeriod',
   components: {
     SelectTable
   },
-  mixins: [common],
+  mixins: [common,commodityTypeList],
   data() {
     return {
       warehousesList: [],
       filterData: {
-        warehousesId: ''
+        warehouseId: ''
       },
       earlyStageList: [],
       dialogVisible: false,
@@ -108,7 +132,14 @@ export default {
     }
   },
   computed: {},
-  watch: {},
+  watch: {
+    opening:{
+      deep:true,
+      handler(val){
+        val.totalMoney = (val.money*val.quantity).toFixed(2)
+      }
+    }
+  },
   mounted() {
     this.getWarehousesFun()
   },
@@ -119,7 +150,7 @@ export default {
       }
       getWarehouses(params).then(res => {
         this.warehousesList = res.data.data
-        this.filterData.warehousesId = this.warehousesList[0].id
+        this.filterData.warehouseId = this.warehousesList[0].id
         this.getStockByWarehouseFun()
       })
     },
@@ -129,7 +160,7 @@ export default {
         flag: 4,
         page: this.paginationData.page,
         pageSize: this.paginationData.pageSize,
-        warehouseId: this.filterData.warehousesId
+        ...this.filterData
       }
       getStockByWarehouse(params).then(res => {
         const data = res.data.data
@@ -148,7 +179,8 @@ export default {
           v.sku = sku
         })
         this.earlyStageList = data
-        this.paginationData = res.data.pageVo
+
+        this.paginationData = data.pageVo
       })
     },
     editRow(index, row) {
@@ -167,23 +199,9 @@ export default {
       this.dialogVisible = false
     },
     confirmHandle() {
-      if (this.opening.money < 0) {
-        this.$message({
-          message: '初期成本金额不能小于0',
-          type: 'warning'
-        })
-        return
-      }
-      if (this.opening.quantity < 0) {
-        this.$message({
-          message: '初期数量不能小于0',
-          type: 'warning'
-        })
-        return
-      }
       const params = {
         storeId: this.storeId,
-        warehouseId: this.filterData.warehousesId,
+        warehouseId: this.filterData.warehouseId,
         goodsSkuId: this.opening.goodsSkuId,
         openingQuantity: this.opening.quantity,
         openingMoney: this.opening.money,
@@ -205,6 +223,7 @@ export default {
           type: 'success'
         })
         this.getStockByWarehouseFun()
+        this.dialogVisible = false
       })
     }
   }

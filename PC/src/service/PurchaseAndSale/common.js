@@ -46,3 +46,19 @@ export function upload(params) {
     params
   })
 }
+// 库存预警查询
+export function StockEarlyWarning(params) {
+  return request({
+    url: '/pps/storage/inventory/warehouse',
+    method: 'get',
+    params
+  })
+}
+// 获取商品分类
+export function getCommodityTypeData(params) {
+  return request({
+    url: '/pps/goods/types',
+    method: 'get',
+    params
+  })
+}

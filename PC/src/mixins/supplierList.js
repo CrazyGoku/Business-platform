@@ -14,7 +14,7 @@ export default {
       const params = {
         storeId: this.storeId
       }
-      getSupplierData(params).then(res => {
+      getSuppliers(params).then(res => {
         this.supplierList = res.data.data
       })
     }

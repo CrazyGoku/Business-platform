@@ -14,6 +14,13 @@ export function getSellApply(params) {
     params
   })
 }
+export function getSellResult(params) {
+  return request({
+    url: '/pps/sell/result',
+    method: 'get',
+    params
+  })
+}
 export function getWarehouseData(params) {
   return request({
     url: '/pps/warehouses',
@@ -60,6 +67,14 @@ export function getSellApplyDetails(params, path) {
     params
   })
 }
+// 查看订单详情
+export function getSellResultDetails(params, path) {
+  return request({
+    url: '/pps//sell/result/detail/' + path,
+    method: 'get',
+    params
+  })
+}
 // post请求
 // 新增销售申请订单
 export function postSellApply(data) {
@@ -94,3 +109,4 @@ export function delSellApply(params) {
     params
   })
 }
+

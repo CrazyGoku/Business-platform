@@ -10,6 +10,37 @@
         添加
       </el-button>
     </div>
+    <div class="search-bar">
+      <el-input v-model="filterData.name" placeholder="优惠券名" size="mini">
+        <template slot="prepend">
+          优惠券名
+        </template>
+      </el-input>
+      <el-select
+        v-model="filterData.type"
+        clearable
+        size="mini"
+        placeholder="请选择优惠券类型"
+      >
+        <el-option
+          label="现金券"
+          value="1"
+        />
+        <el-option
+          label="现金券"
+          value="2"
+        />
+        <el-option
+          label="满减券"
+          value="3"
+        />
+      </el-select>
+      <div style="width: 20px;">
+        <el-button type="primary" size="mini" @click="searchBtn">
+          查询
+        </el-button>
+      </div>
+    </div>
     <div class="flex-center">
       <select-table
         :data="discountCouponList"
@@ -128,6 +159,7 @@ export default {
   mixins: [common],
   data() {
     return {
+      filterData: {},
       discountCouponList: [],
       addDialog: false,
       addCoupon: {
@@ -161,6 +193,10 @@ export default {
     this.getDiscountCouponFun()
   },
   methods: {
+    searchBtn() {
+      this.paginationData.page = 1
+      this.getDiscountCouponFun()
+    },
     addBtn() {
       this.isEdit = false
       this.addCoupon = {
@@ -179,7 +215,8 @@ export default {
       const params = {
         storeId: this.storeId,
         page: this.paginationData.page,
-        pageSize: this.paginationData.pageSize
+        pageSize: this.paginationData.pageSize,
+        ...this.filterData
       }
       getDiscountCoupon(params).then(res => {
         const data = res.data.data

@@ -11,24 +11,46 @@
       </el-button>
     </div>
     <div class="search-bar">
-      <el-input v-model="filterData.vagueFilter" placeholder="请输入客户编号/名称" size="mini">
+      <el-input v-model="filterData.id" placeholder="请输入客户编号/名称" size="mini">
         <template slot="prepend">
           筛选条件
         </template>
       </el-input>
-      <el-date-picker
-        v-model="filterData.pickTime"
-        :picker-options="pickerOptions"
-        type="daterange"
-        align="right"
-        unlink-panels
-        size="mini"
-        range-separator="至"
-        start-placeholder="最近交易（起）"
-        end-placeholder="最近交易（止）"
-      />
+      <el-input v-model="filterData.name" placeholder="请输入客户名称" size="mini">
+        <template slot="prepend">
+          客户名称
+        </template>
+      </el-input>
+      <el-input v-model="filterData.phone" maxlength="11" placeholder="请输入客户手机号" size="mini">
+        <template slot="prepend">
+          客户手机号
+        </template>
+      </el-input>
+      <el-input v-model="filterData.membershipNumber" placeholder="请输入会员卡号" size="mini">
+        <template slot="prepend">
+          会员卡号
+        </template>
+      </el-input>
+      <el-select v-model="filterData.levelId" size="mini" clearable placeholder="请选择会员等级">
+        <el-option
+          v-for="item in levelList"
+          :key="item.id"
+          :label="item.name"
+          :value="item.id"
+        />
+      </el-select>
+      <el-select v-model="filterData.disabled" size="mini" clearable placeholder="请选择是否禁用">
+        <el-option
+          label="是"
+          value="1"
+        />
+        <el-option
+          label="否"
+          value="0"
+        />
+      </el-select>
       <div style="width: 20px;">
-        <el-button type="primary" size="mini">
+        <el-button type="primary" size="mini" @click="searchBtn">
           查询
         </el-button>
       </div>
@@ -159,8 +181,6 @@ export default {
       }],
       selectArr: [],
       filterData: {
-        vagueFilter: '',
-        pickTime: ''
       },
       customersList: [],
       disabledMap: {
@@ -194,6 +214,10 @@ export default {
     this.getLevelDataFun()
   },
   methods: {
+    searchBtn(){
+      this.paginationData.page = 1
+      this.getCustomerDataFun()
+    },
     addBtn() {
       this.isEdit = false
       this.addData = {
@@ -233,10 +257,14 @@ export default {
       })
     },
     getCustomerDataFun() {
+      if(!this.filterData.id){
+        delete this.filterData.id
+      }
       const params = {
         storeId: this.storeId,
         page: this.paginationData.page,
-        pageSize: this.paginationData.pageSize
+        pageSize: this.paginationData.pageSize,
+        ...this.filterData
       }
       getCustomerData(params).then(res => {
         const data = res.data.data

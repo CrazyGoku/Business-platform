@@ -8,18 +8,7 @@
         批量删除
       </el-button>
     </div>
-    <div class="search-bar">
-      <el-input v-model="filterData.staffId" placeholder="角色编号/名称" size="mini">
-        <template slot="prepend">
-          筛选条件
-        </template>
-      </el-input>
-      <div style="width: 20px;">
-        <el-button type="primary" size="mini" @click="findRolesByIdFun">
-          查询
-        </el-button>
-      </div>
-    </div>
+
     <div class="flex-center">
       <select-table
         v-model="selectArr"
@@ -175,15 +164,6 @@ export default {
       getRolesData(params).then(res => {
         this.staffList = res.data.data
         this.paginationData = data.pageVo
-      })
-    },
-    findRolesByIdFun() {
-      const params = {
-        storeId: this.storeId
-      }
-      const path = this.filterData.staffId
-      findRolesById(params, path).then(res => {
-
       })
     },
     cancleHandle1() {

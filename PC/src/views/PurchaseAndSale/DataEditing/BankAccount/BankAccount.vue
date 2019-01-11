@@ -8,18 +8,6 @@
         批量删除
       </el-button>
     </div>
-    <div class="search-bar">
-      <el-input v-model="filterData.bankAccountId" placeholder="银行账户编号/名称" size="mini">
-        <template slot="prepend">
-          筛选条件
-        </template>
-      </el-input>
-      <div style="width: 20px;">
-        <el-button type="primary" size="mini" @click="findBankAccountByIdFun">
-          查询
-        </el-button>
-      </div>
-    </div>
     <div class="flex-center">
       <select-table
         v-model="selectArr"
@@ -260,7 +248,8 @@ export default {
       const params = {
         storeId: this.storeId,
         page: this.paginationData.page,
-        pageSize: this.paginationData.pageSize
+        pageSize: this.paginationData.pageSize,
+        ...this.filterData
       }
       getBankAccountData(params).then(res => {
         const data = res.data.data
@@ -272,15 +261,6 @@ export default {
         })
         this.bankAccountList = res.data.data
         this.paginationData = data.pageVo
-      })
-    },
-    findBankAccountByIdFun() {
-      const params = {
-        storeId: this.storeId
-      }
-      const path = this.filterData.bankAccountId
-      findBankAccountById(params, path).then(res => {
-
       })
     },
     cancleHandle1() {

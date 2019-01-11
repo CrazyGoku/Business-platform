@@ -1,4 +1,4 @@
-import { getDiscountCouponCanUse, getClients, getBankAccounts, getSellApplyDetails } from '@/service/PurchaseAndSale/Sale/common.js'
+import { getDiscountCouponCanUse, getClients, getBankAccounts, getSellResultDetails } from '@/service/PurchaseAndSale/Sale/common.js'
 import { dataFormat } from '@/utils/index.js'
 export default {
   data() {
@@ -58,7 +58,6 @@ export default {
           })[0].money
         }
         const num = this.choiceGoodsSku.length
-
         this.chioceSelect.totalDiscountMoney = discountCouponMoney + Number(this.chioceSelect.discountMoney)
         const mod = this.chioceSelect.totalDiscountMoney % num
         const mon = parseInt(this.chioceSelect.totalDiscountMoney / num)
@@ -101,15 +100,14 @@ export default {
         storeId: this.storeId
       }
       const path = row.id
-      getSellApplyDetails(params, path).then(res => {
+      getSellResultDetails(params, path).then(res => {
         const data = res.data.data
         this.chioceSelect.resultOrderId = row.id
-        this.chioceSelect.outWarehouseId = data.inWarehouseId
-        this.chioceSelect.inWarehouseId = data.outWarehouseId
-        this.chioceSelect.clientId = data.clientId
-        this.chioceSelect.supplierId = data.supplierId
+        this.chioceSelect.outWarehouseId = data.procurementApplyOrderVo?data.procurementApplyOrderVo.inWarehouseId:''
+        this.chioceSelect.inWarehouseId = data.sellApplyOrderVo?data.sellApplyOrderVo.outWarehouseId:''
+        this.chioceSelect.supplierId = data.procurementApplyOrderVo?data.procurementApplyOrderVo.supplierId:''
         this.chioceSelect.remark = ''
-        this.chioceSelect.client = data.client.id
+        this.chioceSelect.client = data.sellApplyOrderVo?data.sellApplyOrderVo.client.id:''
         this.chioceSelect.totalDiscountMoney = data.totalDiscountMoney
         this.chioceSelect.discountMoney = data.discountMoney
         this.chioceSelect.totalMoney = data.totalMoney

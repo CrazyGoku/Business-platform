@@ -1,3 +1,4 @@
+import {getOrderResultDetails} from  '@/service/PurchaseAndSale/Purchase/common.js'
 export default {
   data() {
     return {
@@ -35,6 +36,28 @@ export default {
         id: ''
       }
       this.choiceGoodsSku = []
+    },
+    addBtnFun(index, row) {
+      const params = {
+        storeId: this.storeId
+      }
+      const path = row.id
+      getOrderResultDetails(params, path).then(res => {
+        const data = res.data.data
+        this.chioceSelect.resultOrderId = row.id
+        this.chioceSelect.outWarehouseId = data.procurementApplyOrderVo?data.procurementApplyOrderVo.inWarehouseId:''
+        this.chioceSelect.inWarehouseId = data.sellApplyOrderVo?data.sellApplyOrderVo.outWarehouseId:''
+        this.chioceSelect.supplierId = data.procurementApplyOrderVo?data.procurementApplyOrderVo.supplierId:''
+        this.chioceSelect.remark = ''
+        this.chioceSelect.client = data.sellApplyOrderVo?data.sellApplyOrderVo.client.id:''
+        this.chioceSelect.totalDiscountMoney = data.totalDiscountMoney
+        this.chioceSelect.discountMoney = data.discountMoney
+        this.chioceSelect.totalMoney = data.totalMoney
+        this.chioceSelect.orderMoney = data.orderMoney
+        this.choiceGoodsSku = data.details
+        this.addVisible = true
+        this.isEdit = false
+      })
     },
     choiceOutWarehouse(value) {
       this.canUseFun(value)

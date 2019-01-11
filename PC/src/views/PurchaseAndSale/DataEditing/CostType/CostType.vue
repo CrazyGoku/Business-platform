@@ -14,13 +14,18 @@
       </el-button>
     </div>
     <div class="search-bar">
-      <el-input v-model="filterData.incomeExpenseId" placeholder="费用编号/名称" size="mini">
-        <template slot="prepend">
-          筛选条件
-        </template>
-      </el-input>
+      <el-select v-model="filterData.type" size="mini" clearable placeholder="请选择费用类型">
+        <el-option
+          label="收入"
+          value="1"
+        />
+        <el-option
+          label="支出"
+          value="2"
+        />
+      </el-select>
       <div style="width: 20px;">
-        <el-button type="primary" size="mini" @click="findIncomeExpensesByIdFun">
+        <el-button type="primary" size="mini" @click="searchBtn">
           查询
         </el-button>
       </div>
@@ -153,7 +158,6 @@ export default {
         pageSize: 10
       },
       filterData: {
-        incomeExpenseId: ''
       },
       dialogVisible1: false,
       dialogTitle1: '',
@@ -182,6 +186,10 @@ export default {
     this.getIncomeExpensesDataFun()
   },
   methods: {
+    searchBtn(){
+      this.paginationData.page = 1
+      this.getIncomeExpensesDataFun()
+    },
     deleteHandle() {
       console.log('delete')
     },
@@ -248,7 +256,8 @@ export default {
       const params = {
         storeId: this.storeId,
         page: this.paginationData.page,
-        pageSize: this.paginationData.pageSize
+        pageSize: this.paginationData.pageSize,
+        ...this.filterData
       }
       getIncomeExpensesData(params).then(res => {
         const data = res.data.data

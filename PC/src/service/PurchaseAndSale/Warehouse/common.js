@@ -49,3 +49,36 @@ export function redDashed(data) {
     data
   })
 }
+// 新增收/发货单接口
+export function postStorage(data) {
+  return request({
+    url: '/pps/storage',
+    method: 'post',
+    data
+  })
+}
+
+// 根据订单编号查看销售订单详情
+export function getSellResultDetails(params, path) {
+  return request({
+    url: '/pps/sell/result/detail/' + path,
+    method: 'get',
+    params
+  })
+}
+// 根据订单编号查看销售订单详情
+export function getSellApplyDetails(params, path) {
+  return request({
+    url: '/pps/sell/apply/detail/' + path,
+    method: 'get',
+    params
+  })
+}
+// 根据订单编号查看采购订单详情
+export function getProcurementApplyDetails(params, path) {
+  return request({
+    url: '/pps/procurement/apply/detail/' + path,
+    method: 'get',
+    params
+  })
+}

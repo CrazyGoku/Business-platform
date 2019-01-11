@@ -14,13 +14,27 @@
       </el-button>
     </div>
     <div class="search-bar">
-      <el-input v-model="filterData.userId" placeholder="操作员编号/名称" size="mini">
+      <el-select
+        v-model="filterData.roleId"
+        size="mini"
+        clearable
+        placeholder="请选择角色"
+        @clear="searchBtn"
+      >
+        <el-option
+          v-for="item in rolesList"
+          :key="item.id"
+          :label="item.name"
+          :value="item.id"
+        />
+      </el-select>
+      <el-input v-model="filterData.name" placeholder="姓名" size="mini">
         <template slot="prepend">
-          筛选条件
+          姓名
         </template>
       </el-input>
       <div style="width: 20px;">
-        <el-button type="primary" size="mini" @click="findUsersByIdFun">
+        <el-button type="primary" size="mini" @click="searchBtn">
           查询
         </el-button>
       </div>
@@ -122,7 +136,7 @@ import {
   getRolesData
 } from '@/service/PurchaseAndSale/DataEditing/AllStaff.js'
 import common from '@/mixins/common'
-
+import {disabledMap} from '@/views/PurchaseAndSale/config.js'
 export default {
   name: 'StaffInformation',
   components: {
@@ -140,7 +154,6 @@ export default {
         pageSize: 10
       },
       filterData: {
-        userId: ''
       },
       dialogVisible1: false,
       dialogTitle1: '',
@@ -155,6 +168,10 @@ export default {
     this.getRolesDataFun()
   },
   methods: {
+    searchBtn(){
+      this.paginationData.page = 1
+      this.getUsersDataFun()
+    },
     getRolesDataFun() {
       const params = {
         storeId: this.storeId
@@ -220,9 +237,13 @@ export default {
       const params = {
         storeId: this.storeId,
         page: this.paginationData.page,
-        pageSize: this.paginationData.pageSize
+        pageSize: this.paginationData.pageSize,
+        ...this.filterData
       }
       getUsersData(params).then(res => {
+        res.data.data.items.forEach(v=>{
+          v.disabled = disabledMap[v.disabled]
+        })
         this.userList = res.data.data
       })
     },

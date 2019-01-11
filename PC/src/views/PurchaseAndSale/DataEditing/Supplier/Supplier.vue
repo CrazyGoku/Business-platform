@@ -9,13 +9,13 @@
       </el-button>
     </div>
     <div class="search-bar">
-      <el-input v-model="filterData.supplierId" placeholder="供应商编号/名称" size="mini">
+      <el-input v-model="filterData.name" placeholder="供应商名称" size="mini">
         <template slot="prepend">
-          筛选条件
+          供应商名称
         </template>
       </el-input>
       <div style="width: 20px;">
-        <el-button type="primary" size="mini" @click="findSupplierByIdFun">
+        <el-button type="primary" size="mini" @click="searchBtn">
           查询
         </el-button>
       </div>
@@ -206,7 +206,8 @@ export default {
       const params = {
         storeId: this.storeId,
         page: this.paginationData.page,
-        pageSize: this.paginationData.pageSize
+        pageSize: this.paginationData.pageSize,
+        ...this.filterData
       }
       getSupplierData(params).then(res => {
         const data = res.data.data
@@ -214,14 +215,9 @@ export default {
         this.paginationData = data.pageVo
       })
     },
-    findSupplierByIdFun() {
-      const params = {
-        storeId: this.storeId
-      }
-      const path = this.filterData.supplierId
-      findSupplierById(params, path).then(res => {
-        console.log(123)
-      })
+    searchBtn(){
+      this.paginationData.page = 1
+      this.getSupplierDataFun()
     },
     cancleHandle1() {
       this.supplierDetail = {}

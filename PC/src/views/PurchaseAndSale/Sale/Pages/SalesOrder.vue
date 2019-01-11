@@ -14,41 +14,43 @@
       </el-button>
     </div>
     <div class="search-bar">
-      <el-input v-model="filterData.orderId" placeholder="请输入单据编号" size="mini">
-        <template slot="prepend">
-          单据编号
-        </template>
-      </el-input>
-      <el-select
-        v-model="filterData.supplier"
-        clearable
-        size="mini"
-        placeholder="请选择供应商名"
-      >
-        <el-option
-          v-for="item in suppliersList"
-          :key="item.id"
-          :label="item.name"
-          :value="item.id"
-        />
-      </el-select>
-      <el-date-picker
-        v-model="filterData.pickTime"
-        :picker-options="pickerOptions"
-        type="daterange"
-        align="right"
-        unlink-panels
-        size="mini"
-        range-separator="至"
-        start-placeholder="单据日期（起）"
-        end-placeholder="单据日期（止）"
-      />
-      <div style="width: 20px;">
-        <el-button type="primary" size="mini">
-          查询
-        </el-button>
-      </div>
+    <el-input v-model="filterData.membershipNumber" placeholder="会员卡号" size="mini">
+      <template slot="prepend">
+        会员卡号
+      </template>
+    </el-input>
+    <el-input v-model="filterData.id" placeholder="单据编号" size="mini">
+      <template slot="prepend">
+        单据编号
+      </template>
+    </el-input>
+    <el-input v-model="filterData.clientName" placeholder="客户名" size="mini">
+      <template slot="prepend">
+        客户名
+      </template>
+    </el-input>
+    <el-input v-model="filterData.phone" placeholder="电话" size="mini">
+      <template slot="prepend">
+        电话
+      </template>
+    </el-input>
+    <el-date-picker
+      v-model="pickTime"
+      :picker-options="pickerOptions"
+      type="daterange"
+      align="right"
+      unlink-panels
+      size="mini"
+      range-separator="至"
+      start-placeholder="单据日期（起）"
+      end-placeholder="单据日期（止）"
+    />
+    <div style="width: 20px;">
+      <el-button type="primary" size="mini" @click="searchBtn">
+        查询
+      </el-button>
     </div>
+  </div>
     <div class="flex-center">
       <select-table
         v-model="selectArr"
@@ -332,17 +334,15 @@ import { orderDetailMap, statusMap } from '@/views/PurchaseAndSale/Purchase/conf
 import { dataFormat } from '@/utils/index.js'
 import salecommon from '../mixins/salecommon'
 import addMixin from '../mixins/addMixin'
+import { parseTime } from '@/utils'
 export default {
   name: 'SalesOrder',
   components: { SelectTable },
   mixins: [common, salecommon, addMixin],
   data() {
     return {
-      filterData: {
-        orderId: '',
-        pickTime: '',
-        supplier: ''
-      },
+      filterData: {},
+      pickTime:'',
       suppliersList: [],
       orderStorageList: [],
       paginationData: {
@@ -365,6 +365,10 @@ export default {
     this.getSellApplyData()
   },
   methods: {
+    searchBtn() {
+      this.paginationData.page = 1
+      this.getSellApplyData()
+    },
     getSuppliersData() {
       const params = {
         storeId: this.storeId
@@ -374,11 +378,17 @@ export default {
       })
     },
     getSellApplyData() {
+      if(!this.filterData.id){
+        delete this.filterData.id
+      }
+      this.filterData.startTime = this.pickTime ? parseTime(this.pickTime[0]) : ''
+      this.filterData.endTime = this.pickTime ? parseTime(this.pickTime[1]) : ''
       const params = {
         storeId: this.storeId,
         page: this.paginationData.page,
         pageSize: this.paginationData.pageSize,
-        type: '2'
+        type: '2',
+        ...this.filterData
       }
       getSellApply(params).then(res => {
         const data = res.data.data

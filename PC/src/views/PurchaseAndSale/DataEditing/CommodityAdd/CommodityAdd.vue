@@ -18,9 +18,14 @@
       </el-button>
     </div>
     <div class="search-bar">
-      <el-input v-model="filterData.vagueFilter" placeholder="商品名称/货号/条码/规格" size="mini">
+      <el-input v-model="filterData.id" placeholder="商品货号" size="mini">
         <template slot="prepend">
-          筛选条件
+          商品货号
+        </template>
+      </el-input>
+      <el-input v-model="filterData.barCode" placeholder="商品条码" size="mini">
+        <template slot="prepend">
+          商品条码
         </template>
       </el-input>
       <el-select v-model="filterData.brandFilter" filterable placeholder="请选择品牌" size="mini">
@@ -31,16 +36,8 @@
           :value="item.value"
         />
       </el-select>
-      <el-select v-model="filterData.openStatusFilter" placeholder="请选择显示状态" size="mini">
-        <el-option
-          v-for="item in options"
-          :key="item.value"
-          :label="item.label"
-          :value="item.value"
-        />
-      </el-select>
       <div style="width: 20px;">
-        <el-button type="primary" size="mini">
+        <el-button type="primary" size="mini" @click="searchBtn">
           查询
         </el-button>
       </div>
@@ -403,9 +400,6 @@ export default {
         remark: '',
         image: ''
       },
-      getCommodityDataParams: {
-        typeId: 1
-      },
       commondityBrandList: [],
       unitList: [],
       labelsList: [],
@@ -419,12 +413,6 @@ export default {
   },
   computed: {},
   watch: {
-    getCommodityDataParams: {
-      deep: true,
-      handler: function() {
-        this.getCommodityDataFun()
-      }
-    },
     commodityDetail: {
       deep: true,
       handler: function() {
@@ -439,6 +427,10 @@ export default {
     this.getPropertiesFun()
   },
   methods: {
+    searchBtn(){
+      this.paginationData.page = 1
+      this.getCommodityDataFun()
+    },
     selectIndexFun(index) {
       this.selectIndex = index
     },
@@ -501,7 +493,8 @@ export default {
       const params = {
         storeId: this.storeId,
         page: this.paginationData.page,
-        pageSize: this.paginationData.pageSize
+        pageSize: this.paginationData.pageSize,
+        ...this.filterData
       }
       getCommodityData(params).then(res => {
         const data = res.data.data
@@ -526,7 +519,8 @@ export default {
       })
     },
     changeType(key) {
-      this.getCommodityDataParams.typeId = key
+      this.filterData.typeId = key
+      this.getCommodityDataFun()
     },
     cancleHandle() {
       this.dialogVisible = false

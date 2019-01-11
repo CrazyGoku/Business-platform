@@ -11,13 +11,13 @@
       </el-button>
     </div>
     <div class="search-bar">
-      <el-input v-model="filterData.orderId" placeholder="请输入单据编号" size="mini">
+      <el-input v-model="filterData.name" placeholder="请输入单据编号" size="mini">
         <template slot="prepend">
           单据编号
         </template>
       </el-input>
       <el-select
-        v-model="filterData.supplier"
+        v-model="filterData.targetName"
         clearable
         size="mini"
         placeholder="请选择供应商名"
@@ -26,11 +26,11 @@
           v-for="item in suppliersList"
           :key="item.id"
           :label="item.name"
-          :value="item.id"
+          :value="item.name"
         />
       </el-select>
       <el-date-picker
-        v-model="filterData.pickTime"
+        v-model="pickTime"
         :picker-options="pickerOptions"
         type="daterange"
         align="right"
@@ -41,7 +41,7 @@
         end-placeholder="单据日期（止）"
       />
       <div style="width: 20px;">
-        <el-button type="primary" size="mini">
+        <el-button type="primary" size="mini" @click="searchBtn">
           查询
         </el-button>
       </div>
@@ -129,6 +129,8 @@ import { getSuppliers, getOrderFund, postRedDashed, getClients, postFundOrder } 
 import SelectTable from '@/components/SelectTable/SelectTable'// 列表组件
 import bankAccountList from '@/mixins/bankAccountList.js'
 import { statusMap } from '../config'
+import { parseTime } from '@/utils'
+
 export default {
   name: 'AdvanceCollection',
   components: { SelectTable },
@@ -136,10 +138,8 @@ export default {
   data() {
     return {
       filterData: {
-        orderId: '',
-        pickTime: '',
-        supplier: ''
       },
+      pickTime: '',
       targetOption: [
         {
           value: 'gongyingshang',
@@ -147,6 +147,7 @@ export default {
           children: []
         }
       ],
+      selectedOptions:[],
       addDetails: {
         remark: ''
       },
@@ -170,6 +171,10 @@ export default {
     // this.getClientsFun()
   },
   methods: {
+    searchBtn() {
+      this.paginationData.page = 1
+      this.getOrderFundData()
+    },
     addBtn() {
       this.addVisible = true
       this.addDetails = {
@@ -186,6 +191,7 @@ export default {
       data.userId = this.userId
       data.storeId = this.storeId
       data.targetId = this.addDetails.selectedOptions[1]
+      console.log(data)
       postFundOrder(data).then(res => {
         if (res.data.code !== 1001) {
           this.$message({
@@ -240,16 +246,30 @@ export default {
     //   })
     // },
     getOrderFundData() {
+      if(!this.filterData.id){
+        delete this.filterData.id
+      }
+      if(this.selectedOptions.length>0){
+        this.filterData.targetName = this.selectedOptions[1]
+      }else{
+        delete this.filterData.targetName
+      }
+      this.filterData.startTime = this.pickTime ? parseTime(this.pickTime[0]) : ''
+      this.filterData.endTime = this.pickTime ? parseTime(this.pickTime[1]) : ''
       const params = {
         storeId: this.storeId,
         page: this.paginationData.page,
-        pageSize: this.paginationData.pageSize
+        pageSize: this.paginationData.pageSize,
+        ...this.filterData
       }
       const path = '4'
       getOrderFund(params, path).then(res => {
         const data = res.data.data
+        let typeMap = {
+          1: '收款单', 2: '付款单', 3: '预收款单', 4: '预付款单'
+        }
         data.items.forEach(item => {
-          item.orderStatus = statusMap[item.orderStatus]
+          item.type = typeMap[item.type]
         })
         this.orderFundList = data
         this.paginationData = data.pageVo
