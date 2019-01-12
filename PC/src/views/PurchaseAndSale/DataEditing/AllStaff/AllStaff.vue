@@ -5,7 +5,7 @@
         type="primary"
         icon="el-icon-circle-plus-outline"
         size="mini"
-        @click="dialogVisible1 = true; dialogTitle1 = '添加操作员';isEdit = false"
+        @click="dialogVisible1 = true; dialogTitle1 = '添加操作员';isEdit = false;roles = []"
       >
         添加
       </el-button>
@@ -100,7 +100,7 @@
           </template>
         </el-input>
         <el-select
-          v-model="userDetail.roles"
+          v-model="roles"
           size="mini"
           multiple
           placeholder="请选角色"
@@ -148,6 +148,7 @@ export default {
     return {
       userList: {},
       userDetail: {},
+      roles:[],
       selectArr: [],
       paginationData: {
         page: 1,
@@ -266,7 +267,7 @@ export default {
         ...this.userDetail
       }
       const roles = []
-      this.userDetail.roles.forEach(v => {
+      this.roles.forEach(v => {
         this.rolesList.forEach(v2 => {
           if (v === v2.id) {
             roles.push(v2)

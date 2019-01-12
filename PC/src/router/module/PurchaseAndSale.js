@@ -9,34 +9,35 @@ const PurchaseAndSaleRouter = {
   name: 'PurchaseAndSale',
   meta: {
     title: '进销存',
-    iconfont: '&#xe653;'
+    iconfont: '&#xe653;',
+    id:1,
   },
   children: [
     {
       path: 'DataEditing',
       component: () => import('@/views/PurchaseAndSale/DataEditing/DataEditing.vue'), // Parent router-view
       name: 'DataEditing',
-      meta: { title: '资料编辑', iconfont: '&#xe671;' },
+      meta: { title: '资料编辑', iconfont: '&#xe671;',id: 2 },
       redirect: 'noredirect',
       children: [
         {
           path: 'CommodityAdd',
           component: () => import('@/views/PurchaseAndSale/DataEditing/CommodityAdd/CommodityAdd.vue'),
           name: 'CommodityAdd',
-          meta: { title: '商品', iconfont: '&#xe627;', id: 1 }
+          meta: { title: '商品', iconfont: '&#xe627;', id: 3 }
         },
-        {
-          path: 'CommoditySKUCode',
-          component: () => import('@/views/PurchaseAndSale/DataEditing/CommoditySKUCode/CommoditySKUCode.vue'),
-          name: 'CommoditySKUCode',
-          meta: { title: '商品SKU条码', iconfont: '&#xe615;', id: 2 }
-        },
-        {
-          path: 'CommodityPrice',
-          component: () => import('@/views/PurchaseAndSale/DataEditing/CommodityPrice/CommodityPrice.vue'),
-          name: 'CommodityPrice',
-          meta: { title: '商品价格管理', iconfont: '&#xe652;' }
-        },
+        // {
+        //   path: 'CommoditySKUCode',
+        //   component: () => import('@/views/PurchaseAndSale/DataEditing/CommoditySKUCode/CommoditySKUCode.vue'),
+        //   name: 'CommoditySKUCode',
+        //   meta: { title: '商品SKU条码', iconfont: '&#xe615;', id: 4 }
+        // },
+        // {
+        //   path: 'CommodityPrice',
+        //   component: () => import('@/views/PurchaseAndSale/DataEditing/CommodityPrice/CommodityPrice.vue'),
+        //   name: 'CommodityPrice',
+        //   meta: { title: '商品价格管理', iconfont: '&#xe652;' }
+        // },
         {
           path: 'CommodityAuxiliary',
           component: () => import('@/views/PurchaseAndSale/DataEditing/CommodityAuxiliary/CommodityAuxiliary.vue'),
@@ -324,6 +325,30 @@ const PurchaseAndSaleRouter = {
           component: () => import('@/views/PurchaseAndSale/Report/Pages/SearchStock.vue'),
           name: 'SearchStock',
           meta: { title: '查库存', iconfont: '&#xe631;' }
+        },
+        {
+          path: 'CostChecking',
+          component: () => import('@/views/PurchaseAndSale/Report/Pages/CostChecking.vue'),
+          name: 'CostChecking',
+          meta: { title: '查费用', iconfont: '&#xe631;' }
+        },
+        {
+          path: 'MoneyCollected',
+          component: () => import('@/views/PurchaseAndSale/Report/Pages/MoneyCollected.vue'),
+          name: 'MoneyCollected',
+          meta: { title: '查回款', iconfont: '&#xe631;' }
+        },
+        {
+          path: 'CheckingFunds',
+          component: () => import('@/views/PurchaseAndSale/Report/Pages/CheckingFunds.vue'),
+          name: 'CheckingFunds',
+          meta: { title: '查资金', iconfont: '&#xe631;' }
+        },
+        {
+          path: 'InventoryAnalysis',
+          component: () => import('@/views/PurchaseAndSale/Report/Pages/InventoryAnalysis.vue'),
+          name: 'InventoryAnalysis',
+          meta: { title: '库存报表', iconfont: '&#xe631;' }
         }
       ]
     },

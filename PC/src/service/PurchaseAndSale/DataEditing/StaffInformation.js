@@ -7,6 +7,13 @@ export function getRolesData(params) {
     params
   })
 }
+export function getRolesFunctions(params) {
+  return request({
+    url: '/pps/roles/functions',
+    method: 'get',
+    params
+  })
+}
 // post 请求
 
 export function postRolesData(data) {
@@ -20,6 +27,14 @@ export function postRolesData(data) {
 export function putRolesData(data) {
   return request({
     url: '/pps/roles',
+    method: 'put',
+    data
+  })
+}
+// 修改角色对应的功能
+export function putRolesFunctions(data) {
+  return request({
+    url: '/pps/roles/functions',
     method: 'put',
     data
   })
