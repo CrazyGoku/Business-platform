@@ -76,3 +76,24 @@ export const statusMap = {
   14: '已收部分发',
   15: '已收已发'
 }
+export const sellAllResultDetailMap = [
+  { key: 'discountMoney', name: '折扣' },
+  { key: 'finishQuantity', name: '结算数量' },
+  { key: 'goodsBarCode', name: '商品条形码' },
+  { key: 'goodsId', name: '商品货号' },
+  { key: 'goodsName', name: '商品名称' },
+  { key: 'goodsSkuId', name: '商品规格ID' },
+  { key: 'goodsSkuSku', name: '商品规格' },
+  { key: 'id', name: '订单ID' },
+  { key: 'money', name: '金额' },
+  { key: 'notFinishQuantity', name: '未结算数量' },
+  { key: 'quantity', name: '总量' },
+  { key: 'clearStatus', name: '结算状态' },
+  { key: 'createTime', name: '单据日期' },
+  { key: 'orderMoney', name: '订单金额' },
+  { key: 'orderStatus', name: '订单状态' },
+  { key: 'totalDiscountMoney', name: '总优惠金额' },
+  { key: 'totalMoney', name: '总金额' },
+  { key: 'userName', name: '经手人' },
+  { key: 'remark', name: '备注' }
+]

@@ -16,15 +16,15 @@
           单据编号
         </template>
       </el-input>
-      <el-cascader
-        v-model="selectedOptions2"
-        :options="targetOption2"
-        style="margin:0 10px 10px 0"
-        size="mini"
-        placeholder="请选择来往单位"
-        filterable
-        clearable
-      />
+      <!--<el-cascader-->
+      <!--v-model="selectedOptions2"-->
+      <!--:options="targetOption2"-->
+      <!--style="margin:0 10px 10px 0"-->
+      <!--size="mini"-->
+      <!--placeholder="请选择来往单位"-->
+      <!--filterable-->
+      <!--clearable-->
+      <!--/>-->
       <el-date-picker
         v-model="pickTime"
         :picker-options="pickerOptions"
@@ -105,14 +105,14 @@
     <el-dialog :visible.sync="addVisible" :title="isEdit?'编辑订单':'添加订单'">
       <div class="dialog-content-input">
         <div class="dialog-content-input">
-          <el-cascader
-            v-model="selectedOptions"
-            :options="targetOption"
-            style="margin:0 10px 10px 0"
-            size="mini"
-            placeholder="请选择来往单位"
-            filterable
-          />
+          <!--<el-cascader-->
+          <!--v-model="selectedOptions"-->
+          <!--:options="targetOption"-->
+          <!--style="margin:0 10px 10px 0"-->
+          <!--size="mini"-->
+          <!--placeholder="请选择来往单位"-->
+          <!--filterable-->
+          <!--/>-->
           <el-input
             v-model="addRemark"
             size="mini"
@@ -200,26 +200,18 @@
         </el-table-column>
         <el-table-column label="数量" width="180" align="center">
           <template scope="scope">
-            <el-input
-              v-model="scope.row.quantity"
-              size="small"
-              @input="quantityChange(scope.row)"
-            />
+            <NumberInput v-model="scope.row.checkQuantity" :max="scope.row.bookInventory" :no-slot="false" @input="quantityChange(scope.row)" />
           </template>
         </el-table-column>
-        <el-table-column prop="money" label="价格" width="180" align="center">
+        <el-table-column label="调整后价格" width="180" align="center">
           <template scope="scope">
-            <el-input
-              v-model="scope.row.money"
-              size="small"
-              @input="moneyChange(scope.row)"
-            />
+            <NumberInput v-model="scope.row.checkMoneyC" :no-slot="false" @input="moneyChange(scope.row)" />
           </template>
         </el-table-column>
         <el-table-column
-          prop="totalMoney"
+          prop="changeCheckTotalMoney"
           align="center"
-          label="总价"
+          label="调价总额"
         />
         <el-table-column label="备注" width="180" align="center">
           <template scope="scope">
@@ -302,7 +294,7 @@ export default {
     return {
       filterData: {
       },
-      pickTime:'',
+      pickTime: '',
       targetOption2: [
         {
           value: 'kehu',
@@ -315,7 +307,7 @@ export default {
           children: []
         }
       ],
-      selectedOptions2:[],
+      selectedOptions2: [],
       suppliersList: [],
       selectedOptions: [],
       targetOption: [
@@ -350,12 +342,12 @@ export default {
       this.getStorageResultFun()
     },
     getStorageResultFun() {
-      if(!this.filterData.id){
+      if (!this.filterData.id) {
         delete this.filterData.id
       }
-      if(this.selectedOptions2.length>0){
+      if (this.selectedOptions2.length > 0) {
         this.filterData.targetName = this.selectedOptions2[1]
-      }else{
+      } else {
         delete this.filterData.targetName
       }
       this.filterData.startTime = this.pickTime ? parseTime(this.pickTime[0]) : ''
@@ -492,34 +484,34 @@ export default {
     },
     comfirm() {
       const data = {}
+      console.log(this.chioceSelect)
       data.userId = this.userId
       data.storeId = this.storeId
-      data.targetId = this.selectedOptions[1]
       data.warehouseId = this.chioceSelect.inWarehouseId
-      data.type = 3
+      data.type = 5
       data.remark = this.addRemark
       let totalQuantity = 0
       let totalMoney = 0
       const details = []
       this.choiceGoodsSku.forEach(v => {
         let _detail = {}
-        totalQuantity += Number(v.quantity)
-        totalMoney += Number(v.totalMoney)
+        totalQuantity += Number(v.checkQuantity)
+        totalMoney += Number(v.changeCheckTotalMoney)
         _detail = {
           'goodsSkuId': v.id,
-          'money': v.totalMoney,
-          'quantity': v.quantity,
           'remark': v.remark,
-          'type': 1,
           'checkQuantity': v.checkQuantity,
           'checkMoney': v.checkMoney,
-          'checkTotalMoney': v.checkTotalMoney
+          'checkTotalMoney': v.checkMoney * v.checkQuantity,
+          afterChangeCheckMoney: v.checkMoneyC,
+          changeCheckTotalMoney: v.changeCheckTotalMoney
         }
         details.push(_detail)
       })
       data.details = details
       data.totalMoney = totalMoney
       data.totalQuantity = totalQuantity
+      console.log(data)
       postStorageResult(data).then(res => {
         if (res.data.code != 1001) {
           this.$message({

@@ -52,13 +52,6 @@
             <el-button
               type="text"
               size="small"
-              @click.native.prevent="deleteRow(scope.$index,scope.row,false)"
-            >
-              删除
-            </el-button>
-            <el-button
-              type="text"
-              size="small"
               @click.native.prevent="postHandle(scope.$index,scope.row)"
             >
               发货
@@ -79,12 +72,12 @@
 
 <script>
 import common from '@/mixins/common'
-import { getOrderStorage, postRedDashed,getSellResultDetails,postStorage,getSellApplyDetails } from '@/service/PurchaseAndSale/Warehouse/common.js'
+import { getOrderStorage, postRedDashed, getSellResultDetails, postStorage, getSellApplyDetails } from '@/service/PurchaseAndSale/Warehouse/common.js'
 import SelectTable from '@/components/SelectTable/SelectTable'// 列表组件
 import {
-  getSuppliers,getClients
+  getSuppliers, getClients
 } from '@/service/PurchaseAndSale/common'
-import {statusMap} from "../../../config";
+import { statusMap } from '../../../config'
 import { parseTime } from '@/utils'
 
 export default {
@@ -95,7 +88,7 @@ export default {
     return {
       filterData: {
       },
-      pickTime:'',
+      pickTime: '',
       targetOption: [
         {
           value: 'kehu',
@@ -108,7 +101,7 @@ export default {
           children: []
         }
       ],
-      selectedOptions:[],
+      selectedOptions: [],
       suppliersList: [],
       orderStorageList: [],
       paginationData: {
@@ -168,12 +161,12 @@ export default {
       })
     },
     getOrderStorageData() {
-      if(!this.filterData.id){
+      if (!this.filterData.id) {
         delete this.filterData.id
       }
-      if(this.selectedOptions.length>0){
+      if (this.selectedOptions.length > 0) {
         this.filterData.targetName = this.selectedOptions[1]
-      }else{
+      } else {
         delete this.filterData.targetName
       }
       this.filterData.startTime = this.pickTime ? parseTime(this.pickTime[0]) : ''
@@ -197,11 +190,11 @@ export default {
     deleteRow(index, row, more) {
     },
     postHandle(index, row) {
-      let params = {
-        storeId: this.storeId,
+      const params = {
+        storeId: this.storeId
       }
-      let path = row.id
-      console.log(row.type);
+      const path = row.id
+      console.log(row.type)
       let orderDetail = {}
       getSellApplyDetails(params, path).then(res => {
         if (res.data.code !== 1001) {
@@ -217,9 +210,9 @@ export default {
       this.$prompt('此操作将确认发货, 是否继续?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
-        inputPlaceholder: '可以输入备注',
+        inputPlaceholder: '可以输入备注'
       }).then((value) => {
-        let params = {
+        const params = {
           sellApplyOrderVo: {}
         }
         params.remark = value.value ? value.value : ''
@@ -228,9 +221,9 @@ export default {
         params.storeId = this.storeId
         params.userId = this.userId
         params.type = 3
-        let _details = []
+        const _details = []
         orderDetail.details.forEach(v => {
-          let _detail = {}
+          const _detail = {}
           _detail.changeQuantity = v.quantity
           _detail.goodsSkuId = v.goodsSkuId
           _detail.id = v.id
@@ -242,7 +235,7 @@ export default {
           if (res.data.code !== 1001) {
             this.$message({
               showClose: true,
-              message: '发货失败',
+              message: res.data.message,
               type: 'error'
             })
             return
@@ -258,8 +251,8 @@ export default {
         this.$message({
           type: 'info',
           message: '已取消操作'
-        });
-      });
+        })
+      })
     },
 
     redRow(index, row) {

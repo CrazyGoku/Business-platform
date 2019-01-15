@@ -1,8 +1,12 @@
 import { mapGetters } from 'vuex'
+import { downloadFile } from '@/utils'
 import NumberInput from '@/components/NumberInput'
+import PrintBtn from '@/components/PrintBtn'
 export default {
   data() {
     return {
+      loadingText: 'Loading',
+      isUpload: false,
       putawayMap: [
         {
           id: 0,
@@ -65,9 +69,31 @@ export default {
     }
   },
   components: {
-    NumberInput
+    NumberInput,
+    PrintBtn
+  },
+  watch: {
+    loadingAction: {
+      handler: function(newValue) {
+        const loading = this.$loading({
+          lock: true,
+          text: this.loadingText,
+          spinner: 'el-icon-loading',
+          background: 'rgba(225, 225,225, 0.7)'
+        })
+        if (!newValue) {
+          loading.close()
+          if (!this.isUpload) {
+            this.loadingText = 'Loading'
+          }
+        }
+      }
+    }
   },
   mounted() {
+  },
+  methods: {
+    downloadFile
   },
   computed: {
     ...mapGetters(['storeId', 'userId'])

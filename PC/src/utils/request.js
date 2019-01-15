@@ -10,19 +10,18 @@ const service = axios.create({
   withCredentials: true, // 跨域请求时发送 cookies
   timeout: 5000 // request timeout
 })
-
 // request interceptor
 service.interceptors.request.use(
   config => {
-    console.log(config)
     if (config.url.split('/').includes('pps')) {
       config.baseURL = BASE_URL
     } else {
       config.baseURL = MOCK_URL
-    } // Do something before request is sent
-    // if (store.getters.token) {
-    //   config.headers['token'] = getToken()
-    // }
+    }
+    if (getToken()) {
+      config.headers['token'] = getToken()
+    }
+    // Do something before request is sent
     return config
   },
   error => {

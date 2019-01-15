@@ -20,61 +20,61 @@
     </div>
     <div class="flex-center">
       <select-table
+        :data="fundList"
         :pagination-data="paginationData"
         @paginationChange="getFundList"
-      >
-      </select-table>
+      />
     </div>
   </div>
 </template>
 
 <script>
-  import SelectTable from '@/components/SelectTable/SelectTable'// 列表组件
-  import common from '@/mixins/common'
-  import {getReportFundInByUser} from '@/service/PurchaseAndSale/Report/MoneyCollected.js'
-  import { parseTime } from '@/utils'
-  export default {
+import SelectTable from '@/components/SelectTable/SelectTable'// 列表组件
+import common from '@/mixins/common'
+import { getReportFundInByUser } from '@/service/PurchaseAndSale/Report/MoneyCollected.js'
+import { parseTime } from '@/utils'
+export default {
 
-    name: 'ByUser',
-    components: {
-      SelectTable
-    },
-    mixins: [common],
-    data() {
-      return {
-        filterData:{},
-        pickTime:[],
-        fundList:[]
-      }
-    },
-    computed: {},
-    watch: {},
-    mounted() {
+  name: 'ByUser',
+  components: {
+    SelectTable
+  },
+  mixins: [common],
+  data() {
+    return {
+      filterData: {},
+      pickTime: [],
+      fundList: []
+    }
+  },
+  computed: {},
+  watch: {},
+  mounted() {
+    this.getFundList()
+  },
+  methods: {
+    searchBtn() {
+      this.paginationData.page = 1
       this.getFundList()
     },
-    methods: {
-      searchBtn(){
-        this.paginationData.page = 1
-        this.getFundList()
-      },
-      getFundList() {
-        if(this.pickTime===null || this.pickTime.length===0 ){
-          this.pickTime = [new Date(),new Date()]
-        }
-        this.filterData.startTime = this.pickTime.length!==0 ? parseTime(this.pickTime[0]) : parseTime(new Date())
-        this.filterData.endTime = this.pickTime.length!==0 ? parseTime(this.pickTime[1]) : parseTime(new Date())
-        const params = {
-          storeId: this.storeId,
-          page: this.paginationData.page,
-          pageSize: this.paginationData.pageSize,
-          ...this.filterData
-        }
-        getReportFundInByUser(params).then(res => {
-          this.fundList = res.data.data
-        })
-      },
+    getFundList() {
+      if (this.pickTime === null || this.pickTime.length === 0) {
+        this.pickTime = [new Date(), new Date()]
+      }
+      this.filterData.startTime = this.pickTime.length !== 0 ? parseTime(this.pickTime[0]) : parseTime(new Date())
+      this.filterData.endTime = this.pickTime.length !== 0 ? parseTime(this.pickTime[1]) : parseTime(new Date())
+      const params = {
+        storeId: this.storeId,
+        page: this.paginationData.page,
+        pageSize: this.paginationData.pageSize,
+        ...this.filterData
+      }
+      getReportFundInByUser(params).then(res => {
+        this.fundList = res.data.data
+      })
     }
   }
+}
 </script>
 
 <style lang='scss' scoped>

@@ -29,7 +29,8 @@ export default {
       discountCouponList: [],
       isGetBankAccount: false,
       bankAccountList: [],
-      returnDetails: []
+      returnDetails: [],
+      choiceClient: {}
     }
   },
   mounted() {
@@ -72,6 +73,9 @@ export default {
       })
     },
     changeClientId(value) {
+      this.choiceClient = this.clientsList.filter(v => {
+        return v.id === value
+      })[0]
       this.getDiscountCouponCanUseFun(value)
     },
     getClientsFun() {
@@ -82,7 +86,11 @@ export default {
         disabled: 0
       }
       getClients(params).then(res => {
-        this.clientsList = res.data.data
+        const data = res.data.data
+        data.forEach(v => {
+          v.name = v.name + '   ----   ' + v.clientLevel.name
+        })
+        this.clientsList = data
         this.isGetClient = true
       })
     },
@@ -103,17 +111,31 @@ export default {
       getSellResultDetails(params, path).then(res => {
         const data = res.data.data
         this.chioceSelect.resultOrderId = row.id
-        this.chioceSelect.outWarehouseId = data.procurementApplyOrderVo?data.procurementApplyOrderVo.inWarehouseId:''
-        this.chioceSelect.inWarehouseId = data.sellApplyOrderVo?data.sellApplyOrderVo.outWarehouseId:''
-        this.chioceSelect.supplierId = data.procurementApplyOrderVo?data.procurementApplyOrderVo.supplierId:''
+        this.chioceSelect.outWarehouseId = data.procurementApplyOrderVo ? data.procurementApplyOrderVo.inWarehouseId : ''
+        this.chioceSelect.inWarehouseId = data.sellApplyOrderVo ? data.sellApplyOrderVo.outWarehouseId : ''
+        this.chioceSelect.supplierId = data.procurementApplyOrderVo ? data.procurementApplyOrderVo.supplierId : ''
         this.chioceSelect.remark = ''
-        this.chioceSelect.client = data.sellApplyOrderVo?data.sellApplyOrderVo.client.id:''
+        this.chioceSelect.client = data.sellApplyOrderVo ? data.sellApplyOrderVo.client.id : ''
         this.chioceSelect.totalDiscountMoney = data.totalDiscountMoney
         this.chioceSelect.discountMoney = data.discountMoney
         this.chioceSelect.totalMoney = data.totalMoney
         this.chioceSelect.orderMoney = data.orderMoney
         this.choiceGoodsSku = data.details
         this.addVisible = true
+        this.choiceGoodsSku.forEach(v => {
+          v.sku = eval(v.goodsSkuSku)
+          let sku = ''
+          v.sku.forEach((item, index) => {
+            let _sku = ''
+            if (v.sku.length === index + 1) {
+              _sku = item.key + ':' + item.value
+            } else {
+              _sku = item.key + ':' + item.value + ','
+            }
+            sku += _sku
+          })
+          v.sku = sku
+        })
         this.isEdit = false
       })
     },
@@ -202,7 +224,7 @@ export default {
         this.$set(v, 'type', 1)
         this.$set(v, 'goodsSkuId', v.id)
         this.$set(v, 'quantity', 0)
-        this.$set(v, 'money', 0)
+        this.$set(v, 'money', this.choiceClient.clientLevel.priceType == 1 ? v.retailPrice * this.choiceClient.clientLevel.price : v.vipPrice * this.choiceClient.clientLevel.price)
         this.$set(v, 'discountMoney', 0)
         this.$set(v, 'remark', '')
         this.$set(v, 'totalMoney', 0)

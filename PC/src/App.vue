@@ -5,26 +5,26 @@
 </template>
 
 <script>
-  import {StockEarlyWarning} from '@/service/PurchaseAndSale/common.js'
-  import warehouseList from '@/mixins/warehouseList.js'
+import { StockEarlyWarning } from '@/service/PurchaseAndSale/common.js'
+import warehouseList from '@/mixins/warehouseList.js'
 export default{
   name: 'App',
-  data(){
-    return{
-      warningList:[]
+  data() {
+    return {
+      warningList: []
     }
   },
   // mixins:[warehouseList],
-  methods:{
-    StockEarlyWarningFun(warehouseId){
-      let params = {
-        storeId : this.$store.getters.storeId,
-        flag:2,
-        page:1,
-        pageSize:10,
+  methods: {
+    StockEarlyWarningFun(warehouseId) {
+      const params = {
+        storeId: this.$store.getters.storeId,
+        flag: 2,
+        page: 1,
+        pageSize: 10,
         warehouseId
       }
-      StockEarlyWarning(params).then(res=>{
+      StockEarlyWarning(params).then(res => {
         this.warningList.push(res.data.items)
       })
     }
@@ -32,6 +32,10 @@ export default{
 }
 </script>
 <style lang="scss">
+  .upload-button{
+    margin: 0 10px;
+    flex: none;
+  }
   .el-dialog__footer{
     padding: 10px 20px 40px;
   }
@@ -75,6 +79,8 @@ export default{
     }
   }
   .handle-bar{
+    display: flex;
+
     margin-bottom: 10px;
   }
   .warrap{

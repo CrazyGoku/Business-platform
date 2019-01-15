@@ -1,21 +1,36 @@
 <template>
   <div>
+    <PrintBtn @click="printFun" />
     <div class="handle-bar">
-      <el-button type="primary" icon="el-icon-circle-plus-outline" size="mini" @click="dialogVisible = true">
+      <el-button type="primary" icon="el-icon-circle-plus-outline" size="mini" @click="addFun">
         添加
       </el-button>
-      <el-button type="primary" icon="el-icon-circle-plus-outline" size="mini" @click="dialogVisible = true">
+      <el-button type="primary" icon="el-icon-circle-plus-outline" size="mini" @click="exportDialog = true">
         导出
       </el-button>
-      <el-button type="primary" icon="el-icon-circle-plus-outline" size="mini" @click="dialogVisible = true">
+      <form>
+        <input id="uploadEventFile" type="file" name="fileup" style="display:none" @change="fileChange($event)">
+      </form>
+      <el-button
+        style="margin-left: 10px;"
+        type="primary"
+        icon="el-icon-circle-plus-outline"
+        size="mini"
+        @click="importData($event)"
+      >
         导入
       </el-button>
-      <el-button type="primary" icon="el-icon-circle-plus-outline" size="mini" @click="dialogVisible = true">
-        导入模版
+      <el-button
+        type="primary"
+        icon="el-icon-circle-plus-outline"
+        size="mini"
+        @click="downloadFile('/goods/import/template')"
+      >
+        导出模版
       </el-button>
-      <el-button type="primary" icon="el-icon-remove-outline" size="mini">
+      <!--      <el-button type="primary" icon="el-icon-remove-outline" size="mini">
         批量删除
-      </el-button>
+      </el-button>-->
     </div>
     <div class="search-bar">
       <el-input v-model="filterData.id" placeholder="商品货号" size="mini">
@@ -28,14 +43,6 @@
           商品条码
         </template>
       </el-input>
-      <el-select v-model="filterData.brandFilter" filterable placeholder="请选择品牌" size="mini">
-        <el-option
-          v-for="item in options"
-          :key="item.value"
-          :label="item.label"
-          :value="item.value"
-        />
-      </el-select>
       <div style="width: 20px;">
         <el-button type="primary" size="mini" @click="searchBtn">
           查询
@@ -64,7 +71,7 @@
             <el-button
               type="text"
               size="small"
-              @click.native.prevent="deleteRow(scope.$index)"
+              @click.native.prevent="editRow(scope.$index,scope.row)"
             >
               编辑
             </el-button>
@@ -74,13 +81,14 @@
     </div>
     <el-dialog
       :visible.sync="dialogVisible"
-      title="添加商品"
+      :title="isEdit?'编辑商品':'添加商品'"
       width="80%"
     >
       <div style="margin-bottom: 10px">
         <el-select
           v-model="commodityDetail.typeId"
           clearable
+          :disabled="isEdit"
           size="mini"
           placeholder="请选择商品分类"
           @change="changeAddType"
@@ -146,7 +154,7 @@
           />
         </el-select>
         <el-select
-          v-model="commodityDetail.goodsLabels"
+          v-model="goodsLabels"
           multiple
           filterable
           allow-create
@@ -198,7 +206,12 @@
         <el-table-column label="操作" align="center">
           <template scope="scope">
             <!--<el-button size="small" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>-->
-            <el-button size="mini" type="danger" @click="handleDelete(scope.$index, scope.row)">
+            <el-button
+              :disabled="scope.row.isEdit"
+              size="mini"
+              type="danger"
+              @click="handleDelete(scope.$index, scope.row)"
+            >
               删除
             </el-button>
           </template>
@@ -211,7 +224,6 @@
               placeholder="请输入内容"
               @change="handleEdit(scope.$index, scope.row)"
             />
-            <span>{{ scope.row.integral }}</span>
           </template>
         </el-table-column>
         <el-table-column label="进价" width="180" align="center">
@@ -222,7 +234,6 @@
               placeholder="请输入内容"
               @change="handleEdit(scope.$index, scope.row)"
             />
-            <span>{{ scope.row.purchasePrice }}</span>
           </template>
         </el-table-column>
         <el-table-column label="零售价" width="180" align="center">
@@ -233,7 +244,6 @@
               placeholder="请输入内容"
               @change="handleEdit(scope.$index, scope.row)"
             />
-            <span>{{ scope.row.retailPrice }}</span>
           </template>
         </el-table-column>
         <el-table-column label="VIP售价" width="180" align="center">
@@ -244,15 +254,14 @@
               placeholder="请输入内容"
               @change="handleEdit(scope.$index, scope.row)"
             />
-            <span>{{ scope.row.vipPrice }}</span>
           </template>
         </el-table-column>
         <el-table-column v-for="item in choiceProperties" :label="item.name" width="180" align="center">
           <template scope="scope">
             <el-select
               v-model="scope.row.sku[item.name]"
+              :disabled="scope.row.isEdit"
               :placeholder="'请选择'+item.name"
-              clearable
               size="mini"
             >
               <el-option
@@ -262,7 +271,6 @@
                 :value="v.name"
               />
             </el-select>
-            <span>{{ scope.row.name }}</span>
           </template>
         </el-table-column>
         <!--<el-table-column prop="sex" label="性别">-->
@@ -292,6 +300,62 @@
         </el-button>
       </span>
     </el-dialog>
+    <el-dialog
+      :visible.sync="exportDialog"
+      title="导出商品"
+      width="80%"
+    >
+      <div style="margin-bottom: 10px" class="search-bar">
+        <el-select
+          v-model="exportFilter.typeId"
+          clearable
+          size="mini"
+          placeholder="请选择商品分类"
+        >
+          <el-option
+            v-for="item in commodityTypeList"
+            :key="item.id"
+            :label="item.name"
+            :value="item.id"
+          />
+        </el-select>
+        <el-select
+          v-model="exportFilter.putaway"
+          clearable
+          size="mini"
+          placeholder="请选择上下架状态"
+        >
+          <el-option
+            label="未上架"
+            value="0"
+          />
+          <el-option
+            label="已上架"
+            value="1"
+          />
+        </el-select>
+        <el-input v-model="exportFilter.id" placeholder="商品货号" size="mini">
+          <template slot="prepend">
+            商品货号
+          </template>
+        </el-input>
+        <el-input v-model="exportFilter.barCode" placeholder="商品条码" size="mini">
+          <template slot="prepend">
+            商品条码
+          </template>
+        </el-input>
+      </div>
+
+      <span slot="footer" class="dialog-footer">
+        <el-button size="mini" @click="exportFilter = {};exportDialog = false">
+          取 消
+        </el-button>
+        <el-button type="primary" size="mini" @click="confirmHandle2">
+          确 定
+        </el-button>
+      </span>
+    </el-dialog>
+
     <!--<el-dialog-->
     <!--title="新增商品分类"-->
     <!--:visible.sync="dialogVisible2"-->
@@ -343,10 +407,14 @@ import {
   postCommodityData,
   getCommodityTypeData,
   getLabels,
-  getProperties
+  getProperties,
+  postGoodsImport,
+  putCommodityData
 } from '@/service/PurchaseAndSale/DataEditing/CommodityAdd.js'
 import common from '@/mixins/common'
 import { BASE_URL } from '@/api/config'
+import qs from 'qs'
+
 export default {
   name: 'CommodityAdd',
   components: {
@@ -358,25 +426,12 @@ export default {
   data() {
     return {
       BASE_URL,
+      exportFilter: {},
       commodityList: {},
-      options: [{
-        value: '选项1',
-        label: '黄金糕'
-      }, {
-        value: '选项2',
-        label: '双皮奶'
-      }, {
-        value: '选项3',
-        label: '蚵仔煎'
-      }, {
-        value: '选项4',
-        label: '龙须面'
-      }, {
-        value: '选项5',
-        label: '北京烤鸭'
-      }],
+      exportDialog: false,
       commodityType: '',
       selectArr: [],
+      goodsLabels: [],
       paginationData: {
         page: 1,
         pageSize: 10
@@ -386,6 +441,7 @@ export default {
         brandFilter: '',
         openStatusFilter: ''
       },
+      isEdit: false,
       dialogVisible: false,
       // dialogVisible2:false,
       // dialogVisible3:false,
@@ -408,18 +464,13 @@ export default {
       propertiesList: [],
       choiceProperties: {},
       selectIndex: '',
-      isEditStatus: false
+      isEditStatus: false,
+      file: '',
+      disabledList: []
     }
   },
   computed: {},
-  watch: {
-    commodityDetail: {
-      deep: true,
-      handler: function() {
-
-      }
-    }
-  },
+  watch: {},
   mounted() {
     this.getCommodityDataFun()
     this.getCommodityTypeDataFun()
@@ -427,9 +478,97 @@ export default {
     this.getPropertiesFun()
   },
   methods: {
-    searchBtn(){
+    addFun() {
+      this.isEdit = false
+      this.dialogVisible = true
+      this.goodsLabels = []
+      this.commodityDetail = {}
+      this.specificationsFlag = false
+      this.specifucatuibsList = []
+    },
+    printFun() {
+      const data = JSON.parse(JSON.stringify(this.commodityList))
+      data.title = [{
+        'name': '商品名',
+        'key': 'name'
+      }, {
+        'name': '条码',
+        'key': 'barCode'
+      }, {
+        'name': '分类',
+        'key': 'typeName'
+      }, {
+        'name': '产地',
+        'key': 'origin'
+      }, {
+        'name': '标签',
+        'key': 'goodsLabels'
+      }, {
+        'name': '备注',
+        'key': 'remark'
+      }]
+      window.localStorage.setItem('printData', JSON.stringify(data))
+      const routeData = this.$router.resolve({
+        name: 'PrintPage',
+        query: {
+          orderName: '商品表'
+        }
+      })
+      window.open(routeData.href, '_blank')
+    },
+    searchBtn() {
       this.paginationData.page = 1
       this.getCommodityDataFun()
+    },
+    importData: function(event) {
+      event.preventDefault()
+      document.querySelector('#uploadEventFile').click()
+    },
+    confirmHandle2() {
+      const params = {
+        storeId: this.storeId,
+        ...this.exportFilter
+      }
+      const qstring = qs.stringify(params)
+
+      this.downloadFile('goods/export?' + qstring)
+    },
+    fileChange: function(el) {
+      el.preventDefault()// 取消默认行为
+      const vm = this
+      const uploadEventFile = document.querySelector('#uploadEventFile').value
+      this.file = el.target.files[0]
+      if (uploadEventFile == '') {
+        alert('请择excel,再上传')
+      } else if (uploadEventFile.lastIndexOf('.xls') > 0 || uploadEventFile.lastIndexOf('.XLS') > 0) {
+        const formData = new FormData()
+        // 向 formData 对象中添加文件
+        formData.append('file', this.file)
+        const config = {
+          // 一定要定义头
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        }
+        // url为对应的后端接口
+        vm.$http.post(BASE_URL + '/pps/goods/import?storeId=' + this.storeId, formData, config).then(function(res) {
+          if (res.data.code !== 1001) {
+            vm.$message({
+              showClose: true,
+              message: res.data.message + res.data.detail,
+              type: 'error'
+            })
+          } else {
+            vm.$message({
+              message: '成功添加',
+              type: 'success'
+            })
+            vm.getCommodityDataFun()
+          }
+        })
+      } else {
+        alert('只能上传excel文件')
+      }
     },
     selectIndexFun(index) {
       this.selectIndex = index
@@ -470,16 +609,37 @@ export default {
       console.log(index, row)
     },
     handleDelete(index, row) {
-      console.log(index, row)
+      this.specifucatuibsList.splice(index, 1)
     },
     deleteHandle() {
       console.log('delete')
     },
-    addHandle() {
-      console.log(this.$refs.TransverseShrinkBox.test(), 123213)
-    },
-    deleteRow(index) {
+    editRow(index, row) {
+      this.isEdit = true
       this.dialogVisible = true
+      this.commodityDetail = row
+      this.goodsLabels = []
+      this.commodityDetail.goodsLabels.forEach(v => {
+        this.goodsLabels.push(v.id)
+      })
+      this.specifucatuibsList = []
+      this.specificationsFlag = true
+      this.changeAddType(row.typeId)
+      this.commodityDetail.goodsSkuVos.forEach(v => {
+        const _skuKey = {}
+        eval(v.sku).forEach(v2 => {
+          Object.assign(_skuKey, { [v2.key]: v2.value })
+        })
+        this.specifucatuibsList.push({
+          'integral': v.integral,
+          'purchasePrice': v.purchasePrice,
+          'retailPrice': v.retailPrice,
+          'sku': _skuKey,
+          'vipPrice': v.vipPrice,
+          'isEdit': true,
+          'id': v.id
+        })
+      })
     },
     getPropertiesFun() {
       const params = {
@@ -531,7 +691,7 @@ export default {
       }
       data.storeId = this.storeId
       const _goodsLabels = []
-      data.goodsLabels.forEach(v => {
+      this.goodsLabels.forEach(v => {
         _goodsLabels.push({ id: v })
       })
       data.goodsLabels = _goodsLabels
@@ -552,10 +712,44 @@ export default {
       }, [])
       data.skus = JSON.stringify(_allSku)
       data.goodsSkuVos = _specifucatuibsList
-      console.log(data)
-      postCommodityData(data).then(res => {
+      if (!this.isEdit) {
+        postCommodityData(data).then(res => {
+          if (res.data.code !== 1001) {
+            this.$message({
+              showClose: true,
+              message: '添加失败',
+              type: 'error'
+            })
+            return
+          }
+          this.$message({
+            showClose: true,
+            message: '添加成功',
+            type: 'success'
+          })
+          this.getCommodityDataFun()
+          this.dialogVisible = false
+        })
+      } else {
+        putCommodityData(data).then(res => {
+          if (res.data.code !== 1001) {
+            this.$message({
+              showClose: true,
+              message: res.data.message,
+              type: 'error'
+            })
+            return
+          }
+          this.$message({
+            showClose: true,
+            message: '编辑成功',
+            type: 'success'
+          })
+          this.getCommodityDataFun()
+          this.dialogVisible = false
+        })
+      }
 
-      })
       // this.dialogVisible = false
     },
     uploadImageSuccess(res, file, fileList) {
@@ -564,71 +758,71 @@ export default {
       }
     }
     /* cancleHandle2() {
-        this.commodityType = ''
-        this.dialogVisible2 = false
-      },
-      confirmHandle2() {
-        let params = {
-          "storeId": this.storeId,
-          "name": this.commodityType
-        }
-        postCommodityTypeData(params).then(res => {
-          if (res.data.code !== 1001) {
-            this.$message({
-              showClose: true,
-              message: '添加商品分类失败',
-              type: 'error'
-            });
-            this.commodityType = ''
-            return
-          }
-          this.$message({
-            showClose: true,
-            message: '成功添加商品分类',
-            type: 'success'
-          });
           this.commodityType = ''
-          this.getCommodityTypeDataFun()
           this.dialogVisible2 = false
-        })
-      },*/
-    /* cancleHandle3() {
-        this.commodityType = ''
-        this.dialogVisible3 = false
-      },
-      confirmHandle3() {
-        if (this.commodityTypeList.length === 1) {
-          this.$message({
-            showClose: true,
-            message: '不能删除最后一个商品分类',
-            type: 'error'
-          });
-          return
-        }
-        let params = {
-          storeId: this.storeId
-        }
-        let path = this.selectDelType
-        delCommodityTypeData(params, path).then(res => {
-          if (res.data.code !== 1001) {
+        },
+        confirmHandle2() {
+          let params = {
+            "storeId": this.storeId,
+            "name": this.commodityType
+          }
+          postCommodityTypeData(params).then(res => {
+            if (res.data.code !== 1001) {
+              this.$message({
+                showClose: true,
+                message: '添加商品分类失败',
+                type: 'error'
+              });
+              this.commodityType = ''
+              return
+            }
             this.$message({
               showClose: true,
-              message: '删除商品分类失败',
-              type: 'error'
-            });
-          } else {
-            this.$message({
-              showClose: true,
-              message: '成功删除商品分类',
+              message: '成功添加商品分类',
               type: 'success'
             });
-            this.dialogVisible3 = false
+            this.commodityType = ''
             this.getCommodityTypeDataFun()
+            this.dialogVisible2 = false
+          })
+        },*/
+    /* cancleHandle3() {
+          this.commodityType = ''
+          this.dialogVisible3 = false
+        },
+        confirmHandle3() {
+          if (this.commodityTypeList.length === 1) {
+            this.$message({
+              showClose: true,
+              message: '不能删除最后一个商品分类',
+              type: 'error'
+            });
+            return
           }
-          this.selectDelType = ''
-        })
+          let params = {
+            storeId: this.storeId
+          }
+          let path = this.selectDelType
+          delCommodityTypeData(params, path).then(res => {
+            if (res.data.code !== 1001) {
+              this.$message({
+                showClose: true,
+                message: '删除商品分类失败',
+                type: 'error'
+              });
+            } else {
+              this.$message({
+                showClose: true,
+                message: '成功删除商品分类',
+                type: 'success'
+              });
+              this.dialogVisible3 = false
+              this.getCommodityTypeDataFun()
+            }
+            this.selectDelType = ''
+          })
 
-      }*/
+        }*/
   }
 }
 </script>
@@ -638,7 +832,7 @@ export default {
     margin: 0;
   }
 
-  .tb-edit .el-input {
+  /*.tb-edit .el-input {
     display: none
   }
 
@@ -660,23 +854,26 @@ export default {
 
   .tb-edit .current-row .el-select + span {
     display: none
-  }
-  .dentity-uploader{
+  }*/
+
+  .dentity-uploader {
     .el-upload {
       border: 1px dashed #d9d9d9;
       border-radius: 6px;
       cursor: pointer;
       position: relative;
       overflow: hidden;
-      img{
+      img {
         width: 100px;
         height: 100px;
       }
     }
   }
+
   .dentity-uploader .el-upload:hover {
     border-color: #409EFF;
   }
+
   .dentity-uploader-icon {
     border: 1px dashed #d9d9d9;
     font-size: 28px;

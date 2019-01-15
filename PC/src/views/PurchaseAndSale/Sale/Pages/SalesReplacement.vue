@@ -5,7 +5,7 @@
         type="primary"
         icon="el-icon-circle-plus-outline"
         size="mini"
-        @click=""
+        @click="addDialog = true"
       >
         添加
       </el-button>
@@ -119,38 +119,132 @@
         </el-table-column>
       </el-table>
     </el-dialog>
+    <el-dialog :visible.sync="addVisible" :title="isEdit?'编辑订单':'添加换货订单'">
+      <div class="dialog-content-input">
+        <el-input v-model="chioceSelect.remark" placeholder="请输入备注" size="mini">
+          <template slot="prepend">
+            备注
+          </template>
+        </el-input>
+      </div>
+      <el-table
+        v-if="choiceGoodsSku.length"
+        :data="choiceGoodsSku"
+        style="width: 100%"
+      >
+        <el-table-column
+          label="操作"
+          align="center"
+          width="100"
+        >
+          <template scope="scope">
+            <!--<el-button size="small" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>-->
+            <el-button size="mini" type="danger" @click="deleteChoiceRow(scope.$index, scope.row)">
+              删除
+            </el-button>
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="sku"
+          align="center"
+          width="200"
+          label="规格"
+        />
+        <el-table-column label="数量" width="180" align="center">
+          <template scope="scope">
+            <el-input
+              v-model="scope.row.quantity"
+              size="small"
+              @input="quantityChange(scope.row)"
+            />
+          </template>
+        </el-table-column>
+        <el-table-column label="备注" width="180" align="center">
+          <template scope="scope">
+            <el-input
+              v-model="scope.row.remark"
+              size="small"
+            />
+          </template>
+        </el-table-column>
+      </el-table>
+      <span slot="footer" class="dialog-footer">
+        <el-button v-if="choiceGoodsSku.length" style="float: right" size="mini" type="primary" @click="comfirm">
+          确认添加
+        </el-button>
+      </span>
+    </el-dialog>
+    <el-dialog :visible.sync="addDialog" width="80%" title="选择销售订单换货">
+      <select-table
+        :data="sellOrderList"
+        :pagination-data="paginationData"
+        @paginationChange="getSellResultFun"
+      >
+        <el-table-column
+          slot="handle"
+          :fixed="true"
+          label="操作"
+          width="200"
+          align="center"
+        >
+          <template slot-scope="scope">
+            <el-button
+              type="text"
+              size="small"
+              @click.native.prevent="addBtnFun(scope.$index,scope.row,false)"
+            >
+              换货
+            </el-button>
+          </template>
+        </el-table-column>
+      </select-table>
+      <span slot="footer" class="dialog-footer">
+        <el-button style="float: right" size="mini" type="primary" @click="addDialog = false">
+          取消
+        </el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
 <script>
 import common from '@/mixins/common'
-import { getSuppliers, getSellApply, delOrderApply, getSellApplyDetails } from '@/service/PurchaseAndSale/Sale/common.js'
+import {
+  getSuppliers,
+  getSellApply,
+  delOrderApply,
+  getSellApplyDetails,
+  postSellApply,
+  getSellResult
+} from '@/service/PurchaseAndSale/Sale/common.js'
 import SelectTable from '@/components/SelectTable/SelectTable'// 列表组件
 import { orderDetailMap } from '@/views/PurchaseAndSale/Purchase/config.js'
 import { dataFormat } from '@/utils/index.js'
+import salecommon from '../mixins/salecommon'
+import addMixin from '../mixins/addMixin'
+import { statusMap } from '@/views/PurchaseAndSale/config.js'
 import { parseTime } from '@/utils'
-import {statusMap} from '@/views/PurchaseAndSale/config.js'
-
 export default {
-  name: 'SalesReplacement',
+  name: 'SalesOrdersReturn',
   components: { SelectTable },
-  mixins: [common],
+  mixins: [common, salecommon, addMixin],
   data() {
     return {
       filterData: {},
-      pickTime:'',
+      pickTime: '',
+      addDialog: false,
       suppliersList: [],
       orderStorageList: [],
-      paginationData: {
+      paginationData2: {
         page: 1,
         pageSize: 10
       },
+      sellOrderList: [],
       selectArr: [],
       orderDetails: {},
       detailsMap: {},
       orderVisible: false,
-      orderDetailMap,
-      isGetSkuMap: false
+      orderDetailMap
     }
   },
   computed: {},
@@ -158,6 +252,7 @@ export default {
   mounted() {
     this.getSuppliersData()
     this.getSellApplyData()
+    this.getSellResultFun()
   },
   methods: {
     searchBtn() {
@@ -172,8 +267,25 @@ export default {
         this.suppliersList = res.data.data
       })
     },
+    // dialog获取销售订单
+    getSellResultFun() {
+      const params = {
+        storeId: this.storeId,
+        page: this.paginationData2.page,
+        pageSize: this.paginationData2.pageSize,
+        type: '2'
+      }
+      getSellResult(params).then(res => {
+        const data = res.data.data
+        data.items.forEach(item => {
+          item.orderStatus = statusMap[item.orderStatus]
+        })
+        this.sellOrderList = data
+        this.paginationData2 = data.pageVo
+      })
+    },
     getSellApplyData() {
-      if(!this.filterData.id){
+      if (!this.filterData.id) {
         delete this.filterData.id
       }
       this.filterData.startTime = this.pickTime ? parseTime(this.pickTime[0]) : ''
@@ -258,6 +370,50 @@ export default {
 
         this.orderDetails = _data
         this.orderVisible = true
+      })
+    },
+    comfirm() {
+      const data = {}
+      data.userId = this.userId
+      data.storeId = this.storeId
+      data.type = 3
+      data.resultOrderId = this.chioceSelect.resultOrderId
+      data.remark = this.chioceSelect.remark
+      data.inWarehouseId = this.chioceSelect.inWarehouseId
+      data.prodcingWay = 1
+      data.clientId = this.chioceSelect.client
+      let inTotalQuantity = 0
+      let totalDiscountMoney = 0
+      let discountMoney = 0
+      let totalMoney = 0
+      let orderMoney = 0
+      const details = []
+      this.choiceGoodsSku.forEach(v => {
+        const _detail = {}
+        inTotalQuantity += parseFloat(v.quantity)
+        totalDiscountMoney += parseFloat(v.discountMoney)
+        discountMoney += parseFloat(v.discountMoney)
+        totalMoney += parseFloat(v.money)
+        console.log(totalMoney)
+        _detail.id = v.id
+        _detail.type = 1
+        _detail.goodsSkuId = v.goodsSkuId
+        _detail.quantity = v.quantity
+        _detail.money = v.money
+        _detail.discountMoney = v.discountMoney
+        _detail.remark = v.remark
+        details.push(_detail)
+      })
+      orderMoney = totalMoney - totalDiscountMoney
+      data.details = details
+      data.inTotalQuantity = inTotalQuantity
+      data.totalDiscountMoney = totalDiscountMoney * -1
+      data.discountMoney = discountMoney * -1
+      data.totalMoney = totalMoney * -1
+      data.orderMoney = orderMoney * -1
+      console.log(data)
+      postSellApply(data).then(res => {
+        console.log(res)
       })
     }
   }

@@ -102,6 +102,7 @@ export default {
         this.$set(v, 'totalMoney', 0)
         this.$set(v, 'discountMoney', 0)
         this.$set(v, 'remark', '')
+        this.$set(v, 'checkMoneyC', v.checkMoney)
       })
     },
     deleteChoiceRow(index, row) {
@@ -117,12 +118,14 @@ export default {
       } else {
         row.totalMoney = row.quantity * (row.money - row.discountMoney)
       }
+      row.changeCheckTotalMoney = row.checkQuantity * (row.checkMoneyC - row.checkMoney)
     },
     discountChange(row) {
       row.money = row.quantity * (row.purchasePrice - row.discountMoney)
     },
     moneyChange(row) {
-      row.totalMoney = row.quantity * row.money
+      row.money = row.quantity * (row.purchasePrice - row.discountMoney)
+      row.changeCheckTotalMoney = row.checkQuantity * (row.checkMoneyC - row.checkMoney)
     }
   },
   computed: {}

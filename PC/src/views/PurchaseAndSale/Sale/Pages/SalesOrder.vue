@@ -14,43 +14,43 @@
       </el-button>
     </div>
     <div class="search-bar">
-    <el-input v-model="filterData.membershipNumber" placeholder="会员卡号" size="mini">
-      <template slot="prepend">
-        会员卡号
-      </template>
-    </el-input>
-    <el-input v-model="filterData.id" placeholder="单据编号" size="mini">
-      <template slot="prepend">
-        单据编号
-      </template>
-    </el-input>
-    <el-input v-model="filterData.clientName" placeholder="客户名" size="mini">
-      <template slot="prepend">
-        客户名
-      </template>
-    </el-input>
-    <el-input v-model="filterData.phone" placeholder="电话" size="mini">
-      <template slot="prepend">
-        电话
-      </template>
-    </el-input>
-    <el-date-picker
-      v-model="pickTime"
-      :picker-options="pickerOptions"
-      type="daterange"
-      align="right"
-      unlink-panels
-      size="mini"
-      range-separator="至"
-      start-placeholder="单据日期（起）"
-      end-placeholder="单据日期（止）"
-    />
-    <div style="width: 20px;">
-      <el-button type="primary" size="mini" @click="searchBtn">
-        查询
-      </el-button>
+      <el-input v-model="filterData.membershipNumber" placeholder="会员卡号" size="mini">
+        <template slot="prepend">
+          会员卡号
+        </template>
+      </el-input>
+      <el-input v-model="filterData.id" placeholder="单据编号" size="mini">
+        <template slot="prepend">
+          单据编号
+        </template>
+      </el-input>
+      <el-input v-model="filterData.clientName" placeholder="客户名" size="mini">
+        <template slot="prepend">
+          客户名
+        </template>
+      </el-input>
+      <el-input v-model="filterData.phone" placeholder="电话" size="mini">
+        <template slot="prepend">
+          电话
+        </template>
+      </el-input>
+      <el-date-picker
+        v-model="pickTime"
+        :picker-options="pickerOptions"
+        type="daterange"
+        align="right"
+        unlink-panels
+        size="mini"
+        range-separator="至"
+        start-placeholder="单据日期（起）"
+        end-placeholder="单据日期（止）"
+      />
+      <div style="width: 20px;">
+        <el-button type="primary" size="mini" @click="searchBtn">
+          查询
+        </el-button>
+      </div>
     </div>
-  </div>
     <div class="flex-center">
       <select-table
         v-model="selectArr"
@@ -70,6 +70,7 @@
             <el-button
               type="text"
               size="small"
+              :disabled="!(scope.row.status==1||scope.row.status==4||scope.row.status==7)"
               @click.native.prevent="deleteRow(scope.$index,scope.row,false)"
             >
               删除
@@ -77,6 +78,7 @@
             <el-button
               type="text"
               size="small"
+              :disabled="!(scope.row.status==1||scope.row.status==4||scope.row.status==7)"
               @click.native.prevent="editRow(scope.$index,scope.row)"
             >
               编辑
@@ -125,6 +127,7 @@
           v-model="chioceSelect.clientId"
           :disabled="isEdit"
           size="mini"
+          filterable
           placeholder="请选择客户"
           @change="changeClientId"
         >
@@ -182,6 +185,7 @@
           v-model="chioceSelect.good"
           :disabled="!chioceSelect.goodType"
           size="mini"
+          filterable
           placeholder="请选择商品"
           @change="choiceGoodsFun"
         >
@@ -207,17 +211,16 @@
             :value="item.id"
           />
         </el-select>
-        <el-input
+
+        <NumberInput
           v-model="chioceSelect.discountMoney"
           :disabled="!choiceGoodsSku.length"
-          placeholder="请输入直接优惠金额"
-          size="mini"
           @input="changeDiscountMoney"
         >
           <template slot="prepend">
             直接优惠金额
           </template>
-        </el-input>
+        </NumberInput>
         <el-input v-model="chioceSelect.remark" placeholder="请输入备注" size="mini">
           <template slot="prepend">
             备注
@@ -278,18 +281,19 @@
         />
         <el-table-column label="数量" width="180" align="center">
           <template scope="scope">
-            <el-input
+            <NumberInput
               v-model="scope.row.quantity"
-              size="small"
+              :no-slot="false"
               @input="quantityChange(scope.row)"
             />
           </template>
         </el-table-column>
         <el-table-column label="售价" width="180" align="center">
           <template scope="scope">
-            <el-input
+            <NumberInput
               v-model="scope.row.money"
-              size="small"
+              :min="choiceClient.clientLevel.priceType==1?scope.row.retailPrice*choiceClient.clientLevel.price:scope.row.vipPrice*choiceClient.clientLevel.price"
+              :no-slot="false"
               @input="moneyChange(scope.row)"
             />
           </template>
@@ -299,11 +303,16 @@
             {{ scope.row.totalMoney }}
           </template>
         </el-table-column>
+        <el-table-column label="会员折扣" width="150" align="center">
+          <template scope="scope">
+            {{ choiceClient.clientLevel.priceType==1?scope.row.quantity*scope.row.retailPrice*(1-choiceClient.clientLevel.price):scope.row.quantity*scope.row.vipPrice*(1-choiceClient.clientLevel.price) }}
+          </template>
+        </el-table-column>
         <el-table-column label="折扣" width="180" align="center">
           <template scope="scope">
-            <el-input
+            <NumberInput
               v-model="scope.row.discountMoney"
-              size="small"
+              :no-slot="false"
               @input="discountChange(scope.row)"
             />
           </template>
@@ -342,7 +351,7 @@ export default {
   data() {
     return {
       filterData: {},
-      pickTime:'',
+      pickTime: '',
       suppliersList: [],
       orderStorageList: [],
       paginationData: {
@@ -378,7 +387,7 @@ export default {
       })
     },
     getSellApplyData() {
-      if(!this.filterData.id){
+      if (!this.filterData.id) {
         delete this.filterData.id
       }
       this.filterData.startTime = this.pickTime ? parseTime(this.pickTime[0]) : ''
@@ -393,6 +402,7 @@ export default {
       getSellApply(params).then(res => {
         const data = res.data.data
         data.items.forEach(item => {
+          item.status = item.orderStatus
           item.orderStatus = statusMap[item.orderStatus]
         })
         this.orderStorageList = data
@@ -471,17 +481,19 @@ export default {
       data.userId = this.userId
       data.storeId = this.storeId
       data.type = 2
-      data.discountMoney = this.chioceSelect.discountMoney
       data.discountCouponId = this.chioceSelect.discountCouponId
       data.remark = this.chioceSelect.remark
       data.prodcingWay = 1
       data.clientId = this.chioceSelect.clientId
-      data.totalDiscountMoney = this.chioceSelect.totalDiscountMoney
+      data.totalDiscountMoney = this.chioceSelect.totalDiscountMoney ? this.chioceSelect.totalDiscountMoney : 0
       let outTotalQuantity = 0
       let totalMoney = 0
       const details = []
       this.choiceGoodsSku.forEach(v => {
         let _detail = {}
+        v.quantity = v.quantity ? v.quantity : 0
+        v.discountMoney = v.discountMoney ? v.discountMoney : 0
+        v.money = v.money ? this.choiceClient.clientLevel.priceType == 1 ? v.retailPrice * this.choiceClient.clientLevel.price : v.vipPrice * this.choiceClient.clientLevel.price : 0
         outTotalQuantity += Number(v.quantity)
         totalMoney += Number(v.totalMoney)
         _detail = {
@@ -495,7 +507,7 @@ export default {
         details.push(_detail)
       })
       data.outTotalQuantity = outTotalQuantity
-      data.discountMoney = this.chioceSelect.discountMoney
+      data.discountMoney = this.chioceSelect.discountMoney ? this.chioceSelect.discountMoney : 0
       data.orderMoney = totalMoney - this.chioceSelect.totalDiscountMoney
       data.totalMoney = totalMoney
       data.details = details

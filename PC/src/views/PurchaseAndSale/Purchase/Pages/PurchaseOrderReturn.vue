@@ -143,6 +143,13 @@
             </el-button>
           </template>
         </el-table-column>
+
+        <el-table-column
+          prop="sku"
+          align="center"
+          width="200"
+          label="规格"
+        />
         <el-table-column label="数量" width="180" align="center">
           <template scope="scope">
             <el-input
@@ -202,13 +209,13 @@
 
 <script>
 import common from '@/mixins/common'
-import { getSuppliers, getOrderApply, getOrderApplyDetails, delOrderApply,getOrderResultDetails,getOrderResult,postOrderApply } from '@/service/PurchaseAndSale/Purchase/common.js'
+import { getSuppliers, getOrderApply, getOrderApplyDetails, delOrderApply, getOrderResultDetails, getOrderResult, postOrderApply } from '@/service/PurchaseAndSale/Purchase/common.js'
 import SelectTable from '@/components/SelectTable/SelectTable'// 列表组件
 import { dataFormat } from '@/utils/index.js'
-import { orderDetailMap,orderApplyMap } from '@/views/PurchaseAndSale/Purchase/config.js'
+import { orderDetailMap, orderApplyMap } from '@/views/PurchaseAndSale/Purchase/config.js'
 import addMixin from '../mixins/addMixin.js'
 import purchasecommon from '../mixins/purchasecommon'
-import {statusMap} from "../../config";
+import { statusMap } from '../../config'
 import { parseTime } from '@/utils'
 
 export default {
@@ -218,14 +225,14 @@ export default {
   data() {
     return {
       filterData: {},
-      pickTime:'',
+      pickTime: '',
       suppliersList: [],
       orderStorageList: [],
       paginationData: {
         page: 1,
         pageSize: 10
       },
-      addDialog:false,
+      addDialog: false,
       selectArr: [],
       orderVisible: false,
       paginationData2: {
@@ -235,7 +242,7 @@ export default {
       orderDetailMap,
       orderDetails: [],
       isGetSkuMap: false,
-      procurementOrderList:[]
+      procurementOrderList: []
     }
   },
 
@@ -254,13 +261,13 @@ export default {
     moreDel() {
       this.deleteRow('', '', true)
     },
-    // dialog获取销售订单
+    // dialog获取采购订单
     getOrderResultFun() {
       const params = {
         storeId: this.storeId,
         page: this.paginationData2.page,
         pageSize: this.paginationData2.pageSize,
-        type: '1',
+        type: '1'
       }
       getOrderResult(params).then(res => {
         const data = res.data.data
@@ -280,7 +287,7 @@ export default {
       })
     },
     getOrderApplyData() {
-      if(!this.filterData.id){
+      if (!this.filterData.id) {
         delete this.filterData.id
       }
       this.filterData.startTime = this.pickTime ? parseTime(this.pickTime[0]) : ''
@@ -397,9 +404,9 @@ export default {
       })
       orderMoney = totalMoney - totalDiscountMoney
       data.outTotalQuantity = outTotalQuantity
-      data.totalDiscountMoney = totalDiscountMoney*-1
-      data.orderMoney = orderMoney*-1
-      data.totalMoney = totalMoney*-1
+      data.totalDiscountMoney = totalDiscountMoney * -1
+      data.orderMoney = orderMoney * -1
+      data.totalMoney = totalMoney * -1
       data.details = details
       postOrderApply(data).then(res => {
         if (res.data.code !== 1001) {

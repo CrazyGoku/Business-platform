@@ -215,7 +215,7 @@ export default {
         this.paginationData = data.pageVo
       })
     },
-    searchBtn(){
+    searchBtn() {
       this.paginationData.page = 1
       this.getSupplierDataFun()
     },
@@ -230,7 +230,7 @@ export default {
       }
       const func = this.isEdit ? putSupplierData : postSupplierData
       const magSuccess = this.isEdit ? '成功编辑供应商' : '成功添加供应商'
-      const failSuccess = this.isEdit ? '编辑供应商失败' : '添加供应商失败'
+      const failSuccess = this.isEdit ? '编辑供应商失败，请确认输入参数' : '添加供应商失败，请确认输入参数'
       func(params).then(res => {
         if (res.data.code !== 1001) {
           this.$message({
@@ -238,9 +238,6 @@ export default {
             message: failSuccess,
             type: 'error'
           })
-          if (!this.isEdit) {
-            this.supplierDetail = {}
-          }
           return
         }
         this.$message({

@@ -1,3 +1,5 @@
+import { BASE_URL } from '../api/config'
+
 /**
  * Created by jiachenpan on 16/11/18.
  */
@@ -26,7 +28,9 @@ export function parseTime(time, cFormat) {
   const time_str = format.replace(/{(y|m|d|h|i|s|a)+}/g, (result, key) => {
     let value = formatObj[key]
     // Note: getDay() returns 0 on Sunday
-    if (key === 'a') { return ['日', '一', '二', '三', '四', '五', '六'][value ] }
+    if (key === 'a') {
+      return ['日', '一', '二', '三', '四', '五', '六'][value]
+    }
     if (result.length > 0 && value < 10) {
       value = '0' + value
     }
@@ -133,11 +137,11 @@ export function param2Obj(url) {
   }
   return JSON.parse(
     '{"' +
-      decodeURIComponent(search)
-        .replace(/"/g, '\\"')
-        .replace(/&/g, '","')
-        .replace(/=/g, '":"') +
-      '"}'
+    decodeURIComponent(search)
+      .replace(/"/g, '\\"')
+      .replace(/&/g, '","')
+      .replace(/=/g, '":"') +
+    '"}'
   )
 }
 
@@ -313,4 +317,30 @@ export function dataFormat(data) {
     formatData.push(_data)
   })
   return formatData
+}
+
+/**
+ *
+ * @param url
+ */
+export function downloadFile(url) {
+  // 定义一个form表单,通过form表单来发送请求
+  var form = document.createElement('form')
+
+  // 设置表单状态为不显示
+  form.style.display = 'none'
+
+  // method属性设置请求类型为get
+  form.setAttribute('method', 'get')
+
+  // action属性设置请求路径,(如有需要,可直接在路径后面跟参数)
+  // 例如:htpp://127.0.0.1/test?id=123
+  alert(BASE_URL + '/pps/' + url)
+  form.setAttribute('action', BASE_URL + '/pps/' + url)
+
+  // 将表单放置在页面(body)中
+  document.body.appendChild(form)
+
+  // 表单提交
+  form.submit()
 }

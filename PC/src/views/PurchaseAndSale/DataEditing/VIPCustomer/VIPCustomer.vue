@@ -55,12 +55,18 @@
         </el-button>
       </div>
     </div>
-    <select-table v-model="selectArr" :is-select="true" :data="customersList" :pagination-data="paginationData">
+    <select-table
+      v-model="selectArr"
+      :is-select="true"
+      :data="customersList"
+      :pagination-data="paginationData"
+      @paginationChange="getCustomerDataFun"
+    >
       <el-table-column
         slot="handle"
         :fixed="true"
         label="操作"
-        width="120"
+        width="200"
         align="center"
       >
         <template slot-scope="scope">
@@ -71,11 +77,36 @@
           >
             查看积分
           </el-button>
+
+          <el-button
+            type="text"
+            size="small"
+            @click.native.prevent="filterData2 = {};checkIntegralDetail(scope.row,scope.$index)"
+          >
+            查看明细
+          </el-button>
         </template>
       </el-table-column>
     </select-table>
-    <el-dialog :visible.sync="dialogIntegralVisible" title="查询用户积分">
-      <select-table :data="integraList" :pagination-data="paginationData2" />
+    <el-dialog :visible.sync="dialogIntegralVisible" title="查看用户积分预收余额">
+      <!--<select-table :data="integraDetail" :pagination-data="paginationData2" />-->
+      <p>积分:{{ integraDetail.integral }}</p>
+      <p>预收余额:{{ integraDetail.advanceMoney }}</p>
+    </el-dialog>
+    <el-dialog width="80%" :visible.sync="dialogIntegralDetail" title="查看用户积分预收余额">
+      <div class="search-bar">
+        <el-select v-model="filterData2.type" size="mini" clearable placeholder="请选择操作类型" @change="checkIntegralDetail">
+          <el-option
+            label="增加"
+            value="1"
+          />
+          <el-option
+            label="减少"
+            value="0"
+          />
+        </el-select>
+      </div>
+      <select-table :data="integraDetailList" :pagination-data="paginationData2" @paginationChange="checkIntegralDetail" />
     </el-dialog>
     <el-dialog :title="isEdit?'编辑客户':'添加客户'" :visible.sync="addDialog">
       <div class="dialog-content-input">
@@ -147,7 +178,7 @@
 import SelectTable from '@/components/SelectTable/SelectTable'// 列表组件
 import Tree from '@/components/Tree/Tree' // 树状图组件
 import TransverseShrinkBox from '@/components/TransverseShrinkBox/TransverseShrinkBox' // 收缩弹性盒子
-import { getCustomerData, getIntegralsData, getLevelData, postClients } from '@/service/PurchaseAndSale/DataEditing/VIPCustomer.js'
+import { getCustomerData, getIntegralsDetails, getLevelData, postClients, getClientsIntegral } from '@/service/PurchaseAndSale/DataEditing/VIPCustomer.js'
 import common from '@/mixins/common'
 export default {
   name: 'VIPCustomer',
@@ -159,40 +190,27 @@ export default {
   mixins: [common],
   data() {
     return {
+      integraDetailList: [],
       addDialog: false,
       isEdit: false,
       commodityList: {
       },
-      options: [{
-        value: '选项1',
-        label: '黄金糕'
-      }, {
-        value: '选项2',
-        label: '双皮奶'
-      }, {
-        value: '选项3',
-        label: '蚵仔煎'
-      }, {
-        value: '选项4',
-        label: '龙须面'
-      }, {
-        value: '选项5',
-        label: '北京烤鸭'
-      }],
       selectArr: [],
       filterData: {
       },
+      filterData2: {},
       customersList: [],
       disabledMap: {
         '1': '停用',
         '0': '启用'
       },
       dialogIntegralVisible: false,
+      dialogIntegralDetail: false,
       paginationData2: {
         page: 1,
         pageSize: 10
       },
-      integraList: [],
+      integraDetail: [],
       addData: {
         name: '',
         phone: '',
@@ -204,7 +222,8 @@ export default {
         address: '',
         postcode: ''
       },
-      levelList: []
+      levelList: [],
+      chioceRow: {}
     }
   },
   computed: {},
@@ -214,7 +233,7 @@ export default {
     this.getLevelDataFun()
   },
   methods: {
-    searchBtn(){
+    searchBtn() {
       this.paginationData.page = 1
       this.getCustomerDataFun()
     },
@@ -242,7 +261,7 @@ export default {
         if (res.data.code !== 1001) {
           this.$message({
             showClose: true,
-            message: '添加失败，请稍后重试',
+            message: res.data.message,
             type: 'error'
           })
           return
@@ -257,7 +276,7 @@ export default {
       })
     },
     getCustomerDataFun() {
-      if(!this.filterData.id){
+      if (!this.filterData.id) {
         delete this.filterData.id
       }
       const params = {
@@ -276,11 +295,34 @@ export default {
       })
     },
     checkIntegral(row) {
+      this.dialogIntegralVisible = true
       const params = {
-
+        clientId: row.id,
+        storeId: this.storeId,
+        page: 1,
+        pageSize: 100
       }
-      getIntegralsData().then(res => {
-        // this.levelList =res.data.data
+      getClientsIntegral(params).then(res => {
+        this.integraDetail = res.data.data.items[0]
+      })
+    },
+    checkIntegralDetail(row) {
+      if (row) {
+        this.chioceRow = row
+        this.paginationData2.page = 1
+      }
+      this.dialogIntegralDetail = true
+      const params = {
+        clientId: this.chioceRow.id,
+        storeId: this.storeId,
+        page: this.paginationData2.page,
+        pageSize: this.paginationData2.pageSize,
+        ...this.filterData2
+      }
+      getIntegralsDetails(params).then(res => {
+        const data = res.data.data
+        this.integraDetailList = data
+        this.paginationData2 = data.pageVo
       })
     },
     getLevelDataFun() {

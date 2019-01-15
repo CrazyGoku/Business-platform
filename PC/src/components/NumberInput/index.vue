@@ -1,6 +1,6 @@
 <template>
   <div class="input">
-    <div class="prepend">
+    <div v-if="noSlot" class="prepend">
       <slot name="prepend" />
     </div>
     <el-input-number
@@ -32,7 +32,11 @@ export default {
       type: [String, Number],
       default: 1
     },
-    value: [Number, String]
+    value: [Number, String],
+    noSlot: {
+      type: Boolean,
+      default: true
+    }
   },
   data() {
     return {

@@ -1,29 +1,49 @@
 import request from '@/utils/request'
 
-export function loginByUsername(username, password) {
-  const data = {
-    username,
-    password
-  }
+export function loginByUsername(data) {
   return request({
-    url: '/login/login',
+    url: '/pps/login',
     method: 'post',
     data
   })
 }
 
-export function logout() {
+export function logout(path) {
   return request({
-    url: '/login/logout',
-    method: 'post'
+    url: '/pps/logout/' + path,
+    method: 'get'
   })
 }
 
-export function getUserInfo(token) {
+export function getUserInfo(params, path) {
   return request({
-    url: '/user/info',
+    url: '/pps/users/' + path,
     method: 'get',
-    params: { token }
+    params
   })
 }
 
+export function getVerificationCode(params) {
+  return request({
+    url: '/pps/identifyingCode',
+    method: 'get',
+    params
+  })
+}
+// 根据编号查询功能
+export function getRolesFunctions(params) {
+  return request({
+    url: '/pps/roles/functions',
+    method: 'get',
+    params
+  })
+}
+
+// 查询所有店铺
+export function getStore(params) {
+  return request({
+    url: '/pps/stores',
+    method: 'get',
+    params
+  })
+}

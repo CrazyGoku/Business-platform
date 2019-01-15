@@ -8,9 +8,9 @@ export function getCustomerData(params) {
   })
 }
 
-export function getIntegralsData(params) {
+export function getIntegralsDetails(params) {
   return request({
-    url: '/pps/clients/integrals/details',
+    url: '/pps/clients/integral/detail',
     method: 'get',
     params
   })
@@ -28,5 +28,14 @@ export function postClients(data) {
     url: '/pps/clients',
     method: 'post',
     data
+  })
+}
+
+// 查积分
+export function getClientsIntegral(params) {
+  return request({
+    url: '/pps/clients/integral',
+    method: 'get',
+    params
   })
 }

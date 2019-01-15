@@ -144,6 +144,12 @@
             </el-button>
           </template>
         </el-table-column>
+        <el-table-column
+          prop="sku"
+          align="center"
+          width="200"
+          label="规格"
+        />
         <el-table-column label="数量" width="180" align="center">
           <template scope="scope">
             <el-input
@@ -216,7 +222,7 @@ import { orderDetailMap } from '@/views/PurchaseAndSale/Purchase/config.js'
 import { dataFormat } from '@/utils/index.js'
 import salecommon from '../mixins/salecommon'
 import addMixin from '../mixins/addMixin'
-import {statusMap} from '@/views/PurchaseAndSale/config.js'
+import { statusMap } from '@/views/PurchaseAndSale/config.js'
 import { parseTime } from '@/utils'
 export default {
   name: 'SalesOrdersReturn',
@@ -225,7 +231,7 @@ export default {
   data() {
     return {
       filterData: {},
-      pickTime:'',
+      pickTime: '',
       addDialog: false,
       suppliersList: [],
       orderStorageList: [],
@@ -279,7 +285,7 @@ export default {
       })
     },
     getSellApplyData() {
-      if(!this.filterData.id){
+      if (!this.filterData.id) {
         delete this.filterData.id
       }
       this.filterData.startTime = this.pickTime ? parseTime(this.pickTime[0]) : ''

@@ -29,8 +29,8 @@
         v-model="filterData.type"
         size="mini"
         clearable
-        @clear="searchBtn"
         placeholder="单据类型"
+        @clear="searchBtn"
       >
         <el-option
           label="零售单"
@@ -99,6 +99,38 @@
         </el-table-column>
       </select-table>
     </div>
+    <el-dialog :visible.sync="orderVisible" title="订单详情" width="80%">
+      <el-table :data="orderDetails">
+        <el-table-column
+          type="index"
+          fixed
+          align="center"
+          width="20"
+        />
+        <el-table-column
+          v-for="(item,index) in purchaseAllResultDetailMap"
+          :key="index"
+          :fixed="index<1?true:false"
+          :show-overflow-tooltip="true"
+          :label="item.name"
+          resizable
+          align="center"
+          min-width="100"
+        >
+          <template slot-scope="scope">
+            <!--{{ orderDetails[] }}-->
+            <div>
+              {{ scope.row[item.key] }}
+            </div>
+          </template>
+        </el-table-column>
+      </el-table>
+      <!--<span slot="footer" class="dialog-footer">
+        <el-button icon="el-icon-printer" size="mini" type="primary" @click="printFun">
+          打印
+        </el-button>
+      </span>-->
+    </el-dialog>
   </div>
 </template>
 
@@ -107,9 +139,10 @@ import common from '@/mixins/common'
 import { getSuppliers, postRedDashed } from '@/service/PurchaseAndSale/Purchase/common.js'
 import { getProcurementAllResult, getProcurementResultDetails } from '@/service/PurchaseAndSale/Purchase/PurchaseAllResult'
 import SelectTable from '@/components/SelectTable/SelectTable'// 列表组件
-import {statusMap,clearMap} from '@/views/PurchaseAndSale/config.js'
+import { statusMap, clearMap } from '@/views/PurchaseAndSale/config.js'
 import { parseTime } from '@/utils'
-
+import { dataFormat } from '@/utils/index.js'
+import { purchaseAllResultDetailMap } from '../config'
 export default {
   name: 'PurchaseAllResult',
   components: { SelectTable },
@@ -119,7 +152,10 @@ export default {
       filterData: {},
       pickTime: '',
       resultList: [],
-      suppliersList: []
+      suppliersList: [],
+      orderVisible: false,
+      orderDetails: {},
+      purchaseAllResultDetailMap
     }
   },
   computed: {},
@@ -142,7 +178,6 @@ export default {
       })
     },
     getProcurementAllResultFun() {
-
       if (!this.filterData.id) {
         delete this.filterData.id
       }
@@ -156,7 +191,7 @@ export default {
       }
       getProcurementAllResult(params).then(res => {
         const data = res.data.data
-        let typeMap = {
+        const typeMap = {
           1: '零售单', 2: '销售出库单', 3: '销售退货单', 4: '销售换货单'
         }
         data.items.forEach(item => {
@@ -172,7 +207,30 @@ export default {
         storeId: this.storeId
       }
       const path = row.id
-      getProcurementResultDetails(params, path).then(res => {})
+      getProcurementResultDetails(params, path).then(res => {
+        const data = res.data.data
+        console.log(data)
+        data.orderStatus = statusMap[data.orderStatus]
+        console.log(clearMap)
+        data.clearStatus = clearMap[data.procurementApplyOrderVo.clearStatus]
+        data.details.forEach(v => {
+          v.goodsSkuSku = eval(v.goodsSkuSku)
+          let sku = ''
+          v.goodsSkuSku.forEach((item, index) => {
+            let _sku = ''
+            if (v.goodsSkuSku.length === index + 1) {
+              _sku = item.key + ':' + item.value
+            } else {
+              _sku = item.key + ':' + item.value + ','
+            }
+            sku += _sku
+          })
+          v.goodsSkuSku = sku
+        })
+        const _data = dataFormat(data)
+        this.orderDetails = _data
+        this.orderVisible = true
+      })
     },
     redRow(index, row) {
       const params = {

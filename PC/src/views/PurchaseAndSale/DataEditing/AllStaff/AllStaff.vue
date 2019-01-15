@@ -79,6 +79,11 @@
       width="80%"
     >
       <div class="dialog-content-input">
+        <el-switch
+          v-model="userDetail.disabledC"
+          active-text="启用"
+          inactive-text="禁用 "
+        />
         <el-input v-model="userDetail.name" placeholder="请输入操作员名" size="mini">
           <template slot="prepend">
             操作员名
@@ -136,7 +141,7 @@ import {
   getRolesData
 } from '@/service/PurchaseAndSale/DataEditing/AllStaff.js'
 import common from '@/mixins/common'
-import {disabledMap} from '@/views/PurchaseAndSale/config.js'
+import { disabledMap } from '@/views/PurchaseAndSale/config.js'
 export default {
   name: 'StaffInformation',
   components: {
@@ -148,7 +153,7 @@ export default {
     return {
       userList: {},
       userDetail: {},
-      roles:[],
+      roles: [],
       selectArr: [],
       paginationData: {
         page: 1,
@@ -169,7 +174,7 @@ export default {
     this.getRolesDataFun()
   },
   methods: {
-    searchBtn(){
+    searchBtn() {
       this.paginationData.page = 1
       this.getUsersDataFun()
     },
@@ -242,10 +247,12 @@ export default {
         ...this.filterData
       }
       getUsersData(params).then(res => {
-        res.data.data.items.forEach(v=>{
+        const data = res.data.data
+        data.items.forEach(v => {
+          v.disabledC = !v.disabled
           v.disabled = disabledMap[v.disabled]
         })
-        this.userList = res.data.data
+        this.userList = data
       })
     },
     findUsersByIdFun() {
@@ -264,7 +271,13 @@ export default {
     confirmHandle1() {
       const params = {
         'storeId': this.storeId,
-        ...this.userDetail
+        id: this.userDetail.id,
+        name: this.userDetail.name,
+        username: this.userDetail.username,
+        password: this.userDetail.password,
+        phone: this.userDetail.phone,
+        disabled: this.userDetail.disabledC ? '0' : '1',
+        roles: this.userDetail.roles
       }
       const roles = []
       this.roles.forEach(v => {

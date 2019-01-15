@@ -16,10 +16,10 @@ export const statusMap = {
   15: '已收已发'
 }
 export const disabledMap = {
-  1:'禁用',
+  1: '禁用',
   0: '启用'
 }
 export const clearMap = {
-  1 : '已结算',
-  0 : '未结算',
+  '1': '已结算',
+  '0': '未结算'
 }

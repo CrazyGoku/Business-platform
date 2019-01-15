@@ -32,11 +32,11 @@
               {{ $t('navbar.dashboard') }}
             </el-dropdown-item>
           </router-link>
-          <a target="_blank" href="https://github.com/PanJiaChen/vue-element-admin/">
+          <router-link to="/StoreManager/Store">
             <el-dropdown-item>
-              {{ $t('navbar.github') }}
+              店铺管理
             </el-dropdown-item>
-          </a>
+          </router-link>
           <el-dropdown-item divided>
             <span style="display:block;" @click="logout">
               {{ $t('navbar.logOut') }}

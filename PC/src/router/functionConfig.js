@@ -48,7 +48,7 @@ export const functions = [
       {
         id: 20,
         name: '全部操作员'
-      },
+      }
     ]
   },
   {
@@ -102,7 +102,7 @@ export const functions = [
       {
         id: 29,
         name: '销售历史'
-      },
+      }
     ]
   },
   {
@@ -135,7 +135,7 @@ export const functions = [
       {
         id: 35,
         name: '预付款'
-      },
+      }
     ]
   },
   {
@@ -173,6 +173,10 @@ export const functions = [
         id: 42,
         name: '成本调价'
       },
+      {
+        id: 54,
+        name: '库存盘点'
+      }
     ]
   },
   {
@@ -185,7 +189,7 @@ export const functions = [
       {
         id: 43,
         name: '优惠券'
-      },
+      }
     ]
   },
   {
@@ -214,13 +218,20 @@ export const functions = [
         id: 48,
         name: '库存报表'
       },
+      {
+        id: 52,
+        name: '订单统计'
+      },
+      {
+        id: 53,
+        name: '销售报表'
+      }
     ]
   },
   {
     id: 9,
     name: '设置', checkList: [],
     checkAll: false,
-
     children: [
       {
         id: 49,
@@ -233,6 +244,6 @@ export const functions = [
       {
         id: 51,
         name: '库存预警'
-      },
+      }
     ]
   }]

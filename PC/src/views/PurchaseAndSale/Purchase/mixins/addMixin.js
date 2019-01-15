@@ -1,4 +1,4 @@
-import {getOrderResultDetails} from  '@/service/PurchaseAndSale/Purchase/common.js'
+import { getOrderResultDetails } from '@/service/PurchaseAndSale/Purchase/common.js'
 export default {
   data() {
     return {
@@ -45,16 +45,32 @@ export default {
       getOrderResultDetails(params, path).then(res => {
         const data = res.data.data
         this.chioceSelect.resultOrderId = row.id
-        this.chioceSelect.outWarehouseId = data.procurementApplyOrderVo?data.procurementApplyOrderVo.inWarehouseId:''
-        this.chioceSelect.inWarehouseId = data.sellApplyOrderVo?data.sellApplyOrderVo.outWarehouseId:''
-        this.chioceSelect.supplierId = data.procurementApplyOrderVo?data.procurementApplyOrderVo.supplierId:''
+        this.chioceSelect.outWarehouseId = data.procurementApplyOrderVo ? data.procurementApplyOrderVo.inWarehouseId : ''
+        this.chioceSelect.inWarehouseId = data.sellApplyOrderVo ? data.sellApplyOrderVo.outWarehouseId : ''
+        this.chioceSelect.supplierId = data.procurementApplyOrderVo ? data.procurementApplyOrderVo.supplierId : ''
         this.chioceSelect.remark = ''
-        this.chioceSelect.client = data.sellApplyOrderVo?data.sellApplyOrderVo.client.id:''
+        this.chioceSelect.client = data.sellApplyOrderVo ? data.sellApplyOrderVo.client.id : ''
         this.chioceSelect.totalDiscountMoney = data.totalDiscountMoney
         this.chioceSelect.discountMoney = data.discountMoney
         this.chioceSelect.totalMoney = data.totalMoney
         this.chioceSelect.orderMoney = data.orderMoney
         this.choiceGoodsSku = data.details
+        console.log(this.choiceGoodsSku)
+        this.choiceGoodsSku.forEach(v => {
+          v.sku = eval(v.goodsSkuSku)
+          let sku = ''
+          v.sku.forEach((item, index) => {
+            let _sku = ''
+            if (v.sku.length === index + 1) {
+              _sku = item.key + ':' + item.value
+            } else {
+              _sku = item.key + ':' + item.value + ','
+            }
+            sku += _sku
+          })
+          v.sku = sku
+        })
+        console.log(data.details)
         this.addVisible = true
         this.isEdit = false
       })

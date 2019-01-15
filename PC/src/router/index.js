@@ -13,19 +13,19 @@ import PurchaseAndSaleRouter from './module/PurchaseAndSale.js'
  **/
 
 /**
-* hidden: true                   if `hidden:true` will not show in the sidebar(default is false)
-* alwaysShow: true               if set true, will always show the root menu, whatever its child routes length
-*                                if not set alwaysShow, only more than one route under the children
-*                                it will becomes nested mode, otherwise not show the root menu
-* redirect: noredirect           if `redirect:noredirect` will no redirect in the breadcrumb
-* name:'router-name'             the name is used by <keep-alive> (must set!!!)
-* meta : {
+ * hidden: true                   if `hidden:true` will not show in the sidebar(default is false)
+ * alwaysShow: true               if set true, will always show the root menu, whatever its child routes length
+ *                                if not set alwaysShow, only more than one route under the children
+ *                                it will becomes nested mode, otherwise not show the root menu
+ * redirect: noredirect           if `redirect:noredirect` will no redirect in the breadcrumb
+ * name:'router-name'             the name is used by <keep-alive> (must set!!!)
+ * meta : {
     roles: ['admin','editor']     will control the page roles (you can set multiple roles)
     title: 'title'               the name show in submenu and breadcrumb (recommend set)
     icon: 'svg-name'             the icon show in the sidebar,
     noCache: true                if true ,the page will no be cached(default is false)
   }
-**/
+ **/
 export const constantRouterMap = [
   {
     path: '/redirect',
@@ -62,7 +62,6 @@ export const constantRouterMap = [
     path: '',
     component: Layout,
     redirect: 'dashboard',
-    roles: [1],
     children: [
       {
         path: 'dashboard',
@@ -72,7 +71,12 @@ export const constantRouterMap = [
       }
     ]
   },
-  PurchaseAndSaleRouter
+  {
+    path: '/PrintPage',
+    component: () => import('@/views/Common/PrintPage/index'),
+    name: 'PrintPage'
+  }
+
 ]
 
 export default new Router({
@@ -82,5 +86,21 @@ export default new Router({
 })
 
 export const asyncRouterMap = [
+  PurchaseAndSaleRouter,
+  {
+    path: '/StoreManager',
+    component: Layout,
+    redirect: 'Store',
+    hidden: true,
+    children: [
+      {
+        path: 'Store',
+        component: () => import('@/views/Common//StoreManager'),
+        name: 'Store',
+        meta: { title: '店铺管理', iconfont: '&#xe671;' }
+      }
+    ]
+  },
+
   { path: '*', redirect: '/404', hidden: true }
 ]

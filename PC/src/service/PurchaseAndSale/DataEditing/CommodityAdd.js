@@ -41,11 +41,27 @@ export function postCommodityData(data) {
   })
 }
 
+export function postGoodsImport(data, params) {
+  return request({
+    url: '/pps/goods/import',
+    method: 'post',
+    data,
+    params
+  })
+}
+
 // delete请求
 export function delCommodityTypeData(params, path) {
   return request({
     url: '/pps/goods/types/' + path,
     method: 'delete',
     params
+  })
+}
+export function putCommodityData(data) {
+  return request({
+    url: '/pps/goods',
+    method: 'put',
+    data
   })
 }
