@@ -116,7 +116,8 @@ const user = {
               commit('SET_ROLES', _data)
               resolve(_data)
             } else {
-              reject('getInfo: roles must be a non-null array !')
+              dispatch('LogOut')
+              reject('没有权限，请联系管理员')
             }
           })
           // let roles = []

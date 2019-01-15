@@ -87,7 +87,6 @@
       <div style="margin-bottom: 10px">
         <el-select
           v-model="commodityDetail.typeId"
-          clearable
           :disabled="isEdit"
           size="mini"
           placeholder="请选择商品分类"
@@ -100,6 +99,7 @@
             :value="item.id"
           />
         </el-select>
+        <!--<el-button type="primary" size="mini" @click="unitAdd">批量添加数量</el-button>-->
         <el-button
           v-if="commodityDetail.typeId"
           icon="el-icon-circle-plus-outline"
@@ -217,43 +217,32 @@
           </template>
         </el-table-column>
         <el-table-column label="积分" width="180" align="center">
+
           <template scope="scope">
             <el-input
               v-model="scope.row.integral"
               size="small"
               placeholder="请输入内容"
-              @change="handleEdit(scope.$index, scope.row)"
             />
           </template>
         </el-table-column>
         <el-table-column label="进价" width="180" align="center">
           <template scope="scope">
-            <el-input
-              v-model="scope.row.purchasePrice"
-              size="small"
-              placeholder="请输入内容"
-              @change="handleEdit(scope.$index, scope.row)"
-            />
+            <NumberInput :no-slot="false" v-model="scope.row.purchasePrice">
+            </NumberInput>
           </template>
         </el-table-column>
         <el-table-column label="零售价" width="180" align="center">
           <template scope="scope">
-            <el-input
-              v-model="scope.row.retailPrice"
-              size="small"
-              placeholder="请输入内容"
-              @change="handleEdit(scope.$index, scope.row)"
-            />
+            <NumberInput :no-slot="false" v-model="scope.row.retailPrice">
+            </NumberInput>
           </template>
         </el-table-column>
         <el-table-column label="VIP售价" width="180" align="center">
+
           <template scope="scope">
-            <el-input
-              v-model="scope.row.vipPrice"
-              size="small"
-              placeholder="请输入内容"
-              @change="handleEdit(scope.$index, scope.row)"
-            />
+            <NumberInput :no-slot="false" v-model="scope.row.vipPrice">
+            </NumberInput>
           </template>
         </el-table-column>
         <el-table-column v-for="item in choiceProperties" :label="item.name" width="180" align="center">
@@ -426,6 +415,7 @@ export default {
   data() {
     return {
       BASE_URL,
+      unifiedAdd:'',
       exportFilter: {},
       commodityList: {},
       exportDialog: false,
@@ -485,6 +475,23 @@ export default {
       this.commodityDetail = {}
       this.specificationsFlag = false
       this.specifucatuibsList = []
+    },
+    unitAdd(){
+      this.$prompt('数量', '批量添加数量', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        inputPattern: /^\+?[1-9][0-9]*$/,
+        inputErrorMessage: '请输入非零正整数'
+      }).then(({ value }) => {
+        this.specifucatuibsList.forEach(v=>{
+
+        })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '取消输入'
+        });
+      });
     },
     printFun() {
       const data = JSON.parse(JSON.stringify(this.commodityList))
