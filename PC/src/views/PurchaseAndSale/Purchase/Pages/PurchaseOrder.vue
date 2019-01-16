@@ -495,9 +495,7 @@ export default {
       const path = row.id
       getOrderApplyDetails(params, path).then(res => {
         const data = res.data.data
-        console.log(data)
         data.orderStatus = statusMap[data.orderStatus]
-        console.log(clearMap)
         data.clearStatus = clearMap[data.clearStatus]
         data.details.forEach(v => {
           v.goodsSkuSku = eval(v.goodsSkuSku)

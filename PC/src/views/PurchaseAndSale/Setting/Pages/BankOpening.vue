@@ -88,7 +88,7 @@ export default {
           v.type = bankAccountMap[v.type]
         })
         this.bankAccountList = res.data.data
-        this.paginationData = res.data.pageVo
+        this.paginationData = res.data.data.pageVo
       })
     },
     editRow(index, row) {

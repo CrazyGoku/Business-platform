@@ -200,20 +200,12 @@
         </el-table-column>
         <el-table-column label="数量" width="180" align="center">
           <template scope="scope">
-            <el-input
-              v-model="scope.row.quantity"
-              size="small"
-              @input="quantityChange(scope.row)"
-            />
+            <NumberInput v-model="scope.row.quantity" :no-slot="false" @input="scope.row.totalMoney = scope.row.quantity * scope.row.money" />
           </template>
         </el-table-column>
         <el-table-column prop="money" label="价格" width="180" align="center">
           <template scope="scope">
-            <el-input
-              v-model="scope.row.money"
-              size="small"
-              @input="moneyChange(scope.row)"
-            />
+            <NumberInput v-model="scope.row.money" :no-slot="false" @input="scope.row.totalMoney = scope.row.quantity * scope.row.money" />
           </template>
         </el-table-column>
         <el-table-column

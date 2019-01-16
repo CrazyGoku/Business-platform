@@ -100,7 +100,7 @@
           width="20"
         />
         <el-table-column
-          v-for="(item,index) in orderDetailMap"
+          v-for="(item,index) in purchaseOrderReturnDetailMap"
           :key="index"
           :fixed="index<1?true:false"
           :show-overflow-tooltip="true"
@@ -152,9 +152,10 @@
         />
         <el-table-column label="数量" width="180" align="center">
           <template scope="scope">
-            <el-input
+            <NumberInput
+              :max="scope.row.quantity"
               v-model="scope.row.quantity"
-              size="small"
+              :no-slot="false"
               @input="quantityChange(scope.row)"
             />
           </template>
@@ -212,10 +213,10 @@ import common from '@/mixins/common'
 import { getSuppliers, getOrderApply, getOrderApplyDetails, delOrderApply, getOrderResultDetails, getOrderResult, postOrderApply } from '@/service/PurchaseAndSale/Purchase/common.js'
 import SelectTable from '@/components/SelectTable/SelectTable'// 列表组件
 import { dataFormat } from '@/utils/index.js'
-import { orderDetailMap, orderApplyMap } from '@/views/PurchaseAndSale/Purchase/config.js'
+import { purchaseOrderReturnDetailMap, orderApplyMap } from '@/views/PurchaseAndSale/Purchase/config.js'
 import addMixin from '../mixins/addMixin.js'
 import purchasecommon from '../mixins/purchasecommon'
-import { statusMap } from '../../config'
+import { statusMap,clearMap } from '../../config'
 import { parseTime } from '@/utils'
 
 export default {
@@ -239,7 +240,7 @@ export default {
         page: 1,
         pageSize: 10
       },
-      orderDetailMap,
+      purchaseOrderReturnDetailMap,
       orderDetails: [],
       isGetSkuMap: false,
       procurementOrderList: []
@@ -350,25 +351,24 @@ export default {
       const path = row.id
       getOrderApplyDetails(params, path).then(res => {
         const data = res.data.data
-        const _data = dataFormat(data)
-        if (_data.length > 0) {
-          if (!this.isGetSkuMap) {
-            const sku = eval(_data[0].goodsSkuSku)
-            sku.forEach(v => {
-              this.orderDetailMap.push({ key: v.key, name: v.key })
-            })
-            this.isGetSkuMap = true
-          }
-          _data.forEach(v => {
-            let _itemSKU = {}
-            const _sku = eval(v.goodsSkuSku)
-            _sku.forEach(item => {
-              _itemSKU = { [item.key]: item.value }
-              Object.assign(v, _itemSKU)
-            })
+        console.log(data)
+        data.orderStatus = statusMap[data.orderStatus]
+        data.clearStatus = clearMap[data.clearStatus]
+        data.details.forEach(v => {
+          v.goodsSkuSku = eval(v.goodsSkuSku)
+          let sku = ''
+          v.goodsSkuSku.forEach((item, index) => {
+            let _sku = ''
+            if (v.goodsSkuSku.length === index + 1) {
+              _sku = item.key + ':' + item.value
+            } else {
+              _sku = item.key + ':' + item.value + ','
+            }
+            sku += _sku
           })
-        }
-
+          v.goodsSkuSku = sku
+        })
+        const _data = dataFormat(data)
         this.orderDetails = _data
         this.orderVisible = true
       })

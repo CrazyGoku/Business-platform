@@ -268,6 +268,12 @@ const PurchaseAndSaleRouter = {
           component: () => import('@/views/PurchaseAndSale/Report/Pages/SalesReport.vue'),
           name: 'SalesReport',
           meta: { title: '销售报表', iconfont: '&#xe631;', roles: [53] }
+        },
+        {
+          path: 'ManagementCenter',
+          component: () => import('@/views/PurchaseAndSale/Report/Pages/ManagementCenter.vue'),
+          name: 'ManagementCenter',
+          meta: { title: '经营中心', iconfont: '&#xe631;', roles: [55] }
         }
       ]
     },

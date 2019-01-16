@@ -258,7 +258,7 @@ export default {
       }
       getRolesData(params).then(res => {
         this.staffList = res.data.data
-        this.paginationData = res.data.pageVo
+        this.paginationData = res.data.data.pageVo
       })
     },
     cancleHandle1() {

@@ -72,6 +72,7 @@
         }
         getFundBalance(params).then(res => {
           this.fundList = res.data.data
+          this.paginationData = res.data.data.pageVo
         })
       },
     }

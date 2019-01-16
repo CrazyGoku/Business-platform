@@ -71,6 +71,7 @@ export default {
       }
       getReportOrderByOrder(params).then(res => {
         this.orderList = res.data.data
+        this.paginationData = res.data.data.pageVo
       })
     }
   }

@@ -100,6 +100,7 @@
         }
         getReportInventoryAnalysisByDetails(params).then(res=>{
           this.inventoryList = res.data.data
+          this.paginationData = res.data.data.pageVo
         })
       }
     }

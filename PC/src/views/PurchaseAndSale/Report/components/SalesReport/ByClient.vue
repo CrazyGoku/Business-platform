@@ -71,6 +71,7 @@ export default {
       }
       getReportSellByClient(params).then(res => {
         this.sellList = res.data.data
+        this.paginationData = res.data.data.pageVo
       })
     }
   }

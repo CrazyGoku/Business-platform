@@ -103,6 +103,7 @@ export default {
         this.$set(v, 'discountMoney', 0)
         this.$set(v, 'remark', '')
         this.$set(v, 'checkMoneyC', v.checkMoney)
+        this.$set(v, 'changeCheckTotalMoney', v.checkMoney*v.checkQuantity)
       })
     },
     deleteChoiceRow(index, row) {
@@ -112,7 +113,7 @@ export default {
       })
       this.chioceSelect.goodsSku = ''
     },
-    quantityChange(row) {
+    quantityChange(row,target) {
       if (!row.discountMoney) {
         row.totalMoney = row.quantity * row.money
       } else {
@@ -123,7 +124,7 @@ export default {
     discountChange(row) {
       row.money = row.quantity * (row.purchasePrice - row.discountMoney)
     },
-    moneyChange(row) {
+    moneyChange(row,target) {
       row.money = row.quantity * (row.purchasePrice - row.discountMoney)
       row.changeCheckTotalMoney = row.checkQuantity * (row.checkMoneyC - row.checkMoney)
     }
