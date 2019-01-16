@@ -32,11 +32,11 @@
 <script>
   import SelectTable from '@/components/SelectTable/SelectTable'// 列表组件
   import common from '@/mixins/common'
-  import {getReportManageBySell} from '@/service/PurchaseAndSale/Report/ManagementCenter.js'
+  import {getReportManageByBoss} from '@/service/PurchaseAndSale/Report/ManagementCenter.js'
   import { parseTime } from '@/utils'
   export default {
 
-    name: 'BySell',
+    name: 'BossCenter',
     components: {
       SelectTable
     },
@@ -74,7 +74,7 @@
           pageSize: this.paginationData.pageSize,
           ...this.filterData
         }
-        getReportManageBySell(params).then(res => {
+        getReportManageByBoss(params).then(res => {
           this.manageList = res.data.data
           this.paginationData = res.data.data.pageVo
         })

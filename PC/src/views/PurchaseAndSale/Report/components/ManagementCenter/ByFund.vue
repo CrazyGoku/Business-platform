@@ -36,7 +36,7 @@
   import { parseTime } from '@/utils'
   export default {
 
-    name: 'ByManage',
+    name: 'ByFund',
     components: {
       SelectTable
     },

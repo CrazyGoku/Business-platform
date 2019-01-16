@@ -229,6 +229,10 @@ export const functions = [
       {
         id: 55,
         name: '经营中心'
+      },
+      {
+        id: 56,
+        name: '老板中心'
       }
     ]
   },

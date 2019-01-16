@@ -274,6 +274,12 @@ const PurchaseAndSaleRouter = {
           component: () => import('@/views/PurchaseAndSale/Report/Pages/ManagementCenter.vue'),
           name: 'ManagementCenter',
           meta: { title: '经营中心', iconfont: '&#xe631;', roles: [55] }
+        },
+        {
+          path: 'BossCenter',
+          component: () => import('@/views/PurchaseAndSale/Report/Pages/BossCenter.vue'),
+          name: 'BossCenter',
+          meta: { title: '老板中心', iconfont: '&#xe631;', roles: [56] }
         }
       ]
     },

@@ -19,9 +19,9 @@ export function getReportManageByFund(params) {
 }
 
 //经营中心-库存经营分析
-export function getReportManageByManage(params) {
+export function getReportManageByInventory(params) {
   return request({
-    url: '/pps/report/manage/byManage',
+    url: '/pps/report/manage/byInventory',
     method: 'get',
     params
   })

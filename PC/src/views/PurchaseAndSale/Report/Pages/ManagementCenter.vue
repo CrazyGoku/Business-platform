@@ -27,7 +27,7 @@
   import common from '@/mixins/common'
   // import ByBoss from '@/views/PurchaseAndSale/Report/components/ManagementCenter/ByBoss.vue'
   import ByFund from '@/views/PurchaseAndSale/Report/components/ManagementCenter/ByFund.vue'
-  import ByManage from '@/views/PurchaseAndSale/Report/components/ManagementCenter/ByManage.vue'
+  import ByManage from '@/views/PurchaseAndSale/Report/components/ManagementCenter/ByInventory.vue'
   import ByProfit from '@/views/PurchaseAndSale/Report/components/ManagementCenter/ByProfit.vue'
   import BySell from '@/views/PurchaseAndSale/Report/components/ManagementCenter/BySell.vue'
   import ByTarget from '@/views/PurchaseAndSale/Report/components/ManagementCenter/ByTarget.vue'
