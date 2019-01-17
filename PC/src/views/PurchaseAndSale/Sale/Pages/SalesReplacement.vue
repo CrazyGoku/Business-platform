@@ -70,6 +70,7 @@
             <el-button
               type="text"
               size="small"
+              :disabled="!(scope.row.status==1||scope.row.status==4||scope.row.status==7)"
               @click.native.prevent="deleteRow(scope.$index,scope.row,false)"
             >
               删除
@@ -77,6 +78,7 @@
             <el-button
               type="text"
               size="small"
+              :disabled="!(scope.row.status==1||scope.row.status==4||scope.row.status==7)"
               @click.native.prevent="editRow(scope.$index,scope.row)"
             >
               编辑
@@ -92,7 +94,7 @@
         </el-table-column>
       </select-table>
     </div>
-    <el-dialog :visible.sync="orderVisible" title="订单详情">
+    <el-dialog :close-on-click-modal="false" :visible.sync="orderVisible" title="订单详情">
       <el-table :data="orderDetails">
         <el-table-column
           type="index"
@@ -119,7 +121,7 @@
         </el-table-column>
       </el-table>
     </el-dialog>
-    <el-dialog :visible.sync="addVisible" :title="isEdit?'编辑订单':'添加换货订单'">
+    <el-dialog :close-on-click-modal="false" :visible.sync="addVisible" :title="isEdit?'编辑订单':'添加换货订单'">
       <div class="dialog-content-input">
         <el-input v-model="chioceSelect.remark" placeholder="请输入备注" size="mini">
           <template slot="prepend">
@@ -145,6 +147,12 @@
           </template>
         </el-table-column>
         <el-table-column
+          prop="goodsName"
+          align="center"
+          width="200"
+          label="商品名称"
+        />
+        <el-table-column
           prop="sku"
           align="center"
           width="200"
@@ -152,9 +160,10 @@
         />
         <el-table-column label="数量" width="180" align="center">
           <template scope="scope">
-            <el-input
+            <NumberInput
+              :max="scope.row.quantity"
               v-model="scope.row.quantity"
-              size="small"
+              :no-slot="false"
               @input="quantityChange(scope.row)"
             />
           </template>
@@ -174,7 +183,7 @@
         </el-button>
       </span>
     </el-dialog>
-    <el-dialog :visible.sync="addDialog" width="80%" title="选择销售订单换货">
+    <el-dialog :close-on-click-modal="false" :visible.sync="addDialog" width="80%" title="选择销售订单换货">
       <select-table
         :data="sellOrderList"
         :pagination-data="paginationData"
@@ -215,17 +224,18 @@ import {
   delOrderApply,
   getSellApplyDetails,
   postSellApply,
-  getSellResult
+  getSellResult,
+  putSellApply
 } from '@/service/PurchaseAndSale/Sale/common.js'
 import SelectTable from '@/components/SelectTable/SelectTable'// 列表组件
 import { orderDetailMap } from '@/views/PurchaseAndSale/Purchase/config.js'
 import { dataFormat } from '@/utils/index.js'
 import salecommon from '../mixins/salecommon'
 import addMixin from '../mixins/addMixin'
-import { statusMap } from '@/views/PurchaseAndSale/config.js'
+import { statusMap,clearMap } from '@/views/PurchaseAndSale/config.js'
 import { parseTime } from '@/utils'
 export default {
-  name: 'SalesOrdersReturn',
+  name: 'SalesReplacement',
   components: { SelectTable },
   mixins: [common, salecommon, addMixin],
   data() {
@@ -299,8 +309,11 @@ export default {
       }
       getSellApply(params).then(res => {
         const data = res.data.data
+
         data.items.forEach(item => {
+          item.status = item.orderStatus
           item.orderStatus = statusMap[item.orderStatus]
+          item.clearStatus = clearMap[item.clearStatus]
         })
         this.orderStorageList = data
         this.paginationData = data.pageVo
@@ -349,71 +362,88 @@ export default {
       const path = row.id
       getSellApplyDetails(params, path).then(res => {
         const data = res.data.data
-        const _data = dataFormat(data)
-        if (_data.length > 0) {
-          if (!this.isGetSkuMap) {
-            const sku = eval(_data[0].goodsSkuSku)
-            sku.forEach(v => {
-              this.orderDetailMap.push({ key: v.key, name: v.key })
-            })
-            this.isGetSkuMap = true
-          }
-          _data.forEach(v => {
-            let _itemSKU = {}
-            const _sku = eval(v.goodsSkuSku)
-            _sku.forEach(item => {
-              _itemSKU = { [item.key]: item.value }
-              Object.assign(v, _itemSKU)
-            })
+        data.details.forEach(v => {
+          v.goodsSkuSku = eval(v.goodsSkuSku)
+          let sku = ''
+          v.goodsSkuSku.forEach((item, index) => {
+            let _sku = ''
+            if (v.goodsSkuSku.length === index + 1) {
+              _sku = item.key + ':' + item.value
+            } else {
+              _sku = item.key + ':' + item.value + ','
+            }
+            sku += _sku
           })
-        }
-
+          v.goodsSkuSku = sku
+        })
+        const _data = dataFormat(data)
         this.orderDetails = _data
         this.orderVisible = true
       })
     },
     comfirm() {
       const data = {}
+      data.prodcingWay = 1
       data.userId = this.userId
       data.storeId = this.storeId
-      data.type = 3
+      data.outWarehouseId = this.chioceSelect.inWarehouseId
+      data.inWarehouseId = this.chioceSelect.inWarehouseId
       data.resultOrderId = this.chioceSelect.resultOrderId
       data.remark = this.chioceSelect.remark
-      data.inWarehouseId = this.chioceSelect.inWarehouseId
-      data.prodcingWay = 1
+      data.totalDiscountMoney = 0
+      data.discountMoney = 0
+      data.totalMoney = 0
+      data.orderMoney = 0
+      data.type = 4
       data.clientId = this.chioceSelect.client
       let inTotalQuantity = 0
-      let totalDiscountMoney = 0
-      let discountMoney = 0
-      let totalMoney = 0
-      let orderMoney = 0
+      let outTotalQuantity = 0
       const details = []
       this.choiceGoodsSku.forEach(v => {
-        const _detail = {}
-        inTotalQuantity += parseFloat(v.quantity)
-        totalDiscountMoney += parseFloat(v.discountMoney)
-        discountMoney += parseFloat(v.discountMoney)
-        totalMoney += parseFloat(v.money)
-        console.log(totalMoney)
-        _detail.id = v.id
-        _detail.type = 1
-        _detail.goodsSkuId = v.goodsSkuId
-        _detail.quantity = v.quantity
-        _detail.money = v.money
-        _detail.discountMoney = v.discountMoney
-        _detail.remark = v.remark
+        let _detail = {}
+        let _detail2 = {}
+        inTotalQuantity +=  Number(v.quantity)
+        outTotalQuantity +=  Number(v.quantity)
+        _detail = {
+          'type': 1,
+          'goodsSkuId': v.goodsSkuId,
+          'quantity': v.quantity,
+          'money': v.money,
+          'discountMoney': v.discountMoney,
+          'remark': v.remark
+        }
+        _detail2 = {
+          'type': 0,
+          'goodsSkuId': v.goodsSkuId,
+          'quantity': v.quantity,
+          'money': v.money,
+          'discountMoney': v.discountMoney,
+          'remark': v.remark
+        }
         details.push(_detail)
+        details.push(_detail2)
       })
-      orderMoney = totalMoney - totalDiscountMoney
-      data.details = details
+      data.outTotalQuantity = outTotalQuantity
       data.inTotalQuantity = inTotalQuantity
-      data.totalDiscountMoney = totalDiscountMoney * -1
-      data.discountMoney = discountMoney * -1
-      data.totalMoney = totalMoney * -1
-      data.orderMoney = orderMoney * -1
-      console.log(data)
-      postSellApply(data).then(res => {
-        console.log(res)
+      data.details = details
+      const func = this.isEdit ? putSellApply : postSellApply
+      const magSuccess = this.isEdit ? '成功编辑订单' : '成功添加订单'
+      func(data).then(res => {
+        if (res.data.code !== 1001) {
+          this.$message({
+            showClose: true,
+            message: res.data.message,
+            type: 'error'
+          })
+          return
+        }
+        this.$message({
+          showClose: true,
+          message: magSuccess,
+          type: 'success'
+        })
+        this.addVisible = false
+        this.getSellApplyData()
       })
     }
   }

@@ -94,7 +94,7 @@
         </el-table-column>
       </select-table>
     </div>
-    <el-dialog :visible.sync="orderVisible" title="订单详情">
+    <el-dialog :close-on-click-modal="false" width="80%" :visible.sync="orderVisible" title="订单详情">
       <el-table :data="orderDetails">
         <el-table-column
           type="index"
@@ -121,14 +121,14 @@
         </el-table-column>
       </el-table>
     </el-dialog>
-    <el-dialog :visible.sync="addVisible" :title="isEdit?'编辑订单':'添加订单'">
+    <el-dialog width="80%" :close-on-click-modal="false" :visible.sync="addVisible" :title="isEdit?'编辑订单':'添加订单'">
       <div class="dialog-content-input">
         <el-select
           v-model="chioceSelect.clientId"
           :disabled="isEdit"
           size="mini"
           filterable
-          placeholder="请选择客户"
+          filterable placeholder="请选择客户"
           @change="changeClientId"
         >
           <el-option
@@ -155,9 +155,9 @@
         </el-select>
         <el-select
           v-model="chioceSelect.outWarehouseId"
-          :disabled="isEdit"
+          :disabled="!!!chioceSelect.clientId"
           size="mini"
-          placeholder="请选择仓库"
+          filterable placeholder="请选择仓库"
           @change="choiceOutWarehouse"
         >
           <el-option
@@ -171,7 +171,7 @@
           v-model="chioceSelect.goodType"
           :disabled="!chioceSelect.outWarehouseId"
           size="mini"
-          placeholder="请选择商品分类"
+          filterable placeholder="请选择商品分类"
           @change="choiceGoodsTypeFun"
         >
           <el-option
@@ -245,29 +245,14 @@
           </template>
         </el-table-column>
         <el-table-column
-          prop="bookInventory"
+          prop="goodName"
           align="center"
-          label="账面库存"
+          label="商品名称"
         />
         <el-table-column
-          prop="canUseInventory"
+          prop="sku"
           align="center"
-          label="可用库存"
-        />
-        <el-table-column
-          prop="realInventory"
-          align="center"
-          label="实物库存"
-        />
-        <el-table-column
-          prop="integral"
-          align="center"
-          label="积分"
-        />
-        <el-table-column
-          prop="purchasePrice"
-          align="center"
-          label="进价"
+          label="规格"
         />
         <el-table-column
           prop="retailPrice"
@@ -292,7 +277,7 @@
           <template scope="scope">
             <NumberInput
               v-model="scope.row.money"
-              :min="choiceClient.clientLevel.priceType==1?scope.row.retailPrice*choiceClient.clientLevel.price:scope.row.vipPrice*choiceClient.clientLevel.price"
+              :max="choiceClient.clientLevel.priceType==1?scope.row.retailPrice*choiceClient.clientLevel.price:scope.row.vipPrice*choiceClient.clientLevel.price"
               :no-slot="false"
               @input="moneyChange(scope.row)"
             />
@@ -328,7 +313,7 @@
       </el-table>
       <div>
         <el-button v-if="choiceGoodsSku.length" style="float: right" size="mini" type="primary" @click="comfirm">
-          确认添加
+          确认
         </el-button>
       </div>
     </el-dialog>
@@ -337,11 +322,12 @@
 
 <script>
 import common from '@/mixins/common'
-import { getSuppliers, getSellApply, delOrderApply, getSellApplyDetails, postSellApply } from '@/service/PurchaseAndSale/Sale/common.js'
+import { getSuppliers, getSellApply, delSellApply, getSellApplyDetails, postSellApply,putSellApply } from '@/service/PurchaseAndSale/Sale/common.js'
 import SelectTable from '@/components/SelectTable/SelectTable'// 列表组件
-import { orderDetailMap, statusMap } from '@/views/PurchaseAndSale/Purchase/config.js'
+import { orderDetailMap } from '@/views/PurchaseAndSale/Purchase/config.js'
 import { dataFormat } from '@/utils/index.js'
 import salecommon from '../mixins/salecommon'
+import { statusMap,clearMap } from '../../config'
 import addMixin from '../mixins/addMixin'
 import { parseTime } from '@/utils'
 export default {
@@ -404,6 +390,7 @@ export default {
         data.items.forEach(item => {
           item.status = item.orderStatus
           item.orderStatus = statusMap[item.orderStatus]
+          item.clearStatus = clearMap[item.clearStatus]
         })
         this.orderStorageList = data
         this.paginationData = data.pageVo
@@ -425,11 +412,11 @@ export default {
         })
         params.ids = arr.join(',')
       }
-      delOrderApply(params).then(res => {
+      delSellApply(params).then(res => {
         if (res.data.code !== 1001) {
           this.$message({
             showClose: true,
-            message: '删除失败',
+            message: res.data.detail,
             type: 'error'
           })
           return
@@ -444,7 +431,59 @@ export default {
       console.log(row)
     },
     editRow(index, row) {
+      this.choiceGoodsSku = []
+      this.isEdit = true
+      const params = {
+        storeId: this.storeId
+      }
+      this.chioceSelect.id = row.id
+      const path = row.id
+      getSellApplyDetails(params, path).then(res => {
+        const data = res.data.data
+        let discountCouponMoney = 0
+        if(data.discountCouponId){
+          discountCouponMoney = this.discountCouponList.filter(v => {
+            return v.id === this.chioceSelect.discountCouponId
+          })[0].money
+        }
+        this.chioceSelect.outWarehouseId = data.outWarehouseId
+        this.chioceSelect.totalDiscountMoney = data.totalDiscountMoney
+        this.chioceSelect.discountMoney = data.totalDiscountMoney - discountCouponMoney
+        this.chioceSelect.clientId = data.client.id
+        this.choiceClient = this.clientsList.filter(v => {
+          return v.id === this.chioceSelect.clientId
+        })[0]
+        data.details.forEach(v => {
+          v.goodsSkuSku = eval(v.goodsSkuSku)
+          let sku = ''
+          v.goodsSkuSku.forEach((item, index) => {
+            let _sku = ''
+            if (v.goodsSkuSku.length === index + 1) {
+              _sku = item.key + ':' + item.value
+            } else {
+              _sku = item.key + ':' + item.value + ','
+            }
+            sku += _sku
+          })
+          v.goodsSkuSku = sku
+          const _data = {
+            id: v.goodsSkuId,
+            quantity: v.quantity,
+            money: v.money/v.quantity,
+            discountMoney: v.discountMoney,
+            retailPrice: v.goodsSkuRetailPrice,
+            vipPrice: v.goodsSkuVipPrice,
+            totalMoney: v.money,
+            remark: v.remark,
+            sku: v.goodsSkuSku
+          }
+          this.choiceGoodsSku.push(_data)
+        })
+        this.choiceOutWarehouse(data.outWarehouseId)
+        this.addVisible = true
+      })
     },
+
     readRow(index, row) {
       const params = {
         storeId: this.storeId
@@ -452,31 +491,30 @@ export default {
       const path = row.id
       getSellApplyDetails(params, path).then(res => {
         const data = res.data.data
-        const _data = dataFormat(data)
-        if (_data.length > 0) {
-          if (!this.isGetSkuMap) {
-            const sku = eval(_data[0].goodsSkuSku)
-            sku.forEach(v => {
-              this.orderDetailMap.push({ key: v.key, name: v.key })
-            })
-            this.isGetSkuMap = true
-          }
-          _data.forEach(v => {
-            let _itemSKU = {}
-            const _sku = eval(v.goodsSkuSku)
-            _sku.forEach(item => {
-              _itemSKU = { [item.key]: item.value }
-              Object.assign(v, _itemSKU)
-            })
+        data.details.forEach(v => {
+          v.goodsSkuSku = eval(v.goodsSkuSku)
+          let sku = ''
+          v.goodsSkuSku.forEach((item, index) => {
+            let _sku = ''
+            if (v.goodsSkuSku.length === index + 1) {
+              _sku = item.key + ':' + item.value
+            } else {
+              _sku = item.key + ':' + item.value + ','
+            }
+            sku += _sku
           })
-        }
-
+          v.goodsSkuSku = sku
+        })
+        const _data = dataFormat(data)
         this.orderDetails = _data
         this.orderVisible = true
       })
     },
     comfirm() {
       const data = {}
+      if(this.isEdit){
+        data.id = this.chioceSelect.id
+      }
       data.outWarehouseId = this.chioceSelect.outWarehouseId
       data.userId = this.userId
       data.storeId = this.storeId
@@ -511,22 +549,25 @@ export default {
       data.orderMoney = totalMoney - this.chioceSelect.totalDiscountMoney
       data.totalMoney = totalMoney
       data.details = details
-      postSellApply(data).then(res => {
+      const func = this.isEdit ? putSellApply : postSellApply
+      const magSuccess = this.isEdit ? '成功编辑订单' : '成功添加订单'
+      const failSuccess = this.isEdit ? '编辑订单失败' : '添加订单失败'
+      func(data).then(res => {
         if (res.data.code !== 1001) {
           this.$message({
             showClose: true,
-            message: '添加失败，请稍后重试',
+            message: failSuccess,
             type: 'error'
           })
           return
         }
         this.$message({
           showClose: true,
-          message: '添加成功',
+          message: magSuccess,
           type: 'success'
         })
-        this.getSellApplyData()
         this.addVisible = false
+        this.getSellApplyData()
       })
     }
 

@@ -60,7 +60,7 @@
         </el-table-column>
       </select-table>
     </div>
-    <el-dialog :visible.sync="orderVisible" title="订单详情">
+    <el-dialog :close-on-click-modal="false" :visible.sync="orderVisible" title="订单详情">
       <el-table :data="orderDetails">
         <el-table-column
           type="index"
@@ -87,7 +87,7 @@
         </el-table-column>
       </el-table>
     </el-dialog>
-    <el-dialog :visible.sync="addVisible" :title="isEdit?'编辑订单':'添加订单'">
+    <el-dialog :close-on-click-modal="false" :visible.sync="addVisible" :title="isEdit?'编辑订单':'添加订单'">
       <div class="dialog-content-input">
         <div class="dialog-content-input">
           <el-input
@@ -103,7 +103,7 @@
           v-model="chioceSelect.inWarehouseId"
           :disabled="isEdit"
           size="mini"
-          placeholder="请选择仓库"
+          filterable placeholder="请选择仓库"
           @change="choiceOutWarehouse"
         >
           <el-option
@@ -117,7 +117,7 @@
           v-model="chioceSelect.goodType"
           :disabled="!chioceSelect.inWarehouseId"
           size="mini"
-          placeholder="请选择商品分类"
+          filterable placeholder="请选择商品分类"
           @change="choiceGoodsTypeFun"
         >
           <el-option
@@ -131,6 +131,7 @@
           v-model="chioceSelect.good"
           :disabled="!chioceSelect.goodType"
           size="mini"
+          filterable
           placeholder="请选择商品"
           @change="choiceGoodsFun"
         >
@@ -311,15 +312,15 @@ export default {
     changeOIQ(row) {
       console.log(row)
       if (row.checkQuantity - row.quantity > 0) {
-        row.inQuantity = row.checkQuantity - row.quantity
-        row.inMoney = (row.checkQuantity - row.quantity) * row.checkMoney
-        row.outQuantity = 0
-        row.outMoney = 0
-      } else if (row.checkQuantity - row.quantity < 0) {
         row.inQuantity = 0
         row.inMoney = 0
-        row.outQuantity = row.checkQuantity - row.quantity
-        row.outMoney = (row.checkQuantity - row.quantity) * row.checkMoney
+        row.outQuantity = row.quantity - row.checkQuantity
+        row.outMoney = (row.quantity - row.checkQuantity) * row.checkMoney
+      } else if (row.checkQuantity - row.quantity < 0) {
+        row.inQuantity = row.quantity - row.checkQuantity
+        row.inMoney = (row.quantity - row.checkQuantity) * row.checkMoney
+        row.outQuantity = 0
+        row.outMoney = 0
       } else {
         row.inQuantity = 0
         row.inMoney = 0
@@ -470,6 +471,7 @@ export default {
         this.orderVisible = true
       })
     },
+    //盘亏盘赢自动生成一个相应的报损、报溢单
     comfirm() {
       const data = {}
       data.userId = this.userId
@@ -524,12 +526,97 @@ export default {
         }
         this.$message({
           showClose: true,
-          message: '添加成功',
+          message: '盘点成功，自动添加报损/报溢单',
           type: 'success'
         })
         this.addVisible = false
         this.getStorageResultFun()
       })
+      if(totalOutQuantity<0){
+        const data = {}
+        data.userId = this.userId
+        data.storeId = this.storeId
+        data.warehouseId = this.chioceSelect.inWarehouseId
+        data.type = 4
+        data.remark = ''
+        let totalQuantity = 0
+        let totalMoney = 0
+        const details = []
+        this.choiceGoodsSku.forEach(v => {
+          let _detail = {}
+          totalQuantity += Number(-v.outQuantity)
+          totalMoney += Number(-v.outMoney)
+          _detail = {
+            'goodsSkuId': v.id,
+            'money': -v.outMoney,
+            'quantity': -v.inQuantity,
+            'remark': v.remark,
+            'type': 0,
+            'checkQuantity': v.checkQuantity,
+            'checkMoney': v.checkMoney,
+            'checkTotalMoney': v.checkTotalMoney
+          }
+          details.push(_detail)
+        })
+        data.details = details
+        data.totalMoney = totalMoney
+        data.totalQuantity = totalQuantity
+        postStorageResult(data).then(res => {
+          if (res.data.code != 1001) {
+            this.$message({
+              showClose: true,
+              message: res.data.message,
+              type: 'error'
+            })
+            return
+          }
+        })
+      }
+      // if(totalInQuantity>0){
+      //   const data = {}
+      //   data.userId = this.userId
+      //   data.storeId = this.storeId
+      //   data.warehouseId = this.chioceSelect.inWarehouseId
+      //   data.type = 3
+      //   data.remark = this.addRemark
+      //   let totalQuantity = 0
+      //   let totalMoney = 0
+      //   const details = []
+      //   this.choiceGoodsSku.forEach(v => {
+      //     let _detail = {}
+      //     totalQuantity += Number(v.inQuantity)
+      //     totalMoney += Number(v.inMoney)
+      //     _detail = {
+      //       'goodsSkuId': v.id,
+      //       'money': v.inMoney,
+      //       'quantity': v.inQuantity,
+      //       'remark': v.remark,
+      //       'type': 1,
+      //       'checkQuantity': v.checkQuantity,
+      //       'checkMoney': v.checkMoney,
+      //       'checkTotalMoney': v.checkTotalMoney
+      //     }
+      //     details.push(_detail)
+      //   })
+      //   data.details = details
+      //   data.totalMoney = totalMoney
+      //   data.totalQuantity = totalQuantity
+      //   postStorageResult(data).then(res => {
+      //     if (res.data.code != 1001) {
+      //       this.$message({
+      //         showClose: true,
+      //         message: res.data.message,
+      //         type: 'error'
+      //       })
+      //       return
+      //     }
+      //     this.$message({
+      //       showClose: true,
+      //       message: '盘点成功，自动添加报溢单',
+      //       type: 'success'
+      //     })
+      //   })
+      // }
     }
   }
 }

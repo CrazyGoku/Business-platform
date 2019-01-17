@@ -34,7 +34,7 @@ export default {
     }
   },
   mounted() {
-
+    this.getClientsFun()
   },
   watch: {},
   methods: {
@@ -62,7 +62,6 @@ export default {
         this.chioceSelect.totalDiscountMoney = discountCouponMoney + Number(this.chioceSelect.discountMoney)
         const mod = this.chioceSelect.totalDiscountMoney % num
         const mon = parseInt(this.chioceSelect.totalDiscountMoney / num)
-        console.log(mon, mod)
         this.choiceGoodsSku.forEach((v, index) => {
           if (index === num - 1) {
             v.discountMoney = mon + mod
@@ -74,6 +73,7 @@ export default {
     },
     changeClientId(value) {
       this.choiceClient = this.clientsList.filter(v => {
+        console.log(v)
         return v.id === value
       })[0]
       this.getDiscountCouponCanUseFun(value)
@@ -110,6 +110,15 @@ export default {
       const path = row.id
       getSellResultDetails(params, path).then(res => {
         const data = res.data.data
+        let totalOperatedQuantity = 0
+        data.details.forEach(v=>{
+          totalOperatedQuantity+=Number(v.operatedQuantity)
+          v.quantity = v.quantity - v.operatedQuantity
+        })
+        if((data.totalQuantity-totalOperatedQuantity)===0){
+          this.$message('订单全在操作中');
+          return
+        }
         this.chioceSelect.resultOrderId = row.id
         this.chioceSelect.outWarehouseId = data.procurementApplyOrderVo ? data.procurementApplyOrderVo.inWarehouseId : ''
         this.chioceSelect.inWarehouseId = data.sellApplyOrderVo ? data.sellApplyOrderVo.outWarehouseId : ''
@@ -140,7 +149,6 @@ export default {
       })
     },
     addBtn(index, row) {
-      this.getClientsFun()
       this.getBankAccountsFun()
       this.addVisible = true
       this.isEdit = false
@@ -190,6 +198,9 @@ export default {
       } else {
         console.log(eval(this.goodsSkuVos.sku))
         this.goodsSkuVos.forEach(v => {
+          v.goodName = this.goodsVos.filter(v => {
+            return v.id === value
+          })[0].name
           v.sku = eval(v.sku)
           let sku = ''
           v.sku.forEach((item, index) => {
@@ -220,10 +231,12 @@ export default {
         return v.id == value
       })[0]
       this.choiceGoodsSku.push(_data)
+      console.log(this.choiceGoodsSku)
       this.choiceGoodsSku.forEach(v => {
         this.$set(v, 'type', 1)
         this.$set(v, 'goodsSkuId', v.id)
         this.$set(v, 'quantity', 0)
+        this.$set(v, 'goodName', v.goodName)
         this.$set(v, 'money', this.choiceClient.clientLevel.priceType == 1 ? v.retailPrice * this.choiceClient.clientLevel.price : v.vipPrice * this.choiceClient.clientLevel.price)
         this.$set(v, 'discountMoney', 0)
         this.$set(v, 'remark', '')

@@ -18,6 +18,7 @@ const getters = {
   storeId: state => state.user.storeId,
   userId: state => state.user.userId,
   storeName: state => state.user.storeName,
+  bossId: state => state.user.bossId,
   phone: state => state.user.phone
 }
 export default getters

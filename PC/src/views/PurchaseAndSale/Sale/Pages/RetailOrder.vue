@@ -89,7 +89,7 @@
         </el-table-column>
       </select-table>
     </div>
-    <el-dialog :visible.sync="orderVisible" title="订单详情">
+    <el-dialog :close-on-click-modal="false" :visible.sync="orderVisible" title="订单详情">
       <el-table :data="orderDetails">
         <el-table-column
           type="index"
@@ -116,13 +116,13 @@
         </el-table-column>
       </el-table>
     </el-dialog>
-    <el-dialog :visible.sync="addVisible" :title="isEdit?'编辑订单':'添加订单'">
+    <el-dialog :close-on-click-modal="false" :visible.sync="addVisible" :title="isEdit?'编辑订单':'添加订单'">
       <div class="dialog-content-input">
         <el-select
           v-model="chioceSelect.clientId"
           :disabled="isEdit"
           size="mini"
-          placeholder="请选择客户"
+          filterable placeholder="请选择客户"
           @change="changeClientId"
         >
           <el-option
@@ -164,7 +164,7 @@
           v-model="chioceSelect.outWarehouseId"
           :disabled="isEdit"
           size="mini"
-          placeholder="请选择仓库"
+          filterable placeholder="请选择仓库"
           @change="choiceOutWarehouse"
         >
           <el-option
@@ -178,7 +178,7 @@
           v-model="chioceSelect.goodType"
           :disabled="!chioceSelect.outWarehouseId"
           size="mini"
-          placeholder="请选择商品分类"
+          filterable placeholder="请选择商品分类"
           @change="choiceGoodsTypeFun"
         >
           <el-option
@@ -192,6 +192,7 @@
           v-model="chioceSelect.good"
           :disabled="!chioceSelect.goodType"
           size="mini"
+          filterable
           placeholder="请选择商品"
           @change="choiceGoodsFun"
         >
@@ -217,17 +218,15 @@
             :value="item.id"
           />
         </el-select>
-        <el-input
+        <NumberInput
           v-model="chioceSelect.discountMoney"
           :disabled="!choiceGoodsSku.length"
-          placeholder="请输入直接优惠金额"
-          size="mini"
           @input="changeDiscountMoney"
         >
           <template slot="prepend">
             直接优惠金额
           </template>
-        </el-input>
+        </NumberInput>
         <el-input v-model="chioceSelect.remark" placeholder="请输入备注" size="mini">
           <template slot="prepend">
             备注
@@ -252,7 +251,6 @@
             </el-button>
           </template>
         </el-table-column>
-        w
         <el-table-column
           prop="bookInventory"
           align="center"
@@ -404,7 +402,6 @@ export default {
       data.userId = this.userId
       data.storeId = this.storeId
       data.type = 1
-      data.discountMoney = this.chioceSelect.discountMoney
       data.discountCouponId = this.chioceSelect.discountCouponId
       data.remark = this.chioceSelect.remark
       data.prodcingWay = 1
@@ -429,7 +426,7 @@ export default {
         details.push(_detail)
       })
       data.outTotalQuantity = outTotalQuantity
-      data.discountMoney = this.chioceSelect.discountMoney
+      data.discountMoney = this.chioceSelect.discountMoney?this.chioceSelect.discountMoney:''
       data.orderMoney = totalMoney - this.chioceSelect.totalDiscountMoney
       data.totalMoney = totalMoney
       data.details = details

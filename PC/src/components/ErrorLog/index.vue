@@ -21,7 +21,7 @@
       </el-button>
     </el-badge>
 
-    <el-dialog :visible.sync="dialogTableVisible" title="Error Log" width="80%">
+    <el-dialog :close-on-click-modal="false" :visible.sync="dialogTableVisible" title="Error Log" width="80%">
       <el-table :data="errorLogs" border>
         <el-table-column label="Message">
           <template slot-scope="scope">

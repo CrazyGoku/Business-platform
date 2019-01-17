@@ -99,7 +99,7 @@
       <!--</el-button>-->
     </el-form>
 
-    <!--<el-dialog :title="$t('login.thirdparty')" :visible.sync="showDialog" append-to-body>-->
+    <!--<el-dialog :close-on-click-modal="false" :title="$t('login.thirdparty')" :visible.sync="showDialog" append-to-body>-->
     <!--{{ $t('login.thirdpartyTips') }}-->
     <!--<br>-->
     <!--<br>-->
@@ -190,13 +190,14 @@ export default {
       this.loading = true
       this.$store.dispatch('LoginByUsername', this.loginForm).then((res) => {
         this.loading = false
-        const storeName = this.storeList.filter(v => {
+        let choiceStore = this.storeList.filter(v => {
           return this.loginForm.storeId === v.id
-        })[0].name
-        const storeAddr = this.storeList.filter(v => {
-          return this.loginForm.storeId === v.id
-        })[0].name
+        })[0]
+        const storeName = choiceStore.name
+        const storeAddr = choiceStore.address
+        const bossId = choiceStore.clientId
         window.localStorage.setItem('storeName', storeName)
+        window.localStorage.setItem('bossId', bossId)
         window.localStorage.setItem('storeAddr', storeAddr)
         this.$router.push({ path: this.redirect || '/' })
       }).catch((err) => {

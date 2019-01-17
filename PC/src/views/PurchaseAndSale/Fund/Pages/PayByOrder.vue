@@ -10,7 +10,7 @@
         v-model="filterData.supplierName"
         clearable
         size="mini"
-        placeholder="请选择供应商名"
+        filterable placeholder="请选择供应商名"
       >
         <el-option
           v-for="item in supplierList"
@@ -76,7 +76,7 @@
         </el-table-column>
       </select-table>
     </div>
-    <el-dialog :visible.sync="addVisible" title="付款">
+    <el-dialog :close-on-click-modal="false" :visible.sync="addVisible" title="付款">
       <p>未结算金额:{{ payParams.notClearedMoney }}</p>
       <p>预付款金额:{{ fundAdvance }}</p>
       <div class="dialog-content-input">
@@ -92,26 +92,25 @@
             :value="item.id"
           />
         </el-select>
-        <el-input
+        <NumberInput
           v-model="payParams.inputMoney"
-          type="number"
-          size="mini"
           @input="inputMoneyTip"
+          :max="payParams.notClearedMoney"
         >
           <template slot="prepend">
             付款金额
           </template>
-        </el-input>
-        <el-input
+        </NumberInput>
+        <NumberInput
+          :max="fundAdvance"
           v-model="payParams.advanceMoney"
-          type="number"
-          size="mini"
           @input="advanceTip"
+
         >
           <template slot="prepend">
             使用预付款金额
           </template>
-        </el-input>
+        </NumberInput>
         <el-input
           v-model="payParams.remark"
           size="mini"
@@ -224,7 +223,7 @@ export default {
           'orderId': row.id,
           'remark': '',
           'storeId': this.storeId,
-          'targetId': 'gys001',
+          'targetId': row.supplierId,
           'type': '2',
           'userId': this.userId,
           'notClearedMoney': row.notClearedMoney
@@ -248,6 +247,9 @@ export default {
       }
     },
     confirmHandle() {
+      this.payParams.inputMoney = this.payParams.inputMoney?this.payParams.inputMoney:0
+      this.payParams.advanceMoney = this.payParams.advanceMoney?this.payParams.advanceMoney:0
+      this.payParams.discountMoney = this.payParams.discountMoney?this.payParams.discountMoney:0
       const totalMoney = Number(this.payParams.inputMoney) + Number(this.payParams.advanceMoney) + Number(this.payParams.discountMoney)
       if (!this.payParams.bankAccountId) {
         this.$message({
@@ -269,9 +271,6 @@ export default {
           type: 'warning'
         })
         return
-      }
-      const data = {
-
       }
       this.payParams.money = totalMoney
       postFundOrder(this.payParams).then(res => {

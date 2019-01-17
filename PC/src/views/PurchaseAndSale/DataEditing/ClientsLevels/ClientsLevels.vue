@@ -42,7 +42,7 @@
         </el-table-column>
       </select-table>
     </div>
-    <el-dialog :title="isEdit?'编辑客户级别':'添加客户级别'" :visible.sync="addDialog">
+    <el-dialog :close-on-click-modal="false" :title="isEdit?'编辑客户级别':'添加客户级别'" :visible.sync="addDialog">
       <div class="dialog-content-input">
         <el-input v-model="addData.name" placeholder="请输入客户级别名称" size="mini">
           <template slot="prepend">

@@ -20,7 +20,7 @@
         v-model="filterData.typeId"
         size="mini"
         clearable
-        placeholder="请选择商品分类"
+        filterable placeholder="请选择商品分类"
         @clear="searchBtn"
       >
         <el-option

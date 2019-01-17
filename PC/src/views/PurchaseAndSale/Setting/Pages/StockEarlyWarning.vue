@@ -5,7 +5,7 @@
         v-model="filterData.warehouseId"
         clearable
         size="mini"
-        placeholder="请选择仓库"
+        filterable placeholder="请选择仓库"
       >
         <el-option
           v-for="item in warehouseList"
@@ -52,7 +52,7 @@
         </el-table-column>
       </select-table>
     </div>
-    <el-dialog
+    <el-dialog :close-on-click-modal="false"
       :visible.sync="dialogVisible"
       title="修改初期"
       width="60%"

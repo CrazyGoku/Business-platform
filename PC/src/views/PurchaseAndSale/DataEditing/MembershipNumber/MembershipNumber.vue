@@ -65,7 +65,7 @@
         </el-table-column>
       </select-table>
     </div>
-    <el-dialog :title="isEdit?'编辑会员卡':'添加会员卡'" :visible.sync="addDialog">
+    <el-dialog :close-on-click-modal="false" :title="isEdit?'编辑会员卡':'添加会员卡'" :visible.sync="addDialog">
       <div class="dialog-content-input">
         <el-input v-model="addData.number" placeholder="请输入会员卡账号" size="mini">
           <template slot="prepend">

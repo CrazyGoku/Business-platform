@@ -23,7 +23,7 @@
         v-model="filterData.supplierName"
         clearable
         size="mini"
-        placeholder="请选择供应商名"
+        filterable placeholder="请选择供应商名"
       >
         <el-option
           v-for="item in suppliersList"
@@ -69,6 +69,7 @@
             <el-button
               type="text"
               size="small"
+              :disabled="!(scope.row.status==1||scope.row.status==4||scope.row.status==7)"
               @click.native.prevent="deleteRow(scope.$index,scope.row,false)"
             >
               删除
@@ -76,6 +77,7 @@
             <el-button
               type="text"
               size="small"
+              :disabled="!(scope.row.status==1||scope.row.status==4||scope.row.status==7)"
               @click.native.prevent="editRow(scope.$index,scope.row)"
             >
               编辑
@@ -91,7 +93,7 @@
         </el-table-column>
       </select-table>
     </div>
-    <el-dialog :visible.sync="orderVisible" title="订单详情">
+    <el-dialog :close-on-click-modal="false" :visible.sync="orderVisible" title="订单详情">
       <el-table :data="orderDetails">
         <el-table-column
           type="index"
@@ -118,7 +120,7 @@
         </el-table-column>
       </el-table>
     </el-dialog>
-    <el-dialog :visible.sync="addVisible" :title="isEdit?'编辑订单':'添加退货订单'">
+    <el-dialog :close-on-click-modal="false" :visible.sync="addVisible" :title="isEdit?'编辑订单':'添加退货订单'">
       <div class="dialog-content-input">
         <el-input v-model="chioceSelect.remark" placeholder="请输入备注" size="mini">
           <template slot="prepend">
@@ -145,6 +147,12 @@
         </el-table-column>
 
         <el-table-column
+          prop="goodsName"
+          align="center"
+          width="200"
+          label="商品名称"
+        />
+        <el-table-column
           prop="sku"
           align="center"
           width="200"
@@ -156,7 +164,6 @@
               :max="scope.row.quantity"
               v-model="scope.row.quantity"
               :no-slot="false"
-              @input="quantityChange(scope.row)"
             />
           </template>
         </el-table-column>
@@ -175,7 +182,7 @@
         </el-button>
       </span>
     </el-dialog>
-    <el-dialog :visible.sync="addDialog" width="80%" title="选择采购订单退货">
+    <el-dialog :close-on-click-modal="false" :visible.sync="addDialog" width="80%" title="选择采购订单退货">
       <select-table
         :data="procurementOrderList"
         :pagination-data="paginationData"
@@ -303,7 +310,9 @@ export default {
       getOrderApply(params).then(res => {
         const data = res.data.data
         data.items.forEach(item => {
+          item.status = item.orderStatus
           item.orderStatus = statusMap[item.orderStatus]
+          item.clearStatus = clearMap[item.clearStatus]
           item.type = orderApplyMap[item.type]
         })
         this.orderStorageList = data

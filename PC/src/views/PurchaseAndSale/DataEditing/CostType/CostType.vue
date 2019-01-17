@@ -64,7 +64,7 @@
         </el-table-column>
       </select-table>
     </div>
-    <el-dialog
+    <el-dialog :close-on-click-modal="false"
       :title="dialogTitle1"
       :visible.sync="dialogVisible1"
       width="80%"

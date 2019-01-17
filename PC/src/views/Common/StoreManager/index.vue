@@ -24,13 +24,13 @@
           align="center"
         >
           <template slot-scope="scope">
-            <el-button
+           <!-- <el-button
               type="text"
               size="small"
               @click.native.prevent="initStore(scope.row)"
             >
               初始化数据
-            </el-button>
+            </el-button>-->
             <el-button
               type="text"
               size="small"
@@ -42,7 +42,7 @@
         </el-table-column>
       </select-table>
     </div>
-    <el-dialog
+    <el-dialog :close-on-click-modal="false"
       :title="dialogTitle1"
       :visible.sync="dialogVisible1"
       width="80%"
@@ -58,14 +58,19 @@
             店铺地址
           </template>
         </el-input>
-        <el-input v-model="storeDetail.boss" placeholder="请输入店长姓名" size="mini">
+        <el-input v-model="storeDetail.clientName" placeholder="请输入店长姓名" size="mini">
           <template slot="prepend">
             店长姓名
           </template>
         </el-input>
-        <el-input v-model="storeDetail.phone" maxlength="11" placeholder="请输入店长手机" size="mini">
+        <el-input v-model="storeDetail.clientPhone" maxlength="11" placeholder="请输入店长手机" size="mini">
           <template slot="prepend">
             店长手机
+          </template>
+        </el-input>
+        <el-input v-model="storeDetail.clientMembershipNumber" maxlength="11" placeholder="请输入店长会员卡号" size="mini">
+          <template slot="prepend">
+            会员卡号
           </template>
         </el-input>
       </div>

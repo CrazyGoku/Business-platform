@@ -20,7 +20,7 @@
         v-model="filterData.warehouseId	"
         size="mini"
         clearable
-        placeholder="请选择仓库"
+        filterable placeholder="请选择仓库"
         @clear="searchBtn"
       >
         <el-option

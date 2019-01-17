@@ -23,7 +23,7 @@
         v-model="filterData.supplierName"
         clearable
         size="mini"
-        placeholder="请选择供应商名"
+        filterable placeholder="请选择供应商名"
       >
         <el-option
           v-for="item in suppliersList"
@@ -69,6 +69,7 @@
             <el-button
               type="text"
               size="small"
+              :disabled="!(scope.row.status==1||scope.row.status==4||scope.row.status==7)"
               @click.native.prevent="deleteRow(scope.$index,scope.row,false)"
             >
               删除
@@ -76,6 +77,7 @@
             <el-button
               type="text"
               size="small"
+              :disabled="!(scope.row.status==1||scope.row.status==4||scope.row.status==7)"
               @click.native.prevent="editRow(scope.$index,scope.row)"
             >
               编辑
@@ -91,7 +93,7 @@
         </el-table-column>
       </select-table>
     </div>
-    <el-dialog :visible.sync="orderVisible" title="订单详情">
+    <el-dialog :close-on-click-modal="false" :visible.sync="orderVisible" title="订单详情">
       <el-table :data="orderDetails">
         <el-table-column
           type="index"
@@ -118,7 +120,7 @@
         </el-table-column>
       </el-table>
     </el-dialog>
-    <el-dialog :visible.sync="addVisible" :title="isEdit?'编辑订单':'添加换货订单'">
+    <el-dialog :close-on-click-modal="false" :visible.sync="addVisible" :title="isEdit?'编辑订单':'添加换货订单'">
       <div class="dialog-content-input">
         <el-input v-model="chioceSelect.remark" placeholder="请输入备注" size="mini">
           <template slot="prepend">
@@ -143,6 +145,12 @@
             </el-button>
           </template>
         </el-table-column>
+        <el-table-column
+          prop="goodsName"
+          align="center"
+          width="200"
+          label="商品名称"
+        />
         <el-table-column
           prop="sku"
           align="center"
@@ -169,7 +177,7 @@
         </el-button>
       </span>
     </el-dialog>
-    <el-dialog :visible.sync="addDialog" width="80%" title="选择采购订单换货">
+    <el-dialog :close-on-click-modal="false" :visible.sync="addDialog" width="80%" title="选择采购订单换货">
       <select-table
         :data="procurementOrderList"
         :pagination-data="paginationData"
@@ -218,7 +226,7 @@ import { dataFormat } from '@/utils/index.js'
 import { orderDetailMap, orderApplyMap } from '@/views/PurchaseAndSale/Purchase/config.js'
 import addMixin from '../mixins/addMixin.js'
 import purchasecommon from '../mixins/purchasecommon'
-import { statusMap } from '../../config'
+import { statusMap,clearMap } from '../../config'
 import { parseTime } from '@/utils'
 
 export default {
@@ -305,6 +313,7 @@ export default {
       getOrderApply(params).then(res => {
         const data = res.data.data
         data.items.forEach(item => {
+          item.status = statusMap[item.orderStatus]
           item.orderStatus = statusMap[item.orderStatus]
           item.type = orderApplyMap[item.type]
         })
@@ -353,24 +362,23 @@ export default {
       const path = row.id
       getOrderApplyDetails(params, path).then(res => {
         const data = res.data.data
-        const _data = dataFormat(data)
-        if (_data.length > 0) {
-          if (!this.isGetSkuMap) {
-            const sku = eval(_data[0].goodsSkuSku)
-            sku.forEach(v => {
-              this.orderDetailMap.push({ key: v.key, name: v.key })
-            })
-            this.isGetSkuMap = true
-          }
-          _data.forEach(v => {
-            let _itemSKU = {}
-            const _sku = eval(v.goodsSkuSku)
-            _sku.forEach(item => {
-              _itemSKU = { [item.key]: item.value }
-              Object.assign(v, _itemSKU)
-            })
+        data.orderStatus = statusMap[data.orderStatus]
+        data.clearStatus = clearMap[data.clearStatus]
+        data.details.forEach(v => {
+          v.goodsSkuSku = eval(v.goodsSkuSku)
+          let sku = ''
+          v.goodsSkuSku.forEach((item, index) => {
+            let _sku = ''
+            if (v.goodsSkuSku.length === index + 1) {
+              _sku = item.key + ':' + item.value
+            } else {
+              _sku = item.key + ':' + item.value + ','
+            }
+            sku += _sku
           })
-        }
+          v.goodsSkuSku = sku
+        })
+        const _data = dataFormat(data)
 
         this.orderDetails = _data
         this.orderVisible = true

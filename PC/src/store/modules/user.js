@@ -27,7 +27,8 @@ const user = {
     storeId: getStoreId(),
     userId: getUserId(),
     phone: '',
-    storeName: ''
+    storeName: '',
+    bossId:''
   },
 
   mutations: {
@@ -66,6 +67,9 @@ const user = {
     },
     SET_STORE_NAME: (state, storeName) => {
       state.storeName = storeName
+    },
+    SET_BOSS_ID: (state, bossId) => {
+      state.bossId = bossId
     }
   },
 
@@ -106,6 +110,7 @@ const user = {
           commit('SET_NAME', data.name)
           commit('SET_PHONE', data.phone)
           commit('SET_INTRODUCTION', data.introduction)
+          commit('SET_BOSS_ID', window.localStorage.getItem('bossId'))
           getRolesFunctions({ storeId: state.storeId, userId: state.userId }).then(res => {
             if (res.data.code !== 1001) {
               dispatch('LogOut')
@@ -153,7 +158,11 @@ const user = {
     // 登出
     LogOut({ commit, state }) {
       return new Promise((resolve, reject) => {
-        logout(state.storeId).then(() => {
+        let params = {
+          storeId: state.storeId
+        }
+        let path = state.userId
+        logout(params,path).then(() => {
           commit('SET_TOKEN', '')
           commit('SET_ROLES', [])
           removeToken()

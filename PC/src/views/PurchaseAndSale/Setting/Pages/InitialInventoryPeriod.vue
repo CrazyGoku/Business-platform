@@ -18,7 +18,7 @@
         v-model="filterData.typeId"
         clearable
         size="mini"
-        placeholder="请选择商品分类"
+        filterable placeholder="请选择商品分类"
       >
         <el-option
           v-for="item in commodityTypeList"
@@ -68,7 +68,7 @@
         </template>
       </el-table-column>
     </select-table>
-    <el-dialog
+    <el-dialog :close-on-click-modal="false"
       :visible.sync="dialogVisible"
       title="修改初期"
       width="60%"
@@ -212,7 +212,7 @@ export default {
         if (res.data.code !== 1001) {
           this.$message({
             showClose: true,
-            message: '修改失败，请稍后重试',
+            message: res.data.message,
             type: 'error'
           })
           return

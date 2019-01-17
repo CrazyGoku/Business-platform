@@ -75,7 +75,7 @@
         </el-table-column>
       </select-table>
     </div>
-    <el-dialog :visible.sync="orderVisible" title="订单详情">
+    <el-dialog :close-on-click-modal="false" :visible.sync="orderVisible" title="订单详情">
       <el-table :data="orderDetails">
         <el-table-column
           type="index"
@@ -102,7 +102,7 @@
         </el-table-column>
       </el-table>
     </el-dialog>
-    <el-dialog :visible.sync="addVisible" :title="isEdit?'编辑订单':'添加订单'">
+    <el-dialog :close-on-click-modal="false" :visible.sync="addVisible" :title="isEdit?'编辑订单':'添加订单'">
       <div class="dialog-content-input">
         <div class="dialog-content-input">
           <el-cascader
@@ -126,7 +126,7 @@
           v-model="chioceSelect.inWarehouseId"
           :disabled="isEdit"
           size="mini"
-          placeholder="请选择仓库"
+          filterable placeholder="请选择仓库"
           @change="choiceOutWarehouse"
         >
           <el-option
@@ -140,7 +140,7 @@
           v-model="chioceSelect.goodType"
           :disabled="!chioceSelect.inWarehouseId"
           size="mini"
-          placeholder="请选择商品分类"
+          filterable placeholder="请选择商品分类"
           @change="choiceGoodsTypeFun"
         >
           <el-option
@@ -154,6 +154,7 @@
           v-model="chioceSelect.good"
           :disabled="!chioceSelect.goodType"
           size="mini"
+          filterable
           placeholder="请选择商品"
           @change="choiceGoodsFun"
         >

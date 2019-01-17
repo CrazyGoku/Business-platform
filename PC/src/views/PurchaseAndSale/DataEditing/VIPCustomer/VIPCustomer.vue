@@ -88,12 +88,12 @@
         </template>
       </el-table-column>
     </select-table>
-    <el-dialog :visible.sync="dialogIntegralVisible" title="查看用户积分预收余额">
+    <el-dialog :close-on-click-modal="false" :visible.sync="dialogIntegralVisible" title="查看用户积分预收余额">
       <!--<select-table :data="integraDetail" :pagination-data="paginationData2" />-->
       <p>积分:{{ integraDetail.integral }}</p>
       <p>预收余额:{{ integraDetail.advanceMoney }}</p>
     </el-dialog>
-    <el-dialog width="80%" :visible.sync="dialogIntegralDetail" title="查看用户积分预收余额">
+    <el-dialog :close-on-click-modal="false" width="80%" :visible.sync="dialogIntegralDetail" title="查看用户积分预收余额">
       <div class="search-bar">
         <el-select v-model="filterData2.type" size="mini" clearable placeholder="请选择操作类型" @change="checkIntegralDetail">
           <el-option
@@ -108,7 +108,7 @@
       </div>
       <select-table :data="integraDetailList" :pagination-data="paginationData2" @paginationChange="checkIntegralDetail" />
     </el-dialog>
-    <el-dialog :title="isEdit?'编辑客户':'添加客户'" :visible.sync="addDialog">
+    <el-dialog :close-on-click-modal="false" :title="isEdit?'编辑客户':'添加客户'" :visible.sync="addDialog">
       <div class="dialog-content-input">
         <el-input v-model="addData.name" placeholder="请输入客户名称" size="mini">
           <template slot="prepend">
@@ -178,6 +178,7 @@
 import SelectTable from '@/components/SelectTable/SelectTable'// 列表组件
 import Tree from '@/components/Tree/Tree' // 树状图组件
 import TransverseShrinkBox from '@/components/TransverseShrinkBox/TransverseShrinkBox' // 收缩弹性盒子
+import {getStore} from '@/service/common'
 import { getCustomerData, getIntegralsDetails, getLevelData, postClients, getClientsIntegral } from '@/service/PurchaseAndSale/DataEditing/VIPCustomer.js'
 import common from '@/mixins/common'
 export default {
@@ -257,6 +258,33 @@ export default {
     },
     confirmHandle() {
       this.addData.userId = this.userId
+      this.addData.inviterPhone = this.addData.inviterPhone?this.addData.inviterPhone:''
+      this.addData.inviterId =  this.addData.inviterId?this.addData.inviterId: ''
+      if(!this.addData.inviterId && !this.addData.inviterPhone){
+        getStore(this.storeId).then(res=>{
+          let data  = res.data.data
+          this.addData.inviterPhone = data.clientPhone
+          this.addData.inviterId =  data.clientId
+          postClients(this.addData).then(res => {
+            if (res.data.code !== 1001) {
+              this.$message({
+                showClose: true,
+                message: res.data.message,
+                type: 'error'
+              })
+              return
+            }
+            this.$message({
+              showClose: true,
+              message: '添加成功',
+              type: 'success'
+            })
+            this.getCustomerDataFun()
+            this.addDialog = false
+          })
+        })
+        return
+      }
       postClients(this.addData).then(res => {
         if (res.data.code !== 1001) {
           this.$message({

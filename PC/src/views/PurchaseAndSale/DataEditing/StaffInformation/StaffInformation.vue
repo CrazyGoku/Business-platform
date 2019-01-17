@@ -55,7 +55,7 @@
         </el-table-column>
       </select-table>
     </div>
-    <el-dialog
+    <el-dialog :close-on-click-modal="false"
       :title="dialogTitle1"
       :visible.sync="dialogVisible1"
       width="400px"
@@ -76,7 +76,7 @@
         </el-button>
       </span>
     </el-dialog>
-    <el-dialog
+    <el-dialog :close-on-click-modal="false"
       title="编辑功能"
       :visible.sync="dialogVisible2"
     >

@@ -52,27 +52,77 @@
             <el-button
               type="text"
               size="small"
-              @click.native.prevent="deleteRow(scope.$index,scope.row,false)"
-            >
-              删除
-            </el-button>
-            <el-button
-              type="text"
-              size="small"
               @click.native.prevent="getHandle(scope.$index,scope.row)"
             >
               收货
             </el-button>
-            <el-button
+           <!-- <el-button
               type="text"
               size="small"
               @click.native.prevent="redRow(scope.$index,scope.row)"
             >
               红冲
-            </el-button>
+            </el-button>-->
           </template>
         </el-table-column>
       </select-table>
+      <el-dialog
+        width="80%"
+        title="收货"
+        :visible.sync="dialogVisible"
+        :close-on-click-modal="false"
+      >
+        <el-table
+          :data="orderDetail.details"
+          style="width: 100%"
+        >
+          <el-table-column
+            label="操作"
+            align="center"
+            width="100"
+          >
+            <template scope="scope">
+              <!--<el-button size="small" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>-->
+              <el-button size="mini" type="danger" @click="deleteRow(scope.$index, scope.row)">
+                删除
+              </el-button>
+            </template>
+          </el-table-column>
+          <el-table-column
+            prop="goodsName"
+            align="center"
+            width="200"
+            label="商品名称"
+          />
+          <el-table-column
+            prop="goodsSkuSku"
+            align="center"
+            label="规格"
+          />
+          <el-table-column
+            prop="notFinishQuantity"
+            align="center"
+            label="未收货数量"
+          />
+          <el-table-column label="数量" width="180" align="center">
+            <template scope="scope">
+              <NumberInput
+                :max="scope.row.notFinishQuantity"
+                v-model="scope.row.notFinishQuantity"
+                :no-slot="false"
+              >
+
+              </NumberInput>
+            </template>
+          </el-table-column>
+        </el-table>
+        <span slot="footer" class="dialog-footer">
+        <el-button size="mini" type="primary" @click="confirmHandle">
+          确 定
+        </el-button>
+      </span>
+      </el-dialog>
+
     </div>
   </div>
 </template>
@@ -87,10 +137,10 @@
   } from '@/service/PurchaseAndSale/Warehouse/common.js'
   import SelectTable from '@/components/SelectTable/SelectTable'// 列表组件
   import {
-    getSuppliers,getClients
+    getSuppliers, getClients
   } from '@/service/PurchaseAndSale/common'
   import {statusMap} from '@/views/PurchaseAndSale/config.js'
-  import { parseTime } from '@/utils'
+  import {parseTime} from '@/utils'
 
   export default {
     name: 'POReceipt',
@@ -98,9 +148,8 @@
     mixins: [common],
     data() {
       return {
-        filterData: {
-        },
-        pickTime:'',
+        filterData: {},
+        pickTime: '',
         targetOption: [
           {
             value: 'kehu',
@@ -113,14 +162,16 @@
             children: []
           }
         ],
-        selectedOptions:[],
+        selectedOptions: [],
         suppliersList: [],
         orderStorageList: [],
         paginationData: {
           page: 1,
           pageSize: 10
         },
-        selectArr: []
+        selectArr: [],
+        dialogVisible: false,
+        orderDetail: []
       }
     },
     computed: {},
@@ -170,12 +221,12 @@
         })
       },
       getOrderStorageData() {
-        if(!this.filterData.id){
+        if (!this.filterData.id) {
           delete this.filterData.id
         }
-        if(this.selectedOptions.length>0){
+        if (this.selectedOptions.length > 0) {
           this.filterData.targetName = this.selectedOptions[1]
-        }else{
+        } else {
           delete this.filterData.targetName
         }
         this.filterData.startTime = this.pickTime ? parseTime(this.pickTime[0]) : ''
@@ -197,72 +248,145 @@
         })
       },
       deleteRow(index, row, more) {
+        this.orderDetail.details.splice(index,1)
+
       },
       getHandle(index, row) {
         let params = {
           storeId: this.storeId,
         }
         let path = row.id
-        let orderDetail = {}
         getProcurementApplyDetails(params, path).then(res => {
           if (res.data.code !== 1001) {
             this.$message({
               showClose: true,
-              message: '获取来源订单失败',
+              message: '获取订单失败',
               type: 'error'
             })
             return
           }
-          orderDetail = res.data.data
-        })
-        this.$prompt('此操作将确认收货, 是否继续?', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          inputPlaceholder: '可以输入备注',
-        }).then((value) => {
-          let params = {
-            procurementApplyOrderVo: {}
-          }
-          params.remark = value.value ? value.value : ''
-          params.applyOrderId = orderDetail.id
-          params.quantity = orderDetail.inNotReceivedQuantity
-          params.storeId = this.storeId
-          params.userId = this.userId
-          params.type = 1
-          let _details = []
-          orderDetail.details.forEach(v => {
-            let _detail = {}
-            _detail.changeQuantity = v.quantity
-            _detail.goodsSkuId = v.goodsSkuId
-            _detail.id = v.id
-            _detail.type = 1
-            _details.push(_detail)
-          })
-          params.procurementApplyOrderVo.details = _details
-          postStorage(params).then(res => {
-            if (res.data.code !== 1001) {
-              this.$message({
-                showClose: true,
-                message: '收货失败',
-                type: 'error'
+          let data = res.data.data
+          for (let i = data.details.length-1;i>=0;i--){
+            if(data.details[i].notFinishQuantity==0){
+              data.details.splice(i,1)
+            }else{
+              data.details[i].goodsSkuSku = eval(data.details[i].goodsSkuSku)
+              let sku = ''
+              data.details[i].goodsSkuSku.forEach((item, index2) => {
+                let _sku = ''
+                if (data.details[i].goodsSkuSku.length === index2 + 1) {
+                  _sku = item.key + ':' + item.value
+                } else {
+                  _sku = item.key + ':' + item.value + ','
+                }
+                sku += _sku
               })
-              return
+              data.details[i].goodsSkuSku = sku
             }
+          }
+          this.orderDetail = data
+        })
+        this.dialogVisible = true
+        /*if (res.data.code !== 1001) {
+          this.$message({
+            showClose: true,
+            message: '获取来源订单失败',
+            type: 'error'
+          })
+          return
+        }
+        orderDetail = res.data.data
+      })
+      this.$prompt('此操作将确认收货, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        inputPlaceholder: '可以输入备注',
+      }).then((value) => {
+        let params = {
+          procurementApplyOrderVo: {}
+        }
+        params.remark = value.value ? value.value : ''
+        params.applyOrderId = orderDetail.id
+        params.quantity = orderDetail.inNotReceivedQuantity
+        params.storeId = this.storeId
+        params.userId = this.userId
+        params.type = 1
+        let _details = []
+        orderDetail.details.forEach(v => {
+          let _detail = {}
+          _detail.changeQuantity = v.quantity
+          _detail.goodsSkuId = v.goodsSkuId
+          _detail.id = v.id
+          _detail.type = 1
+          _details.push(_detail)
+        })
+        params.procurementApplyOrderVo.details = _details
+        postStorage(params).then(res => {
+          if (res.data.code !== 1001) {
             this.$message({
               showClose: true,
-              message: '收货成功',
-              type: 'success'
+              message: '收货失败',
+              type: 'error'
             })
-            this.getOrderStorageData()
-          })
-        }).catch(() => {
+            return
+          }
           this.$message({
-            type: 'info',
-            message: '已取消操作'
-          });
+            showClose: true,
+            message: '收货成功',
+            type: 'success'
+          })
+          this.getOrderStorageData()
+        })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消操作'
         });
+      });*/
       },
-      redRow(index, row) {
+      confirmHandle(){
+        let params = {
+          procurementApplyOrderVo: {}
+        }
+        params.remark = ''
+        params.applyOrderId = this.orderDetail.id
+        params.storeId = this.storeId
+        params.userId = this.userId
+        params.type = 1
+        let _details = []
+        let total = 0
+        this.orderDetail.details.forEach(v => {
+          let _detail = {}
+          v.quantity = v.notFinishQuantity
+          total+=Number(v.quantity)
+          _detail.changeQuantity = v.quantity
+          _detail.goodsSkuId = v.goodsSkuId
+          _detail.id = v.id
+          _detail.type = 1
+          _details.push(_detail)
+        })
+        params.quantity = total
+        params.procurementApplyOrderVo.details = _details
+        postStorage(params).then(res => {
+          if (res.data.code !== 1001) {
+            this.$message({
+              showClose: true,
+              message: '收货失败',
+              type: 'error'
+            })
+            return
+          }
+          this.$message({
+            showClose: true,
+            message: '收货成功',
+            type: 'success'
+          })
+          this.getOrderStorageData()
+          this.dialogVisible = false
+        })
+      },
+
+      /*redRow(index, row) {
         const params = {
           storeId: this.storeId,
           id: row.id,
@@ -298,7 +422,7 @@
             message: '已取消操作'
           })
         })
-      }
+      }*/
     }
   }
 </script>

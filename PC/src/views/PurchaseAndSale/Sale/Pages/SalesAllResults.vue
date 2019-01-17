@@ -94,7 +94,7 @@
         </el-table-column>
       </select-table>
     </div>
-    <el-dialog :visible.sync="orderVisible" title="订单详情" width="80%">
+    <el-dialog :close-on-click-modal="false" :visible.sync="orderVisible" title="订单详情" width="80%">
       <el-table :data="orderDetails">
         <el-table-column
           type="index"

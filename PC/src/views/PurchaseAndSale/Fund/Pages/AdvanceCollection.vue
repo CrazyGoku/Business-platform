@@ -70,7 +70,7 @@
         </el-table-column>
       </select-table>
     </div>
-    <el-dialog :visible.sync="addVisible" :title="isEdit?'编辑收款单':'添加收款单'">
+    <el-dialog :close-on-click-modal="false" :visible.sync="addVisible" :title="isEdit?'编辑收款单':'添加收款单'">
       <div class="dialog-content-input">
         <el-cascader
           v-model="addDetails.selectedOptions"

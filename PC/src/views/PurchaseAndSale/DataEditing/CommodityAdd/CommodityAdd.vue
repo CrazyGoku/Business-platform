@@ -80,16 +80,16 @@
       </select-table>
     </div>
     <el-dialog
+      :close-on-click-modal="false"
       :visible.sync="dialogVisible"
       :title="isEdit?'编辑商品':'添加商品'"
-      width="80%"
     >
       <div style="margin-bottom: 10px">
         <el-select
           v-model="commodityDetail.typeId"
           :disabled="isEdit"
           size="mini"
-          placeholder="请选择商品分类"
+          filterable placeholder="请选择商品分类"
           @change="changeAddType"
         >
           <el-option
@@ -289,7 +289,7 @@
         </el-button>
       </span>
     </el-dialog>
-    <el-dialog
+    <el-dialog :close-on-click-modal="false"
       :visible.sync="exportDialog"
       title="导出商品"
       width="80%"
@@ -299,7 +299,7 @@
           v-model="exportFilter.typeId"
           clearable
           size="mini"
-          placeholder="请选择商品分类"
+          filterable placeholder="请选择商品分类"
         >
           <el-option
             v-for="item in commodityTypeList"
@@ -369,7 +369,7 @@
     <!--v-model="selectDelType.typeId"-->
     <!--clearable-->
     <!--size="mini"-->
-    <!--placeholder="请选择商品分类">-->
+    <!--filterable placeholder="请选择商品分类">-->
     <!--<el-option-->
     <!--v-for="item in commodityTypeList"-->
     <!--:key="item.id"-->
@@ -724,7 +724,7 @@ export default {
           if (res.data.code !== 1001) {
             this.$message({
               showClose: true,
-              message: '添加失败',
+              message: res.data.message,
               type: 'error'
             })
             return

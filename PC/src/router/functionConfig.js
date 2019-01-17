@@ -135,6 +135,14 @@ export const functions = [
       {
         id: 35,
         name: '预付款'
+      },
+      {
+        id: 57,
+        name: '查应收'
+      },
+      {
+        id: 58,
+        name: '查应付'
       }
     ]
   },
@@ -248,6 +256,14 @@ export const functions = [
       {
         id: 50,
         name: '银行现金期初'
+      },
+      {
+        id: 59,
+        name: '应收期初'
+      },
+      {
+        id: 60,
+        name: '应付期初'
       },
       {
         id: 51,

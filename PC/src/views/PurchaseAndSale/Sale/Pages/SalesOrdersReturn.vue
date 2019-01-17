@@ -70,6 +70,7 @@
             <el-button
               type="text"
               size="small"
+              :disabled="!(scope.row.status==1||scope.row.status==4||scope.row.status==7)"
               @click.native.prevent="deleteRow(scope.$index,scope.row,false)"
             >
               删除
@@ -77,6 +78,7 @@
             <el-button
               type="text"
               size="small"
+              :disabled="!(scope.row.status==1||scope.row.status==4||scope.row.status==7)"
               @click.native.prevent="editRow(scope.$index,scope.row)"
             >
               编辑
@@ -92,7 +94,7 @@
         </el-table-column>
       </select-table>
     </div>
-    <el-dialog :visible.sync="orderVisible" title="订单详情">
+    <el-dialog :close-on-click-modal="false" :visible.sync="orderVisible" title="订单详情">
       <el-table :data="orderDetails">
         <el-table-column
           type="index"
@@ -119,7 +121,7 @@
         </el-table-column>
       </el-table>
     </el-dialog>
-    <el-dialog :visible.sync="addVisible" :title="isEdit?'编辑订单':'添加退货订单'">
+    <el-dialog :close-on-click-modal="false" :visible.sync="addVisible" :title="isEdit?'编辑订单':'添加退货订单'">
       <div class="dialog-content-input">
         <el-input v-model="chioceSelect.remark" placeholder="请输入备注" size="mini">
           <template slot="prepend">
@@ -145,6 +147,12 @@
           </template>
         </el-table-column>
         <el-table-column
+          prop="goodsName"
+          align="center"
+          width="200"
+          label="商品名称"
+        />
+        <el-table-column
           prop="sku"
           align="center"
           width="200"
@@ -152,9 +160,10 @@
         />
         <el-table-column label="数量" width="180" align="center">
           <template scope="scope">
-            <el-input
+            <NumberInput
+              :max="scope.row.quantity"
               v-model="scope.row.quantity"
-              size="small"
+              :no-slot="false"
               @input="quantityChange(scope.row)"
             />
           </template>
@@ -174,7 +183,7 @@
         </el-button>
       </span>
     </el-dialog>
-    <el-dialog :visible.sync="addDialog" width="80%" title="选择销售订单退货">
+    <el-dialog :close-on-click-modal="false" :visible.sync="addDialog" width="80%" title="选择销售订单退货">
       <select-table
         :data="sellOrderList"
         :pagination-data="paginationData"
@@ -212,17 +221,18 @@ import common from '@/mixins/common'
 import {
   getSuppliers,
   getSellApply,
-  delOrderApply,
+  delSellApply,
   getSellApplyDetails,
   postSellApply,
-  getSellResult
+  getSellResult,
+  putSellApply
 } from '@/service/PurchaseAndSale/Sale/common.js'
 import SelectTable from '@/components/SelectTable/SelectTable'// 列表组件
 import { orderDetailMap } from '@/views/PurchaseAndSale/Purchase/config.js'
 import { dataFormat } from '@/utils/index.js'
 import salecommon from '../mixins/salecommon'
 import addMixin from '../mixins/addMixin'
-import { statusMap } from '@/views/PurchaseAndSale/config.js'
+import { statusMap,clearMap } from '@/views/PurchaseAndSale/config.js'
 import { parseTime } from '@/utils'
 export default {
   name: 'SalesOrdersReturn',
@@ -279,6 +289,7 @@ export default {
         const data = res.data.data
         data.items.forEach(item => {
           item.orderStatus = statusMap[item.orderStatus]
+          item.clearStatus = clearMap[item.clearStatus]
         })
         this.sellOrderList = data
         this.paginationData2 = data.pageVo
@@ -300,7 +311,9 @@ export default {
       getSellApply(params).then(res => {
         const data = res.data.data
         data.items.forEach(item => {
+          item.status = item.orderStatus
           item.orderStatus = statusMap[item.orderStatus]
+          item.clearStatus = clearMap[item.clearStatus]
         })
         this.orderStorageList = data
         this.paginationData = data.pageVo
@@ -322,7 +335,7 @@ export default {
         })
         params.ids = arr.join(',')
       }
-      delOrderApply(params).then(res => {
+      delSellApply(params).then(res => {
         if (res.data.code !== 1001) {
           this.$message({
             showClose: true,
@@ -349,25 +362,21 @@ export default {
       const path = row.id
       getSellApplyDetails(params, path).then(res => {
         const data = res.data.data
-        const _data = dataFormat(data)
-        if (_data.length > 0) {
-          if (!this.isGetSkuMap) {
-            const sku = eval(_data[0].goodsSkuSku)
-            sku.forEach(v => {
-              this.orderDetailMap.push({ key: v.key, name: v.key })
-            })
-            this.isGetSkuMap = true
-          }
-          _data.forEach(v => {
-            let _itemSKU = {}
-            const _sku = eval(v.goodsSkuSku)
-            _sku.forEach(item => {
-              _itemSKU = { [item.key]: item.value }
-              Object.assign(v, _itemSKU)
-            })
+        data.details.forEach(v => {
+          v.goodsSkuSku = eval(v.goodsSkuSku)
+          let sku = ''
+          v.goodsSkuSku.forEach((item, index) => {
+            let _sku = ''
+            if (v.goodsSkuSku.length === index + 1) {
+              _sku = item.key + ':' + item.value
+            } else {
+              _sku = item.key + ':' + item.value + ','
+            }
+            sku += _sku
           })
-        }
-
+          v.goodsSkuSku = sku
+        })
+        const _data = dataFormat(data)
         this.orderDetails = _data
         this.orderVisible = true
       })
@@ -412,8 +421,24 @@ export default {
       data.totalMoney = totalMoney * -1
       data.orderMoney = orderMoney * -1
       console.log(data)
-      postSellApply(data).then(res => {
-        console.log(res)
+      const func = this.isEdit ? putSellApply : postSellApply
+      const magSuccess = this.isEdit ? '成功编辑订单' : '成功添加订单'
+      func(data).then(res => {
+        if (res.data.code !== 1001) {
+          this.$message({
+            showClose: true,
+            message: res.data.message,
+            type: 'error'
+          })
+          return
+        }
+        this.$message({
+          showClose: true,
+          message: magSuccess,
+          type: 'success'
+        })
+        this.addVisible = false
+        this.getSellApplyData()
       })
     }
   }

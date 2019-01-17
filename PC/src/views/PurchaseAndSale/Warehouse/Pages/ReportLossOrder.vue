@@ -16,15 +16,6 @@
           单据编号
         </template>
       </el-input>
-      <el-cascader
-        v-model="selectedOptions2"
-        :options="targetOption2"
-        style="margin:0 10px 10px 0"
-        size="mini"
-        placeholder="请选择来往单位"
-        filterable
-        clearable
-      />
       <el-date-picker
         v-model="pickTime"
         :picker-options="pickerOptions"
@@ -75,7 +66,7 @@
         </el-table-column>
       </select-table>
     </div>
-    <el-dialog :visible.sync="orderVisible" title="订单详情">
+    <el-dialog :close-on-click-modal="false" :visible.sync="orderVisible" title="订单详情">
       <el-table :data="orderDetails">
         <el-table-column
           type="index"
@@ -102,17 +93,9 @@
         </el-table-column>
       </el-table>
     </el-dialog>
-    <el-dialog :visible.sync="addVisible" :title="isEdit?'编辑订单':'添加订单'">
+    <el-dialog :close-on-click-modal="false" :visible.sync="addVisible" :title="isEdit?'编辑订单':'添加订单'">
       <div class="dialog-content-input">
         <div class="dialog-content-input">
-          <el-cascader
-            v-model="selectedOptions"
-            :options="targetOption"
-            style="margin:0 10px 10px 0"
-            size="mini"
-            placeholder="请选择来往单位"
-            filterable
-          />
           <el-input
             v-model="addRemark"
             size="mini"
@@ -126,7 +109,7 @@
           v-model="chioceSelect.inWarehouseId"
           :disabled="isEdit"
           size="mini"
-          placeholder="请选择仓库"
+          placeholder="请选择出库仓库"
           @change="choiceOutWarehouse"
         >
           <el-option
@@ -140,7 +123,7 @@
           v-model="chioceSelect.goodType"
           :disabled="!chioceSelect.inWarehouseId"
           size="mini"
-          placeholder="请选择商品分类"
+          filterable placeholder="请选择商品分类"
           @change="choiceGoodsTypeFun"
         >
           <el-option
@@ -154,6 +137,7 @@
           v-model="chioceSelect.good"
           :disabled="!chioceSelect.goodType"
           size="mini"
+          filterable
           placeholder="请选择商品"
           @change="choiceGoodsFun"
         >
@@ -296,33 +280,7 @@ export default {
       filterData: {
       },
       pickTime:'',
-      targetOption2: [
-        {
-          value: 'kehu',
-          label: '客户',
-          children: []
-        },
-        {
-          value: 'gongyingshang',
-          label: '供应商',
-          children: []
-        }
-      ],
-      selectedOptions2:[],
       suppliersList: [],
-      selectedOptions: [],
-      targetOption: [
-        {
-          value: 'kehu',
-          label: '客户',
-          children: []
-        },
-        {
-          value: 'gongyingshang',
-          label: '供应商',
-          children: []
-        }
-      ],
       storageResultList: [],
       orderDetails: [],
       isGetSkuMap: false,
@@ -333,8 +291,6 @@ export default {
   computed: {},
   watch: {},
   mounted() {
-    this.getSuppliersFun()
-    this.getClientsFun()
     this.getStorageResultFun()
   },
   methods: {
@@ -345,11 +301,6 @@ export default {
     getStorageResultFun() {
       if(!this.filterData.id){
         delete this.filterData.id
-      }
-      if(this.selectedOptions2.length>0){
-        this.filterData.targetName = this.selectedOptions2[1]
-      }else{
-        delete this.filterData.targetName
       }
       this.filterData.startTime = this.pickTime ? parseTime(this.pickTime[0]) : ''
       this.filterData.endTime = this.pickTime ? parseTime(this.pickTime[1]) : ''
@@ -367,54 +318,6 @@ export default {
         })
         this.storageResultList = data
         this.paginationData = data.pageVo
-      })
-    },
-    getSuppliersFun() {
-      const params = {
-        storeId: this.storeId
-      }
-      getSuppliers(params).then(res => {
-        this.suppliersList = res.data.data
-        const _suppliersList = []
-        const _suppliersList2 = []
-        this.suppliersList.forEach(v => {
-          const _data = {
-            value: v.id,
-            label: v.name
-          }
-          const _data2 = {
-            value: v.name,
-            label: v.name
-          }
-          _suppliersList.push(_data)
-          _suppliersList2.push(_data2)
-        })
-        this.targetOption[1].children = _suppliersList
-        this.targetOption2[1].children = _suppliersList2
-      })
-    },
-    getClientsFun() {
-      const params = {
-        disabled: 0
-      }
-      getClients(params).then(res => {
-        const data = res.data.data
-        const _clientsList = []
-        const _clientsList2 = []
-        data.forEach(v => {
-          const _data = {
-            value: v.id,
-            label: v.name + '--' + v.username
-          }
-          const _data2 = {
-            value: v.name,
-            label: v.name + '--' + v.username
-          }
-          _clientsList.push(_data)
-          _clientsList2.push(_data2)
-        })
-        this.targetOption[0].children = _clientsList
-        this.targetOption2[0].children = _clientsList2
       })
     },
     redDashedFun(index, row) {
@@ -487,7 +390,6 @@ export default {
       const data = {}
       data.userId = this.userId
       data.storeId = this.storeId
-      data.targetId = this.selectedOptions[1]
       data.warehouseId = this.chioceSelect.inWarehouseId
       data.type = 4
       data.remark = this.addRemark

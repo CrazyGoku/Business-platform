@@ -20,7 +20,7 @@
         v-model="filterData.targetName"
         clearable
         size="mini"
-        placeholder="请选择供应商名"
+        filterable filterable placeholder="请选择供应商名"
       >
         <el-option
           v-for="item in suppliersList"
@@ -73,7 +73,7 @@
         </el-table-column>
       </select-table>
     </div>
-    <el-dialog :visible.sync="addVisible" :title="isEdit?'编辑付款单':'添加付款单'">
+    <el-dialog :close-on-click-modal="false" :visible.sync="addVisible" :title="isEdit?'编辑付款单':'添加付款单'">
       <div class="dialog-content-input">
         <el-cascader
           v-model="addDetails.selectedOptions"

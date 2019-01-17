@@ -63,7 +63,7 @@
         </el-table-column>
       </select-table>
     </div>
-    <el-dialog
+    <el-dialog :close-on-click-modal="false"
       :title="dialogType===1?'库存分布':dialogType===2?'库存对账':'属性明细'"
       :visible.sync="dialogVisible"
       width="80%">

@@ -10,7 +10,7 @@
         v-model="filterData.supplier"
         clearable
         size="mini"
-        placeholder="请选择供应商名"
+        filterable placeholder="请选择供应商名"
       >
         <el-option
           v-for="item in suppliersList"
@@ -69,7 +69,7 @@
         </el-table-column>
       </select-table>
     </div>
-    <el-dialog :visible.sync="orderVisible" title="订单详情">
+    <el-dialog :close-on-click-modal="false" :visible.sync="orderVisible" title="订单详情">
       <el-table :data="orderDetails">
         <el-table-column
           type="index"

@@ -44,6 +44,15 @@ export default {
       const path = row.id
       getOrderResultDetails(params, path).then(res => {
         const data = res.data.data
+        let totalOperatedQuantity = 0
+        data.details.forEach(v=>{
+          totalOperatedQuantity+=Number(v.operatedQuantity)
+          v.quantity = v.quantity - v.operatedQuantity
+        })
+        if((data.totalQuantity-totalOperatedQuantity)===0){
+          this.$message('订单全在操作中');
+          return
+        }
         this.chioceSelect.resultOrderId = row.id
         this.chioceSelect.outWarehouseId = data.procurementApplyOrderVo ? data.procurementApplyOrderVo.inWarehouseId : ''
         this.chioceSelect.inWarehouseId = data.sellApplyOrderVo ? data.sellApplyOrderVo.outWarehouseId : ''
@@ -101,8 +110,11 @@ export default {
           type: 'warning'
         })
       } else {
-        console.log(eval(this.goodsSkuVos.sku))
         this.goodsSkuVos.forEach(v => {
+          v.goodsName = this.goodsVos.filter(v => {
+            return v.id === value
+          })[0].name
+          console.log(v.sku)
           v.sku = eval(v.sku)
           let sku = ''
           v.sku.forEach((item, index) => {

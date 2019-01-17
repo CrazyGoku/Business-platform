@@ -145,6 +145,18 @@ const PurchaseAndSaleRouter = {
           component: () => import('@/views/PurchaseAndSale/Fund/Pages/AdvanceCharge.vue'),
           name: 'AdvanceCharge',
           meta: { title: '预付款', iconfont: '&#xe631;', roles: [35] }
+        },
+        {
+          path: 'CheckCope',
+          component: () => import('@/views/PurchaseAndSale/Fund/Pages/CheckCope.vue'),
+          name: 'CheckCope',
+          meta: { title: '查应收', iconfont: '&#xe631;', roles: [57] }
+        },
+        {
+          path: 'CheckingReceivable',
+          component: () => import('@/views/PurchaseAndSale/Fund/Pages/CheckingReceivable.vue'),
+          name: 'CheckingReceivable',
+          meta: { title: '查应付', iconfont: '&#xe631;', roles: [58] }
         }
       ]
     },
@@ -400,6 +412,18 @@ const PurchaseAndSaleRouter = {
           component: () => import('@/views/PurchaseAndSale/Setting/Pages/BankOpening.vue'),
           name: 'BankOpening',
           meta: { title: '银行现金期初', iconfont: '&#xe631;', roles: [50] }
+        },,
+        {
+          path: 'InitialReceivables',
+          component: () => import('@/views/PurchaseAndSale/Setting/Pages/InitialReceivables.vue'),
+          name: 'InitialReceivables',
+          meta: { title: '应收期初', iconfont: '&#xe631;', roles: [59] }
+        },,
+        {
+          path: 'PayablePeriod',
+          component: () => import('@/views/PurchaseAndSale/Setting/Pages/PayablePeriod.vue'),
+          name: 'PayablePeriod',
+          meta: { title: '应付期初', iconfont: '&#xe631;', roles: [60] }
         },
         {
           path: 'StockEarlyWarning',

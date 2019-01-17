@@ -8,10 +8,11 @@ export function loginByUsername(data) {
   })
 }
 
-export function logout(path) {
+export function logout(params,path) {
   return request({
     url: '/pps/logout/' + path,
-    method: 'get'
+    method: 'get',
+    params
   })
 }
 

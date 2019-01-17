@@ -80,7 +80,7 @@
         </el-table-column>
       </select-table>
     </div>
-    <el-dialog :title="isEdit?'编辑优惠券':'添加优惠券'" :visible.sync="addDialog">
+    <el-dialog :close-on-click-modal="false" :title="isEdit?'编辑优惠券':'添加优惠券'" :visible.sync="addDialog">
       <div class="dialog-content-input">
         <el-input v-model="addCoupon.name" placeholder="请输入优惠券名称" size="mini">
           <template slot="prepend">

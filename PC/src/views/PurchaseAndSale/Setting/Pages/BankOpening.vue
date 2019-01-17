@@ -24,7 +24,7 @@
         </template>
       </el-table-column>
     </select-table>
-    <el-dialog
+    <el-dialog :close-on-click-modal="false"
       :visible.sync="dialogVisible"
       title="修改初期"
       width="60%"
@@ -49,7 +49,7 @@
 </template>
 
 <script>
-import { putBankOpening, getBankFund } from '@/service/PurchaseAndSale/Setting/BankOpening.js'
+  import { putBankOpening, getBankFund } from '@/service/PurchaseAndSale/Setting/BankOpening.js'
 import SelectTable from '@/components/SelectTable/SelectTable'// 列表组件
 import { bankAccountMap } from '../config'
 import common from '@/mixins/common'
@@ -115,6 +115,7 @@ export default {
       }
       const params = {
         storeId: this.storeId,
+        userId:this.userId,
         ...this.opening
       }
       putBankOpening(params).then(res => {
