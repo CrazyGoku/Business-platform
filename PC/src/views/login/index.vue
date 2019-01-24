@@ -199,6 +199,7 @@ export default {
         window.localStorage.setItem('storeName', storeName)
         window.localStorage.setItem('bossId', bossId)
         window.localStorage.setItem('storeAddr', storeAddr)
+
         this.$router.push({ path: this.redirect || '/' })
       }).catch((err) => {
         this.$message.error(err)

@@ -37,6 +37,12 @@
               店铺管理
             </el-dropdown-item>
           </router-link>
+            <el-dropdown-item>
+              <span style="display:block;"  @click="rebuildSystem" >
+                                          系统重建
+
+            </span>
+            </el-dropdown-item>
           <el-dropdown-item>
               <span style="display:block;" v-if="isOpenAccount" @click="openAccount">
                             系统开帐
@@ -77,7 +83,7 @@
   import SizeSelect from '@/components/SizeSelect'
   import LangSelect from '@/components/LangSelect'
   import ThemePicker from '@/components/ThemePicker'
-  import {getStartBill, putStartBill,getPushMoneyRate,putPushMoneyRate} from '@/service/common'
+  import {getStartBill, putStartBill,getSystem,putSystem,rebuild} from '@/service/common'
 
   export default {
     components: {
@@ -111,6 +117,38 @@
       })
     },
     methods: {
+      rebuildSystem(){
+        this.$confirm('此操作将重置系统, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          let data = {
+            storeId: this.storeId
+          }
+          rebuild(data).then(res=>{
+            if (res.data.code !== 1001) {
+              this.$message({
+                type: 'error',
+                message: res.data.message
+              });
+              return
+            }
+            this.$message({
+              type: 'success',
+              message: '重置成功，请重新登录!'
+            });
+            this.$store.dispatch('LogOut').then(() => {
+              location.reload()// In order to re-instantiate the vue-router object to avoid bugs
+            })
+          })
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消删除'
+          });
+        });
+      },
       toggleSideBar() {
         this.$store.dispatch('toggleSideBar')
       },
@@ -120,7 +158,7 @@
         })
       },
       pushMoneyRate(){
-        getPushMoneyRate().then(res=>{
+        getSystem().then(res=>{
           this.moneyRate = res.data.data.pushMoneyRate
           this.dialogVisible = true
         })
@@ -136,7 +174,7 @@
           let data ={
             pushMoneyRate : value
           }
-          putPushMoneyRate(data).then(res=>{
+          putSystem(data).then(res=>{
             if (res.data.code !== 1001) {
               this.$message({
                 type: 'error',

@@ -10,7 +10,7 @@ export function getCustomerData(params) {
 
 export function getIntegralsDetails(params) {
   return request({
-    url: '/pps/clients/integral/detail',
+    url: '/pps/clients/stores/detail',
     method: 'get',
     params
   })
@@ -34,7 +34,7 @@ export function postClients(data) {
 // 查积分
 export function getClientsIntegral(params) {
   return request({
-    url: '/pps/clients/integral',
+    url: '/pps/clients/stores',
     method: 'get',
     params
   })
