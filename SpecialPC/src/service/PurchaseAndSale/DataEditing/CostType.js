@@ -2,7 +2,7 @@ import request from '@/utils/request'
 // get请求
 export function getIncomeExpensesData(params) {
   return request({
-    url: '/pps/incomeExpenses',
+    url: '/main_store/incomeExpenses',
     method: 'get',
     params
   })
@@ -12,7 +12,7 @@ export function getIncomeExpensesData(params) {
 
 export function postIncomeExpensesData(data) {
   return request({
-    url: '/pps/incomeExpenses',
+    url: '/main_store/incomeExpenses',
     method: 'post',
     data
   })
@@ -20,7 +20,7 @@ export function postIncomeExpensesData(data) {
 // put 请求
 export function putIncomeExpensesData(data) {
   return request({
-    url: '/pps/incomeExpenses',
+    url: '/main_store/incomeExpenses',
     method: 'put',
     data
   })
@@ -28,7 +28,7 @@ export function putIncomeExpensesData(data) {
 // delete请求
 export function delIncomeExpensesData(params) {
   return request({
-    url: '/pps/incomeExpenses',
+    url: '/main_store/incomeExpenses',
     method: 'delete',
     params
   })
@@ -37,7 +37,7 @@ export function delIncomeExpensesData(params) {
 // 通过id查询供应商
 export function findIncomeExpensesById(params, path) {
   return request({
-    url: '/pps/incomeExpenses/' + path,
+    url: '/main_store/incomeExpenses/' + path,
     method: 'get',
     params
   })

@@ -2,7 +2,7 @@ import request from '@/utils/request'
 // get请求
 export function getWarehouseData(params) {
   return request({
-    url: '/pps/warehouses',
+    url: '/main_store/warehouses',
     method: 'get',
     params
   })
@@ -12,7 +12,7 @@ export function getWarehouseData(params) {
 
 export function postWarehouseData(data) {
   return request({
-    url: '/pps/warehouses',
+    url: '/main_store/warehouses',
     method: 'post',
     data
   })
@@ -20,7 +20,7 @@ export function postWarehouseData(data) {
 // put 请求
 export function putWarehouseData(data) {
   return request({
-    url: '/pps/warehouses',
+    url: '/main_store/warehouses',
     method: 'put',
     data
   })
@@ -28,7 +28,7 @@ export function putWarehouseData(data) {
 // delete请求
 export function delWarehouseData(params) {
   return request({
-    url: '/pps/warehouses',
+    url: '/main_store/warehouses',
     method: 'delete',
     params
   })
@@ -37,7 +37,7 @@ export function delWarehouseData(params) {
 // 通过id查询仓库
 export function findWarehouseById(params, path) {
   return request({
-    url: '/pps/warehouses/' + path,
+    url: '/main_store/warehouses/' + path,
     method: 'get',
     params
   })

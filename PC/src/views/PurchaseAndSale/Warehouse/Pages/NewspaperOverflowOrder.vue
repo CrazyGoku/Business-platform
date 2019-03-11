@@ -184,14 +184,13 @@
         </el-table-column>
         <el-table-column label="数量" width="180" align="center">
           <template scope="scope">
-            <NumberInput :no-slot="false" v-model="scope.row.quantity" >
+            <NumberInput :no-slot="false" v-model="scope.row.checkQuantityC">
             </NumberInput>
           </template>
         </el-table-column>
         <el-table-column prop="money" label="价格" width="180" align="center">
           <template scope="scope">
-
-            <NumberInput :no-slot="false" v-model="scope.row.money" >
+            <NumberInput :no-slot="false" v-model="scope.row.checkMoneyC">
             </NumberInput>
           </template>
         </el-table-column>
@@ -200,7 +199,7 @@
           label="总价"
         >
           <template scope="scope">
-            {{(scope.row.quantity*scope.row.money).toFixed(2)}}
+            {{(scope.row.checkQuantityC*scope.row.checkMoneyC).toFixed(2)}}
           </template>
         </el-table-column>
         <el-table-column label="备注" width="180" align="center">
@@ -404,12 +403,12 @@ export default {
       const details = []
       this.choiceGoodsSku.forEach(v => {
         let _detail = {}
-        totalQuantity += Number(v.quantity)
-        totalMoney += Number(v.quantity*v.money)
+        totalQuantity += Number(v.checkQuantityC)
+        totalMoney += Number(v.checkMoneyC*v.checkQuantityC)
         _detail = {
           'goodsSkuId': v.id,
-          'money': v.totalMoney,
-          'quantity': v.quantity,
+          'money': v.checkMoneyC,
+          'quantity': v.checkQuantityC,
           'remark': v.remark,
           'type': 1,
           'checkQuantity': v.checkQuantity,

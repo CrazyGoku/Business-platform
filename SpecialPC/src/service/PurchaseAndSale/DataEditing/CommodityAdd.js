@@ -2,7 +2,7 @@ import request from '@/utils/request'
 // get请求
 export function getCommodityData(params) {
   return request({
-    url: '/pps/goods',
+    url: '/main_store/goods',
     method: 'get',
     params
   })
@@ -10,7 +10,7 @@ export function getCommodityData(params) {
 // 获取标签
 export function getLabels(params) {
   return request({
-    url: '/pps/goods/labels',
+    url: '/main_store/goods/labels',
     method: 'get',
     params
   })
@@ -18,7 +18,7 @@ export function getLabels(params) {
 // 获取商品分类
 export function getCommodityTypeData(params) {
   return request({
-    url: '/pps/goods/types',
+    url: '/main_store/goods/types',
     method: 'get',
     params
   })
@@ -26,7 +26,7 @@ export function getCommodityTypeData(params) {
 // 获取商品属性名
 export function getProperties(params) {
   return request({
-    url: '/pps/goods/types/properties',
+    url: '/main_store/goods/types/properties',
     method: 'get',
     params
   })
@@ -35,7 +35,7 @@ export function getProperties(params) {
 
 export function postCommodityData(data) {
   return request({
-    url: '/pps/goods',
+    url: '/main_store/goods',
     method: 'post',
     data
   })
@@ -43,7 +43,7 @@ export function postCommodityData(data) {
 
 export function postGoodsImport(data, params) {
   return request({
-    url: '/pps/goods/import',
+    url: '/main_store/goods/import',
     method: 'post',
     data,
     params
@@ -53,14 +53,14 @@ export function postGoodsImport(data, params) {
 // delete请求
 export function delCommodityTypeData(params, path) {
   return request({
-    url: '/pps/goods/types/' + path,
+    url: '/main_store/goods/types/' + path,
     method: 'delete',
     params
   })
 }
 export function putCommodityData(data) {
   return request({
-    url: '/pps/goods',
+    url: '/main_store/goods',
     method: 'put',
     data
   })

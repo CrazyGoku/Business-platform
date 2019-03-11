@@ -67,9 +67,14 @@
     </div>
     <el-dialog :close-on-click-modal="false" :title="isEdit?'编辑会员卡':'添加会员卡'" :visible.sync="addDialog">
       <div class="dialog-content-input">
-        <el-input v-model="addData.number" placeholder="请输入会员卡账号" size="mini">
+        <el-input v-model="addData.startNumber" placeholder="请输入起始会员卡账号" size="mini">
           <template slot="prepend">
-            会员卡账号
+            起始会员卡账号
+          </template>
+        </el-input>
+        <el-input v-model="addData.stopNumber" placeholder="请输入结束会员卡账号" size="mini">
+          <template slot="prepend">
+            结束会员卡账号
           </template>
         </el-input>
       </div>
@@ -106,7 +111,8 @@ export default {
       clientsList: [],
       filterData:{},
       addData: {
-        number: ''
+        startNumber: '',
+        stopNumber: '',
       },
       addDialog: false,
       isEdit: false,
@@ -134,7 +140,6 @@ export default {
     addBtn() {
       this.isEdit = false
       this.addData = {
-        number: ''
       }
       this.addDialog = true
     },
@@ -206,7 +211,17 @@ export default {
       const func = this.isEdit ? putClientsMembershipNumber : postClientsMembershipNumber
       const magSuccess = this.isEdit ? '成功编辑会员卡' : '添加会员卡成功'
       const failSuccess = this.isEdit ? '编辑会员卡失败' : '添加会员卡失败'
-      func(this.addData,this.userId).then(res => {
+      console.log(this.addData)
+      let data = []
+      let len = this.addData.stopNumber.length
+      let str = this.addData.stopNumber.replace(/[0-9]/g,'0')
+      for (let i = Number(this.addData.startNumber);i<=Number(this.addData.stopNumber);i++){
+        let _num = str + i
+        console.log(str)
+        data.push(_num.substring(_num.length-len))
+      }
+      console.log(data)
+      func(data,this.userId).then(res => {
         if (res.data.code !== 1001) {
           this.$message({
             showClose: true,

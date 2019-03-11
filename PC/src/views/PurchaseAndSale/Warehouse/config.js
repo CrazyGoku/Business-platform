@@ -226,3 +226,16 @@ export const CostAdjustmentMap = [
   { key: 'userId', name: '经手人ID' },
   { key: 'userName', name: '经手人' }
 ]
+export const AllocationFormMap = [
+  { key: 'id', name: '订单编号' },
+  { key: 'goodsName', name: '商品名称' },
+  { key: 'goodsSkuSku', name: '商品规格' },
+  { key: 'goodsSkuId', name: '商品规格ID' },
+  { key: 'money', name: '金额' },
+  { key: 'quantity', name: '总量' },
+  { key: 'remark', name: '备注' },
+  { key: 'inNotReceivedQuantity', name: '未收数量' },
+  { key: 'inReceivedQuantity', name: '收到数量' },
+  { key: 'orderStatus', name: '订单状态' },
+  { key: 'totalMoney', name: '总金额' }
+]

@@ -8,12 +8,12 @@ import qs from 'qs'
 const service = axios.create({
   // baseURL: BASE_URL, // api 的 base_url
   withCredentials: true, // 跨域请求时发送 cookies
-  timeout: 5000 // request timeout
+  timeout: 30000 // request timeout
 })
 // request interceptor
 service.interceptors.request.use(
   config => {
-    if (config.url.split('/').includes('pps')) {
+    if (config.url.split('/').includes('main_store')) {
       config.baseURL = BASE_URL
     } else {
       config.baseURL = MOCK_URL

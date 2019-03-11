@@ -2,14 +2,14 @@ import request from '@/utils/request'
 // get请求
 export function getSuppliers(params) {
   return request({
-    url: '/pps/suppliers',
+    url: '/main_store/suppliers',
     method: 'get',
     params
   })
 }
 export function getWarehouses(params) {
   return request({
-    url: '/pps/warehouses',
+    url: '/main_store/warehouses',
     method: 'get',
     params
   })
@@ -17,7 +17,7 @@ export function getWarehouses(params) {
 // 获取客户
 export function getClients(params) {
   return request({
-    url: '/pps/clients',
+    url: '/main_store/clients',
     method: 'get',
     params
   })
@@ -25,14 +25,14 @@ export function getClients(params) {
 // 获取银行账户
 export function getBankAccount(params) {
   return request({
-    url: '/pps/bankAccounts',
+    url: '/main_store/bankAccounts',
     method: 'get',
     params
   })
 }
 export function canUse(params) {
   return request({
-    url: '/pps/goods/canUse',
+    url: '/main_store/goods/canUse',
     method: 'get',
     params
   })
@@ -41,7 +41,7 @@ export function canUse(params) {
 // 上传图片
 export function upload(params) {
   return request({
-    url: '/pps/file/upload',
+    url: '/main_store/file/upload',
     method: 'get',
     params
   })
@@ -49,7 +49,7 @@ export function upload(params) {
 // 库存预警查询
 export function StockEarlyWarning(params) {
   return request({
-    url: '/pps/storage/inventory/warehouse',
+    url: '/main_store/storage/inventory/warehouse',
     method: 'get',
     params
   })
@@ -57,7 +57,7 @@ export function StockEarlyWarning(params) {
 // 获取商品分类
 export function getCommodityTypeData(params) {
   return request({
-    url: '/pps/goods/types',
+    url: '/main_store/goods/types',
     method: 'get',
     params
   })
@@ -66,7 +66,7 @@ export function getCommodityTypeData(params) {
 // 查收支费用
 export function getIncomeExpenses(params) {
   return request({
-    url: '/pps/incomeExpenses',
+    url: '/main_store/incomeExpenses',
     method: 'get',
     params
   })

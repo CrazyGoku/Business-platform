@@ -68,7 +68,7 @@
             店长手机
           </template>
         </el-input>
-        <el-input v-model="storeDetail.clientMembershipNumber" maxlength="11" placeholder="请输入店长会员卡号" size="mini">
+        <el-input v-model="storeDetail.clientMembershipNumber" placeholder="请输入店长会员卡号" size="mini">
           <template slot="prepend">
             会员卡号
           </template>
@@ -204,7 +204,7 @@ export default {
       const func = this.isEdit ? putStore : postStore
       const magSuccess = this.isEdit ? '成功编辑店铺' : '成功添加店铺'
       const failSuccess = this.isEdit ? '编辑店铺失败' : '添加店铺失败'
-      func(params).then(res => {
+      func(params,this.userId).then(res => {
         if (res.data.code !== 1001) {
           this.$message({
             showClose: true,

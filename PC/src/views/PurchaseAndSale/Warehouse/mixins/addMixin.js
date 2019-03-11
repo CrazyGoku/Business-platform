@@ -64,6 +64,9 @@ export default {
       } else {
         console.log(eval(this.goodsSkuVos.sku))
         this.goodsSkuVos.forEach(v => {
+          v.goodsName = this.goodsVos.filter(v => {
+            return v.id === value
+          })[0].name
           v.sku = eval(v.sku)
           let sku = ''
           v.sku.forEach((item, index) => {
@@ -77,6 +80,8 @@ export default {
           })
           v.sku = sku
         })
+        this.chioceSelect.goodsSku = this.goodsSkuVos[0].id
+        this.choiceGoodsSkuFun(this.goodsSkuVos[0].id)
       }
     },
     choiceGoodsSkuFun(value) {
@@ -103,6 +108,7 @@ export default {
         this.$set(v, 'discountMoney', 0)
         this.$set(v, 'remark', '')
         this.$set(v, 'checkMoneyC', v.checkMoney)
+        this.$set(v, 'checkQuantityC', v.checkQuantity)
         this.$set(v, 'changeCheckTotalMoney', v.checkMoney*v.checkQuantity)
       })
     },

@@ -3,7 +3,7 @@ import request from '@/utils/request'
 //查资金-资金流水/资金对账
 export function getFundCheck(params) {
   return request({
-    url: '/pps/fund/check',
+    url: '/main_store/fund/check',
     method: 'get',
     params
   })
@@ -11,7 +11,7 @@ export function getFundCheck(params) {
 //查资金-资金余额
 export function getFundBalance(params) {
   return request({
-    url: '/pps/fund/balance',
+    url: '/main_store/fund/balance',
     method: 'get',
     params
   })

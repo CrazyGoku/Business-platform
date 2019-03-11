@@ -181,7 +181,7 @@ const PurchaseAndSaleRouter = {
     {
       path: 'Warehouse',
       name: 'Warehouse',
-      component: () => import('@/views/PurchaseAndSale/Warehouse/Warehouse.vue'),
+      component: () => import('@/views/PurchaseAndSale/Warehouse/Store.vue'),
       meta: { title: '仓库', iconfont: '&#xe671;', roles: [6] },
       redirect: 'noredirect',
       children: [
@@ -388,7 +388,7 @@ const PurchaseAndSaleRouter = {
         },
         {
           path: 'Warehouse',
-          component: () => import('@/views/PurchaseAndSale/DataEditing/Warehouse/Warehouse.vue'),
+          component: () => import('@/views/PurchaseAndSale/DataEditing/Warehouse/Store.vue'),
           name: 'Warehouse',
           meta: { title: '仓库信息', iconfont: '&#xe643;', roles: [16] }
         },

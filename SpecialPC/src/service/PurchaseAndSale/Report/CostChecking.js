@@ -3,7 +3,7 @@ import request from '@/utils/request'
 //资金报表-查费用-按明细
 export function getReportFundOutByDetails(params) {
   return request({
-    url: '/pps/report/fund/out/byDetails',
+    url: '/main_store/report/fund/out/byDetails',
     method: 'get',
     params
   })
@@ -11,7 +11,7 @@ export function getReportFundOutByDetails(params) {
 //资金报表-查费用-按往来单位
 export function getReportFundOutByTarget(params) {
   return request({
-    url: '/pps/report/fund/out/byTarget',
+    url: '/main_store/report/fund/out/byTarget',
     method: 'get',
     params
   })
@@ -19,7 +19,7 @@ export function getReportFundOutByTarget(params) {
 //资金报表-查费用-按分类
 export function getReportFundOutByType(params) {
   return request({
-    url: '/pps/report/fund/out/byType',
+    url: '/main_store/report/fund/out/byType',
     method: 'get',
     params
   })
@@ -27,7 +27,7 @@ export function getReportFundOutByType(params) {
 //资金报表-查费用-按职员
 export function getReportFundOutByUser(params) {
   return request({
-    url: '/pps/report/fund/out/byUser',
+    url: '/main_store/report/fund/out/byUser',
     method: 'get',
     params
   })

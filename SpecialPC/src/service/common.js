@@ -2,28 +2,28 @@ import request from '@/utils/request'
 
 export function getStartBill(path) {
   return request({
-    url: '/pps/system/startBill/'+path,
+    url: '/main_store/system/startBill/'+path,
     method: 'get'
   })
 }
 
 export function putStartBill(data) {
   return request({
-    url: '/pps/system/startBill',
+    url: '/main_store/system/startBill',
     method: 'put',
     data
   })
 }
 export function getSystem() {
   return request({
-    url: '/pps/system',
+    url: '/main_store/system',
     method: 'get'
   })
 }
 
 export function putSystem(data) {
   return request({
-    url: '/pps/system',
+    url: '/main_store/system',
     method: 'put',
     data
   })
@@ -31,14 +31,14 @@ export function putSystem(data) {
 
 export function getStore(path) {
   return request({
-    url: '/pps/stores/'+path,
+    url: '/main_store/stores/'+path,
     method: 'get'
   })
 }
 
 export function rebuild(data) {
   return request({
-    url: '/pps/system/rebuild',
+    url: '/main_store/system/rebuild',
     method: 'put',
     data
   })

@@ -3,7 +3,7 @@ import request from '@/utils/request'
 //资金报表-查回款-按账户
 export function getReportFundInByBankAccount(params) {
   return request({
-    url: '/pps/report/fund/in/byBankAccount',
+    url: '/main_store/report/fund/in/byBankAccount',
     method: 'get',
     params
   })
@@ -11,7 +11,7 @@ export function getReportFundInByBankAccount(params) {
 //资金报表-查回款-职员
 export function getReportFundInByUser(params) {
   return request({
-    url: '/pps/report/fund/in/byUser',
+    url: '/main_store/report/fund/in/byUser',
     method: 'get',
     params
   })

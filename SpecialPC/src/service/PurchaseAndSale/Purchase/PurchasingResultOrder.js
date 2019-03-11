@@ -2,7 +2,7 @@ import request from '@/utils/request'
 // get请求
 export function getProcurementResult(params) {
   return request({
-    url: '/pps/procurement/result',
+    url: '/main_store/procurement/result',
     method: 'get',
     params
   })
@@ -11,7 +11,7 @@ export function getProcurementResult(params) {
 // 查看结果详情
 export function getOrderResultDetails(params, path) {
   return request({
-    url: '/pps/procurement/result/detail/' + path,
+    url: '/main_store/procurement/result/detail/' + path,
     method: 'get',
     params
   })

@@ -87,20 +87,20 @@ export default new Router({
 
 export const asyncRouterMap = [
   PurchaseAndSaleRouter,
-  {
-    path: '/StoreManager',
-    component: Layout,
-    redirect: 'Store',
-    hidden: true,
-    children: [
-      {
-        path: 'Store',
-        component: () => import('@/views/Common//StoreManager'),
-        name: 'Store',
-        meta: { title: '店铺管理', iconfont: '&#xe671;' }
-      }
-    ]
-  },
+  // {
+  //   path: '/StoreManager',
+  //   component: Layout,
+  //   redirect: 'Store',
+  //   hidden: true,
+  //   children: [
+  //     {
+  //       path: 'Store',
+  //       component: () => import('@/views/Common//StoreManager'),
+  //       name: 'Store',
+  //       meta: { title: '店铺管理', iconfont: '&#xe671;' }
+  //     }
+  //   ]
+  // },
 
   { path: '*', redirect: '/404', hidden: true }
 ]

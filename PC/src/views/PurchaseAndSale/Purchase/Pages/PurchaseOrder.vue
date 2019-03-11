@@ -121,7 +121,7 @@
         </el-table-column>
       </el-table>
       <span slot="footer" class="dialog-footer">
-        <el-button icon="el-icon-printer" size="mini" type="primary" @click="printFun">
+        <el-button icon="el-icon-printer" size="mini" type="primary" @click="printDialog = true;payType=[]">
           打印
         </el-button>
       </span>
@@ -269,7 +269,7 @@
             <NumberInput
               v-model="scope.row.quantity"
               :no-slot="false"
-              @input="quantityChange(scope.row)"
+              @input="discountChange(scope.row)"
             />
           </template>
         </el-table-column>
@@ -282,7 +282,7 @@
             />
           </template>
         </el-table-column>
-        <el-table-column prop="money" label="总价" align="center">
+        <el-table-column label="总价" align="center">
           <template scope="scope">
             {{ scope.row.money }}
           </template>
@@ -301,6 +301,45 @@
           确认
         </el-button>
       </div>
+    </el-dialog>
+    <el-dialog
+      title="可选择结算方式"
+      :visible.sync="printDialog"
+      width="30%">
+
+      <el-select
+        v-model="payType"
+        size="mini"
+        multiple
+        collapse-tags
+        placeholder="可选择结算方式"
+        @change="choiceGoodsSkuFun"
+      >
+        <el-option
+          label="微信"
+          value="微信"
+        />
+        <el-option
+          label="支付宝"
+          value="支付宝"
+        />
+        <el-option
+          label="现金"
+          value="现金"
+        />
+        <el-option
+          label="预收/付款"
+          value="预收/付款"
+        />
+        <el-option
+          label="银行卡"
+          value="银行卡"
+        />
+      </el-select>
+      <span slot="footer" class="dialog-footer">
+    <el-button @click="printDialog = false;payType = []">取 消</el-button>
+    <el-button type="primary" @click="printFun">确 定</el-button>
+  </span>
     </el-dialog>
   </div>
 </template>
@@ -332,6 +371,8 @@
     mixins: [common, purchasecommon, addMixin],
     data() {
       return {
+        payType:[],
+        printDialog:false,
         filterData: {},
         pickTime: '',
         suppliersList: [],
@@ -398,14 +439,25 @@
         const data = {}
         data.items = JSON.parse(JSON.stringify(this.orderDetails))
         data.title = [
-          {key: 'goodsId', name: '商品编号'},
           {key: 'goodsName', name: '商品名称'},
-          {key: 'goodsSkuSku', name: '商品规格'},
-          {key: 'goodsSkuPurchasePrice', name: '单价'},
+          {key: 'company', name: '单位'},
+          {key: 'unitPrice', name: '单价'},
           {key: 'quantity', name: '数量'},
           {key: 'money', name: '金额'},
           {key: 'remark', name: '备注'}
         ]
+
+        let reg = new RegExp(/单位/ig)
+        let company = ''
+        data.items.forEach(v=>{
+          v.unitPrice = (v.money/v.quantity).toFixed(2)
+          v.goodsSkuSku.split(',').forEach(v2=>{
+            if(reg.test(v2)) company = v2
+          })
+          let _company = company.split(':')
+          company = _company[_company.length-1]
+          v.company = company
+        })
         window.localStorage.setItem('printData', JSON.stringify(data))
         let routeData = this.$router.resolve({
           name: 'PrintPage',
@@ -415,11 +467,12 @@
             orderTime: data.items[0].createTime,
             supplierName: this.printDetail.name,
             supplierPhone: this.printDetail.contactNumber,
-            supplierAddr: this.printDetail.contactAddress
+            supplierAddr: this.printDetail.contactAddress,
+            settlementType: this.payType.join('  ')
           }
         })
         window.open(routeData.href, '_blank')
-
+        this.printDialog = false
       },
       getSuppliersData() {
         const params = {
@@ -448,6 +501,8 @@
             v.status = v.orderStatus
             v.type = orderApplyMap[v.type]
             v.orderStatus = statusMap[v.orderStatus]
+            v.clearStatus = clearMap[v.clearStatus]
+
           })
           this.orderStorageList = data
           this.paginationData = data.pageVo

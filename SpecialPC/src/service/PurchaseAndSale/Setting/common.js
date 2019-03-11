@@ -2,7 +2,7 @@ import request from '@/utils/request'
 // get请求
 export function getWarehouses(params) {
   return request({
-    url: '/pps/warehouses',
+    url: '/main_store/warehouses',
     method: 'get',
     params
   })
@@ -11,7 +11,7 @@ export function getWarehouses(params) {
 // 按仓库查库存
 export function getStockByWarehouse(params) {
   return request({
-    url: '/pps/storage/inventory/warehouse',
+    url: '/main_store/storage/inventory/warehouse',
     method: 'get',
     params
   })
@@ -20,7 +20,7 @@ export function getStockByWarehouse(params) {
 // 查询零售默认设置
 export function getDefaultRetail(path) {
   return request({
-    url: '/pps/system/retail/'+path,
+    url: '/main_store/system/retail/'+path,
     method: 'get'
   })
 }
@@ -28,7 +28,7 @@ export function getDefaultRetail(path) {
 // 修改零售默认设置
 export function putDefaultRetail(data) {
   return request({
-    url: '/pps/system/retail',
+    url: '/main_store/system/retail',
     method: 'put',
     data
   })

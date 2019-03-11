@@ -4,7 +4,7 @@ import request from '@/utils/request'
 // 查找所有客户级别
 export function getClientsLevels(params) {
   return request({
-    url: '/pps/clients/levels',
+    url: '/main_store/clients/levels',
     method: 'get',
     params
   })
@@ -12,7 +12,7 @@ export function getClientsLevels(params) {
 // 新增所有客户级别
 export function postClientsLevels(data,path) {
   return request({
-    url: '/pps/clients/levels/'+path,
+    url: '/main_store/clients/levels/'+path,
     method: 'post',
     data
   })
@@ -20,7 +20,7 @@ export function postClientsLevels(data,path) {
 // 修改所有客户级别
 export function putClientsLevels(data,path) {
   return request({
-    url: '/pps/clients/levels/'+path,
+    url: '/main_store/clients/levels/'+path,
     method: 'put',
     data
   })
@@ -28,7 +28,7 @@ export function putClientsLevels(data,path) {
 // 删除客户级别
 export function delClientsLevels(params,path) {
   return request({
-    url: '/pps/clients/levels/'+path,
+    url: '/main_store/clients/levels/'+path,
     method: 'delete',
     params
   })

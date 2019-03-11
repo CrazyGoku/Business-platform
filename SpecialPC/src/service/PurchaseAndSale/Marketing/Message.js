@@ -2,7 +2,7 @@ import request from '@/utils/request'
 //查询短信模版
 export function getSmsTemplate(params) {
   return request({
-    url: '/pps/marketing/sms/template',
+    url: '/main_store/marketing/sms/template',
     method: 'get',
     params
   })
@@ -10,7 +10,7 @@ export function getSmsTemplate(params) {
 
 export function getSmsHistory(params) {
   return request({
-    url: '/pps/marketing/sms/history',
+    url: '/main_store/marketing/sms/history',
     method: 'get',
     params
   })
@@ -18,7 +18,7 @@ export function getSmsHistory(params) {
 
 export function postSmsHistory(data) {
   return request({
-    url: '/pps/marketing/sms/history',
+    url: '/main_store/marketing/sms/history',
     method: 'post',
     data
   })
@@ -26,14 +26,14 @@ export function postSmsHistory(data) {
 
 export function delSmsTemplate(params,path) {
   return request({
-    url: '/pps/marketing/sms/template/'+path,
+    url: '/main_store/marketing/sms/template/'+path,
     method: 'delete',
     params
   })
 }
 export function postSmsTemplate(data,path) {
   return request({
-    url: '/pps/marketing/sms/template/'+path,
+    url: '/main_store/marketing/sms/template/'+path,
     method: 'post',
     data
   })
@@ -41,7 +41,7 @@ export function postSmsTemplate(data,path) {
 
 export function putSmsTemplate(data,path) {
   return request({
-    url: '/pps/marketing/sms/template/'+path,
+    url: '/main_store/marketing/sms/template/'+path,
     method: 'put',
     data
   })

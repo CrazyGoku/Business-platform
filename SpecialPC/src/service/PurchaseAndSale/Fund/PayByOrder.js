@@ -2,7 +2,7 @@ import request from '@/utils/request'
 // get请求
 export function getFundOut(params) {
   return request({
-    url: '/pps/fund/out',
+    url: '/main_store/fund/out',
     method: 'get',
     params
   })

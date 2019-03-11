@@ -1,6 +1,6 @@
 <template>
   <div>
-    <PrintBtn @click="printFun" />
+    <!--<PrintBtn @click="printFun" />-->
     <div class="handle-bar">
       <el-button type="primary" icon="el-icon-circle-plus-outline" size="mini" @click="addFun">
         添加
@@ -24,7 +24,7 @@
         type="primary"
         icon="el-icon-circle-plus-outline"
         size="mini"
-        @click="downloadFile('/goods/import/template')"
+        @click="downloadFile('/goods/import/template',{storeId:storeId})"
       >
         导出模版
       </el-button>
@@ -43,6 +43,11 @@
           商品条码
         </template>
       </el-input>
+      <el-input v-model="filterData.name" placeholder="商品名称" size="mini">
+        <template slot="prepend">
+          商品名称
+        </template>
+      </el-input>
       <div style="width: 20px;">
         <el-button type="primary" size="mini" @click="searchBtn">
           查询
@@ -54,9 +59,8 @@
         <Tree :data="commodityTypeList" @nodeClick="changeType" />
       </TransverseShrinkBox>
       <select-table
-        v-model="selectArr"
-        :is-select="true"
         :data="commodityList"
+        :isSummary="false"
         :pagination-data="paginationData"
         @paginationChange="getCommodityDataFun"
       >
@@ -82,6 +86,7 @@
     <el-dialog
       :close-on-click-modal="false"
       :visible.sync="dialogVisible"
+      width="80%"
       :title="isEdit?'编辑商品':'添加商品'"
     >
       <div style="margin-bottom: 10px">
@@ -170,6 +175,20 @@
             :value="item.id"
           />
         </el-select>
+        <el-select
+          v-model="commodityDetail.pushMoneyStatus"
+          size="mini"
+          placeholder="请选择是否提成"
+        >
+          <el-option
+            label="否"
+            :value="0"
+          />
+          <el-option
+            label="是"
+            :value="1"
+          />
+        </el-select>
         <el-input v-model="commodityDetail.remark" placeholder="请输入备注" size="mini">
           <template slot="prepend">
             备注
@@ -254,7 +273,6 @@
           <template scope="scope">
             <el-select
               v-model="scope.row.sku[item.name]"
-              :disabled="scope.row.isEdit"
               :placeholder="'请选择'+item.name"
               size="mini"
             >
@@ -432,9 +450,6 @@ export default {
         pageSize: 10
       },
       filterData: {
-        vagueFilter: '',
-        brandFilter: '',
-        openStatusFilter: ''
       },
       isEdit: false,
       dialogVisible: false,
@@ -449,7 +464,8 @@ export default {
         typeId: '',
         putaway: '',
         remark: '',
-        image: ''
+        image: '',
+        pushMoneyStatus:1,
       },
       commondityBrandList: [],
       unitList: [],
@@ -477,7 +493,16 @@ export default {
       this.isEdit = false
       this.dialogVisible = true
       this.goodsLabels = []
-      this.commodityDetail = {}
+      this.commodityDetail = {
+        storeId: '',
+        name: '',
+        barCode: '',
+        typeId: '',
+        putaway: '',
+        remark: '',
+        image: '',
+        pushMoneyStatus:1,
+      }
       this.specificationsFlag = false
       this.specifucatuibsList = []
     },
@@ -541,9 +566,8 @@ export default {
         storeId: this.storeId,
         ...this.exportFilter
       }
-      const qstring = qs.stringify(params)
 
-      this.downloadFile('goods/export?' + qstring)
+      this.downloadFile('goods/export',params)
     },
     fileChange: function(el) {
       el.preventDefault()// 取消默认行为
@@ -606,7 +630,8 @@ export default {
         'purchasePrice': '',
         'retailPrice': '',
         'sku': _skuKey,
-        'vipPrice': ''
+        'vipPrice': '',
+        'bossPrice': ''
       })
     },
     handleCurrentChange(row, event, column) {
@@ -638,6 +663,7 @@ export default {
       this.specificationsFlag = true
       this.changeAddType(row.typeId)
       this.commodityDetail.goodsSkuVos.forEach(v => {
+        console.log(v)
         const _skuKey = {}
         eval(v.sku).forEach(v2 => {
           Object.assign(_skuKey, { [v2.key]: v2.value })
@@ -646,6 +672,7 @@ export default {
           'integral': v.integral,
           'purchasePrice': v.purchasePrice,
           'retailPrice': v.retailPrice,
+          'bossPrice': v.bossPrice,
           'sku': _skuKey,
           'vipPrice': v.vipPrice,
           'isEdit': true,
@@ -662,6 +689,12 @@ export default {
       })
     },
     getCommodityDataFun() {
+      for(let i in this.filterData){
+        console.log(this.filterData[i])
+        if(this.filterData[i] == ''){
+          delete this.filterData[i]
+        }
+      }
       const params = {
         storeId: this.storeId,
         page: this.paginationData.page,

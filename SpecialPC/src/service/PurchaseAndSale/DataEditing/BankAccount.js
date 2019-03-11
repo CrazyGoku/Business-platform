@@ -2,7 +2,7 @@ import request from '@/utils/request'
 // get请求
 export function getBankAccountData(params) {
   return request({
-    url: '/pps/bankAccounts',
+    url: '/main_store/bankAccounts',
     method: 'get',
     params
   })
@@ -12,7 +12,7 @@ export function getBankAccountData(params) {
 
 export function postBankAccountData(data) {
   return request({
-    url: '/pps/bankAccounts',
+    url: '/main_store/bankAccounts',
     method: 'post',
     data
   })
@@ -20,7 +20,7 @@ export function postBankAccountData(data) {
 // put 请求
 export function putBankAccountData(data) {
   return request({
-    url: '/pps/bankAccounts',
+    url: '/main_store/bankAccounts',
     method: 'put',
     data
   })
@@ -28,7 +28,7 @@ export function putBankAccountData(data) {
 // delete请求
 export function delBankAccountData(params) {
   return request({
-    url: '/pps/bankAccounts',
+    url: '/main_store/bankAccounts',
     method: 'delete',
     params
   })
@@ -37,7 +37,7 @@ export function delBankAccountData(params) {
 // 通过id查询供应商
 export function findBankAccountById(params, path) {
   return request({
-    url: '/pps/bankAccounts/' + path,
+    url: '/main_store/bankAccounts/' + path,
     method: 'get',
     params
   })

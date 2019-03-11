@@ -3,6 +3,7 @@
       <van-cell title="修改个人资料" is-link to="UserInfo" />
       <van-cell title="各店铺提成" is-link to="MyPushMoney" />
       <van-cell title="提成明细" is-link to="MyPushMoneyDetail" />
+      <van-cell title="我的申请" is-link to="MyOrder" />
 
       <button class="submit-btn" @click="logout">
         注销

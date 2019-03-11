@@ -38,6 +38,12 @@ const PurchaseAndSaleRouter = {
           name: 'PurchaseReplacement',
           meta: { title: '采购换货申请', iconfont: '&#xe631;', roles: [23] }
         },
+        {
+          path: 'DirectReplaceOrder',
+          component: () => import('@/views/PurchaseAndSale/Purchase/Pages/DirectReplaceOrder.vue'),
+          name: 'DirectReplaceOrder',
+          meta: { title: '直接换货申请', iconfont: '&#xe631;', roles: [73] }
+        },
         // {
         //   path: 'PurchasingResultOrder',
         //   component: () => import('@/views/PurchaseAndSale/Purchase/Pages/PurchasingResultOrder.vue'),
@@ -89,6 +95,12 @@ const PurchaseAndSaleRouter = {
           name: 'SalesReplacement',
           meta: { title: '销售换货申请', iconfont: '&#xe631;', roles: [28] }
         },
+        {
+          path: 'DirectReplaceOrder',
+          component: () => import('@/views/PurchaseAndSale/Sale/Pages/DirectReplaceOrder.vue'),
+          name: 'DirectReplaceOrder',
+          meta: { title: '直接换货申请', iconfont: '&#xe631;', roles: [72] }
+        },
         // {
         //   path: 'SalesResultOrder',
         //   component: () => import('@/views/PurchaseAndSale/Sale/Pages/SalesResultOrder.vue'),
@@ -100,6 +112,12 @@ const PurchaseAndSaleRouter = {
           component: () => import('@/views/PurchaseAndSale/Sale/Pages/SalesAllResults.vue'),
           name: 'SalesAllResults',
           meta: { title: '销售历史', iconfont: '&#xe631;', roles: [29] }
+        },
+        {
+          path: 'RetailResult',
+          component: () => import('@/views/PurchaseAndSale/Sale/Pages/RetailResult.vue'),
+          name: 'RetailResult',
+          meta: { title: '零售历史', iconfont: '&#xe631;', roles: [68] }
         }
       ]
     },
@@ -198,6 +216,12 @@ const PurchaseAndSaleRouter = {
           meta: { title: '收货', iconfont: '&#xe631;', roles: [37] }
         },
         {
+          path: 'SRResults.vue',
+          component: () => import('@/views/PurchaseAndSale/Warehouse/Pages/SRResults.vue'),
+          name: 'SRResults.vue',
+          meta: { title: '收发货历史', iconfont: '&#xe631;', roles: [70] }
+        },
+        {
           path: 'OtherEntryOrder',
           component: () => import('@/views/PurchaseAndSale/Warehouse/Pages/OtherEntryOrder.vue'),
           name: 'OtherEntryOrder',
@@ -232,6 +256,24 @@ const PurchaseAndSaleRouter = {
           component: () => import('@/views/PurchaseAndSale/Warehouse/Pages/StockTaking.vue'),
           name: 'StockTaking',
           meta: { title: '库存盘点', iconfont: '&#xe631;', roles: [54] }
+        },
+        {
+          path: 'Shortage',
+          component: () => import('@/views/PurchaseAndSale/Warehouse/Pages/Shortage.vue'),
+          name: 'Shortage',
+          meta: { title: '缺货查询', iconfont: '&#xe631;', roles: [67] }
+        },
+        {
+          path: 'AllocationForm',
+          component: () => import('@/views/PurchaseAndSale/Warehouse/Pages/AllocationForm.vue'),
+          name: 'AllocationForm',
+          meta: { title: '库存调拨', iconfont: '&#xe631;', roles: [69] }
+        },
+        {
+          path: 'AllocationResult',
+          component: () => import('@/views/PurchaseAndSale/Warehouse/Pages/AllocationResult.vue'),
+          name: 'AllocationResult',
+          meta: { title: '库存调拨结果', iconfont: '&#xe631;', roles: [71] }
         }
       ]
     },
@@ -368,18 +410,18 @@ const PurchaseAndSaleRouter = {
           name: 'VIPCustomer',
           meta: { title: 'VIP客户', iconfont: '&#xe62a;', roles: [12] }
         },
-        {
-          path: 'ClientsLevels',
-          component: () => import('@/views/PurchaseAndSale/DataEditing/ClientsLevels/ClientsLevels.vue'),
-          name: 'ClientsLevels',
-          meta: { title: '客户级别', iconfont: '&#xe62a;', roles: [13] }
-        },
-        {
-          path: 'MembershipNumber',
-          component: () => import('@/views/PurchaseAndSale/DataEditing/MembershipNumber/MembershipNumber.vue'),
-          name: 'MembershipNumber',
-          meta: { title: '会员卡', iconfont: '&#xe62a;', roles: [14] }
-        },
+        // {
+        //   path: 'ClientsLevels',
+        //   component: () => import('@/views/PurchaseAndSale/DataEditing/ClientsLevels/ClientsLevels.vue'),
+        //   name: 'ClientsLevels',
+        //   meta: { title: '客户级别', iconfont: '&#xe62a;', roles: [13] }
+        // },
+        // {
+        //   path: 'MembershipNumber',
+        //   component: () => import('@/views/PurchaseAndSale/DataEditing/MembershipNumber/MembershipNumber.vue'),
+        //   name: 'MembershipNumber',
+        //   meta: { title: '会员卡', iconfont: '&#xe62a;', roles: [14] }
+        // },
         {
           path: 'Supplier',
           component: () => import('@/views/PurchaseAndSale/DataEditing/Supplier/Supplier.vue'),

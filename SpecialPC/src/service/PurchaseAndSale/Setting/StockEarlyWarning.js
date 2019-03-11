@@ -3,7 +3,7 @@ import request from '@/utils/request'
 // 库存预警查询
 export function getInventoryWarhouse(params) {
   return request({
-    url: '/pps/storage/inventory/warehouse',
+    url: '/main_store/storage/inventory/warehouse',
     method: 'get',
     params
   })
@@ -11,7 +11,7 @@ export function getInventoryWarhouse(params) {
 // put请求
 export function putInventoryWarning(data) {
   return request({
-    url: '/pps/storage/inventory/warning',
+    url: '/main_store/storage/inventory/warning',
     method: 'put',
     data
   })

@@ -3,7 +3,7 @@ import request from '@/utils/request'
 // 分页查询优惠券
 export function getDiscountCoupon(params) {
   return request({
-    url: '/pps/marketing/discountCoupon',
+    url: '/main_store/marketing/discountCoupon',
     method: 'get',
     params
   })
@@ -12,7 +12,7 @@ export function getDiscountCoupon(params) {
 // 新增优惠券
 export function postDiscountCoupon(data) {
   return request({
-    url: '/pps/marketing/discountCoupon',
+    url: '/main_store/marketing/discountCoupon',
     method: 'post',
     data
   })
@@ -20,7 +20,7 @@ export function postDiscountCoupon(data) {
 // 新增优惠券
 export function putDiscountCoupon(data) {
   return request({
-    url: '/pps/marketing/discountCoupon',
+    url: '/main_store/marketing/discountCoupon',
     method: 'put',
     data
   })
@@ -29,7 +29,7 @@ export function putDiscountCoupon(data) {
 // 新增优惠券
 export function invalidDiscountCoupon(data) {
   return request({
-    url: '/pps/marketing/discountCoupon/invalid',
+    url: '/main_store/marketing/discountCoupon/invalid',
     method: 'put',
     data
   })

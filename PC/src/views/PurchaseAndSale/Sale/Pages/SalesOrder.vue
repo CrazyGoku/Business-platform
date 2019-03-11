@@ -75,14 +75,14 @@
             >
               删除
             </el-button>
-            <el-button
+            <!--<el-button
               type="text"
               size="small"
               :disabled="!(scope.row.status==1||scope.row.status==4||scope.row.status==7)"
               @click.native.prevent="editRow(scope.$index,scope.row)"
             >
               编辑
-            </el-button>
+            </el-button>-->
             <el-button
               type="text"
               size="small"
@@ -129,7 +129,7 @@
       </el-table>
 
       <span slot="footer" class="dialog-footer">
-        <el-button icon="el-icon-printer" size="mini" type="primary" @click="printFun">
+                <el-button icon="el-icon-printer" size="mini" type="primary" @click="printDialog = true;payType=[]">
           打印
         </el-button>
       </span>
@@ -284,6 +284,16 @@
           align="center"
           label="VIP价格"
         />
+        <el-table-column
+          prop="bossPrice"
+          align="center"
+          label="老板价"
+        />
+        <el-table-column
+          prop="canUseInventory"
+          align="center"
+          label="可用库存"
+        />
         <el-table-column label="数量" width="180" align="center">
           <template scope="scope">
             <NumberInput
@@ -297,7 +307,7 @@
           <template scope="scope">
             <NumberInput
               v-model="scope.row.money"
-              :max="choiceClient.clientLevel.priceType==1?scope.row.retailPrice*choiceClient.clientLevel.price:scope.row.vipPrice*choiceClient.clientLevel.price"
+              :max="scope.row[priceTypeMap[choiceClient.clientLevel.priceType]]*choiceClient.clientLevel.price"
               :no-slot="false"
               @input="moneyChange(scope.row)"
             />
@@ -305,12 +315,12 @@
         </el-table-column>
         <el-table-column prop="totalMoney" label="总价" width="180" align="center">
           <template scope="scope">
-            {{ scope.row.totalMoney }}
+            {{(scope.row[priceTypeMap[choiceClient.clientLevel.priceType]]*choiceClient.clientLevel.price*scope.row.quantity).toFixed(2)}}
           </template>
         </el-table-column>
         <el-table-column label="会员折扣" width="150" align="center">
           <template scope="scope">
-            {{ choiceClient.clientLevel.priceType==1?(scope.row.quantity*scope.row.retailPrice*(1-choiceClient.clientLevel.price)).toFixed(2):(scope.row.quantity*scope.row.vipPrice*(1-choiceClient.clientLevel.price)).toFixed(2) }}
+            {{ ((scope.row[priceTypeMap[choiceClient.clientLevel.priceType]]*(1-choiceClient.clientLevel.price))*scope.row.quantity).toFixed(2) }}
           </template>
         </el-table-column>
         <el-table-column label="折扣" width="180" align="center">
@@ -340,6 +350,46 @@
         </el-button>
       </div>
     </el-dialog>
+    <el-dialog
+      title="可选择结算方式"
+      :visible.sync="printDialog"
+      width="30%">
+
+      <el-select
+        v-model="payType"
+        size="mini"
+        multiple
+        collapse-tags
+        placeholder="可选择结算方式"
+        @change="choiceGoodsSkuFun"
+      >
+        <el-option
+          label="微信"
+          value="微信"
+        />
+        <el-option
+          label="支付宝"
+          value="支付宝"
+        />
+        <el-option
+          label="现金"
+          value="现金"
+        />
+        <el-option
+          label="预收/付款"
+          value="预收/付款"
+        />
+        <el-option
+          label="银行卡"
+          value="银行卡"
+        />
+      </el-select>
+      <span slot="footer" class="dialog-footer">
+    <el-button @click="printDialog = false;payType = []">取 消</el-button>
+    <el-button type="primary" @click="printFun">确 定</el-button>
+  </span>
+    </el-dialog>
+
   </div>
 </template>
 
@@ -359,6 +409,8 @@ export default {
   mixins: [common, salecommon, addMixin],
   data() {
     return {
+      payType:[],
+      printDialog:false,
       filterData: {},
       pickTime: '',
       suppliersList: [],
@@ -392,12 +444,25 @@ export default {
       data.items = JSON.parse(JSON.stringify(this.orderDetails))
       data.title = [
         {key: 'goodsName', name: '商品名称'},
-        {key: 'goodsSkuSku', name: '商品规格'},
-        {key: 'goodsSkuPurchasePrice', name: '单价'},
+        {key: 'company', name: '单位'},
+        {key: 'unitPrice', name: '单价'},
         {key: 'quantity', name: '数量'},
         {key: 'money', name: '金额'},
         {key: 'remark', name: '备注'}
       ]
+
+
+      let reg = new RegExp(/单位/ig)
+      let company = ''
+      data.items.forEach(v=>{
+        v.unitPrice = (v.money/v.quantity).toFixed(2)
+        v.goodsSkuSku.split(',').forEach(v2=>{
+          if(reg.test(v2)) company = v2
+        })
+        let _company = company.split(':')
+        company = _company[_company.length-1]
+        v.company = company
+      })
       window.localStorage.setItem('printData', JSON.stringify(data))
       let routeData = this.$router.resolve({
         name: 'PrintPage',
@@ -407,10 +472,13 @@ export default {
           orderTime: data.items[0].createTime,
           clientName: this.clientDetail.name,
           clientPhone: this.clientDetail.phone,
-          clientAddr: this.clientDetail.address
+          clientAddr: this.clientDetail.address,
+          settlementType: this.payType.join('  ')
         }
       })
       window.open(routeData.href, '_blank')
+      this.printDialog = false
+
     },
 
     editRemark(index, row) {
@@ -474,6 +542,9 @@ export default {
           item.status = item.orderStatus
           item.orderStatus = statusMap[item.orderStatus]
           item.clearStatus = clearMap[item.clearStatus]
+        })
+        data.title = data.title.filter(item=>{
+          return item.key!=='type' && item.key!=='prodcingWay'
         })
         this.orderStorageList = data
         this.paginationData = data.pageVo
@@ -563,7 +634,7 @@ export default {
           this.choiceGoodsSku.push(_data)
         })
         this.choiceOutWarehouse(data.outWarehouseId)
-        this.addVisible = true
+          this.addVisible = true
       })
     },
 
@@ -626,14 +697,14 @@ export default {
         }else{
           v.quantity = v.quantity ? v.quantity : 0
           v.discountMoney = v.discountMoney ? v.discountMoney : 0
-          v.money = v.money ? this.choiceClient.clientLevel.priceType == 1 ? (v.retailPrice * this.choiceClient.clientLevel.price).toFixed(2) : (v.vipPrice * this.choiceClient.clientLevel.price).toFixed(2) : 0
+          v.money = v.money ? (v[this.priceTypeMap[this.choiceClient.clientLevel.priceType]]* this.choiceClient.clientLevel.price).toFixed(2) : 0
           outTotalQuantity += Number(v.quantity)
-          totalMoney += Number(v.totalMoney)
+          totalMoney += Number(v.money*v.quantity)
           _detail = {
             'type': 0,
             'goodsSkuId': v.id,
             'quantity': v.quantity,
-            'money': v.totalMoney,
+            'money': v.money*v.quantity,
             'discountMoney': v.discountMoney,
             'remark': v.remark
           }
@@ -645,6 +716,7 @@ export default {
       data.orderMoney = totalMoney - this.chioceSelect.totalDiscountMoney
       data.totalMoney = totalMoney
       data.details = details
+      console.log(data)
       const func = this.isEdit ? putSellApply : postSellApply
       const magSuccess = this.isEdit ? '成功编辑订单' : '成功添加订单'
       const failSuccess = this.isEdit ? '编辑订单失败' : '添加订单失败'

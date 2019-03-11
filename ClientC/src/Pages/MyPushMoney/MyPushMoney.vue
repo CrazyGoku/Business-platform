@@ -22,12 +22,33 @@
           <van-dialog
             v-model="show"
             show-cancel-button
+            @confirm="confirmHandle"
             :before-close="beforeClose"
           >
             <p class="title">提现</p>
             <van-field
               v-model="money"
+              type="number"
               placeholder="请输入提现金额"
+            />
+            <van-radio-group v-model="withdrawalWay">
+              <van-cell-group>
+                <van-cell title="提现到手机号码对应的支付宝账户" clickable @click="withdrawalWay = '1'">
+                  <van-radio name="1" />
+                </van-cell>
+                <van-cell title="其他方式需填写备注" clickable @click="withdrawalWay = '2'">
+                  <van-radio name="2" />
+                </van-cell>
+              </van-cell-group>
+            </van-radio-group>
+            <van-field
+              v-if="withdrawalWay==2"
+              v-model="remark"
+              label="备注"
+              type="textarea"
+              placeholder="请输入备注"
+              rows="2"
+              autosize
             />
           </van-dialog>
 
@@ -38,36 +59,61 @@
 <script>
     import Page from '@/components/page/page'
     import header from '@/mixins/header'
-    import {getClientsStores} from '@/api/api'
-    import {postPushMoney} from '@/api/api'
+    import {getClientsStores,postPushMoney} from '@/api/api'
     export default {
         name: "MyPushMoney",
         mixins: [header],
         data() {
             return {
                 title: '各店铺提成',
-              show:false,
-              dataPage:{
-                page:1,
-                pageSize:10
-              },
-              loading: false,
-              finished: false,
-              pushMoneyList:[],
+                show:false,
+                dataPage:{
+                  page:1,
+                  pageSize:10
+                },
+                loading: false,
+                finished: false,
+                pushMoneyList:[],
               money:'',
-              chioceRow:{}
+              chioceRow:{},
+              withdrawalWay:"1"
             }
         },
         methods: {
+          confirmHandle(){
+
+          },
           beforeClose(action, done) {
+
             if (action === 'confirm') {
+
+              if(this.money<=0||!this.money){
+                this.$toast('请输入正确的金额')
+                done(false)
+                return
+              }
+              if(this.withdrawalWay=='2'&&!this.remark){
+                this.$toast('请输入备注')
+                done(false)
+                return
+              }
               let data = {
-                storeId:this.choiceRow.storeId,
+                storeId:this.chioceRow.storeId,
                 clientId:this.$store.getters.id,
                 type:4,
-
+                changePushMoney:this.money,
+                withdrawalWay:this.withdrawalWay,
+                remark:this.remark
               }
-              setTimeout(done, 1000);
+              postPushMoney(data).then(res=>{
+                if(res.code=='1001'){
+                  this.$toast('提现申请已提交')
+                  done()
+                }else{
+                  this.$toast(res.message)
+                  done(false)
+                }
+              })
             } else {
               done();
             }
@@ -110,5 +156,10 @@
   .title{
     padding-top: 40px;
     text-align: center;
+  }
+  #MyPushMoney{
+    /deep/ .van-cell__title{
+      flex: 3;
+    }
   }
 </style>

@@ -19,7 +19,7 @@
     import MyInfo from '@/Pages/MyInfo/MyInfo'
     import Relationship from '@/Pages/Relationship/Relationship'
     export default {
-        name: "BussinessHome",
+        name: "BusinessHome",
         mixins: [header],
         data() {
             return {

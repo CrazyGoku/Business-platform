@@ -2,23 +2,23 @@ import request from '@/utils/request'
 // get请求
 export function getStore(params) {
   return request({
-    url: '/pps/stores',
+    url: '/main_store/stores',
     method: 'get',
     params
   })
 }
 
-export function postStore(data) {
+export function postStore(data,path) {
   return request({
-    url: '/pps/stores',
+    url: '/main_store/stores/'+path,
     method: 'post',
     data
   })
 }
 
-export function putStore(data) {
+export function putStore(data,path) {
   return request({
-    url: '/pps/stores',
+    url: '/main_store/stores/'+path,
     method: 'put',
     data
   })
@@ -26,15 +26,15 @@ export function putStore(data) {
 
 export function initialization(path) {
   return request({
-    url: '/pps/stores/initialization/' + path,
+    url: '/main_store/stores/initialization/' + path,
     method: 'get'
   })
 }
 
-export function clientLogin(params) {
+export function clientLogin(data) {
   return request({
-    url: '/pps/clients/login',
+    url: '/main_store/clients/login',
     method: 'post',
-    params
+    data
   })
 }

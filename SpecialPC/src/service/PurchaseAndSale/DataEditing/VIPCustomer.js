@@ -2,22 +2,29 @@ import request from '@/utils/request'
 // get请求
 export function getCustomerData(params) {
   return request({
-    url: '/pps/clients',
+    url: '/main_store/clients',
     method: 'get',
+    params
+  })
+}
+export function delCustomer(params,path) {
+  return request({
+    url: '/main_store/clients/'+path,
+    method: 'delete',
     params
   })
 }
 
 export function getIntegralsDetails(params) {
   return request({
-    url: '/pps/clients/stores/detail',
+    url: '/main_store/clients/stores/detail',
     method: 'get',
     params
   })
 }
 export function getLevelData(params) {
   return request({
-    url: '/pps/clients/levels',
+    url: '/main_store/clients/levels',
     method: 'get',
     params
   })
@@ -25,7 +32,7 @@ export function getLevelData(params) {
 // 新增客户
 export function postClients(data) {
   return request({
-    url: '/pps/clients',
+    url: '/main_store/clients',
     method: 'post',
     data
   })
@@ -34,7 +41,7 @@ export function postClients(data) {
 // 查积分
 export function getClientsIntegral(params) {
   return request({
-    url: '/pps/clients/stores',
+    url: '/main_store/clients/stores',
     method: 'get',
     params
   })
@@ -44,7 +51,7 @@ export function getClientsIntegral(params) {
 export function putClientsDisabled(params,path) {
   console.log(params)
   return request({
-    url: '/pps/clients/disabled/'+path,
+    url: '/main_store/clients/disabled/'+path,
     method: 'put',
     params
   })

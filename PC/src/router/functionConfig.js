@@ -17,14 +17,14 @@ export const functions = [
         id: 12,
         name: 'VIP客户'
       },
-      {
-        id: 13,
-        name: '客户级别'
-      },
-      {
-        id: 14,
-        name: '会员卡'
-      },
+      // {
+      //   id: 13,
+      //   name: '客户级别'
+      // },
+      // {
+      //   id: 14,
+      //   name: '会员卡'
+      // },
       {
         id: 15,
         name: '供应商'
@@ -75,6 +75,10 @@ export const functions = [
         name: '采购换货申请'
       },
       {
+        id: 73,
+        name: '直接换货申请'
+      },
+      {
         id: 24,
         name: '采购历史'
       }
@@ -104,8 +108,16 @@ export const functions = [
         name: '销售换货申请'
       },
       {
+        id: 72,
+        name: '直接换货申请'
+      },
+      {
         id: 29,
         name: '销售历史'
+      },
+      {
+        id: 68,
+        name: '零售历史'
       }
     ]
   },
@@ -178,6 +190,10 @@ export const functions = [
         name: '收货'
       },
       {
+        id: 70,
+        name: '收发货历史'
+      },
+      {
         id: 38,
         name: '其他入库单'
       },
@@ -200,6 +216,18 @@ export const functions = [
       {
         id: 54,
         name: '库存盘点'
+      },
+      {
+        id: 67,
+        name: '缺货查询'
+      },
+      {
+        id: 69,
+        name: '库存调拨'
+      },
+      {
+        id: 71,
+        name: '库存调拨结果'
       }
     ]
   },

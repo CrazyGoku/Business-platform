@@ -3,7 +3,7 @@ import request from '@/utils/request'
 // 订单统计-客户订货分析
 export function getReportOrderByClient(params) {
   return request({
-    url: '/pps/report/order/byClient',
+    url: '/main_store/report/order/byClient',
     method: 'get',
     params
   })
@@ -11,7 +11,7 @@ export function getReportOrderByClient(params) {
 // 订单统计-商品订货分析
 export function getReportOrderByGoods(params) {
   return request({
-    url: '/pps/report/order/byGoods',
+    url: '/main_store/report/order/byGoods',
     method: 'get',
     params
   })
@@ -20,7 +20,7 @@ export function getReportOrderByGoods(params) {
 // 订单统计-订单分析
 export function getReportOrderByOrder(params) {
   return request({
-    url: '/pps/report/order/byOrder',
+    url: '/main_store/report/order/byOrder',
     method: 'get',
     params
   })

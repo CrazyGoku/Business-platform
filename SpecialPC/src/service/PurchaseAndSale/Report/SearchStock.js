@@ -2,7 +2,7 @@ import request from '@/utils/request'
 // get请求
 export function getStorageInventoryCurrent(params) {
   return request({
-    url: '/pps/storage/inventory/current',
+    url: '/main_store/storage/inventory/current',
     method: 'get',
     params
   })
@@ -10,7 +10,7 @@ export function getStorageInventoryCurrent(params) {
 
 export function getStorageInventoryCurrentSku(params) {
   return request({
-    url: '/pps/storage/inventory/current/sku',
+    url: '/main_store/storage/inventory/current/sku',
     method: 'get',
     params
   })
@@ -18,7 +18,7 @@ export function getStorageInventoryCurrentSku(params) {
 
 export function getStorageInventoryCurrentCheck(params) {
   return request({
-    url: '/pps/storage/inventory/current/check',
+    url: '/main_store/storage/inventory/current/check',
     method: 'get',
     params
   })
@@ -26,7 +26,7 @@ export function getStorageInventoryCurrentCheck(params) {
 
 export function getStorageInventoryCurrentDistribution(params) {
   return request({
-    url: '/pps/storage/inventory/current/distribution',
+    url: '/main_store/storage/inventory/current/distribution',
     method: 'get',
     params
   })
@@ -34,7 +34,7 @@ export function getStorageInventoryCurrentDistribution(params) {
 //按仓库查库存
 export function getStorageInventoryWarehouse(params) {
   return request({
-    url: '/pps/storage/inventory/warehouse',
+    url: '/main_store/storage/inventory/warehouse',
     method: 'get',
     params
   })
@@ -43,7 +43,7 @@ export function getStorageInventoryWarehouse(params) {
 //按属性查库存
 export function getStorageInventorySku(params) {
   return request({
-    url: '/pps/storage/inventory/sku',
+    url: '/main_store/storage/inventory/sku',
     method: 'get',
     params
   })
@@ -52,7 +52,7 @@ export function getStorageInventorySku(params) {
 //根据商品规格编号查对账
 export function getStorageInventorySkuCheck(params) {
   return request({
-    url: '/pps/storage/inventory/sku/check',
+    url: '/main_store/storage/inventory/sku/check',
     method: 'get',
     params
   })
@@ -61,7 +61,7 @@ export function getStorageInventorySkuCheck(params) {
 //根据商品规格编号查分布
 export function getStorageInventorySkuDistribution(params) {
   return request({
-    url: '/pps/storage/inventory/sku/distribution',
+    url: '/main_store/storage/inventory/sku/distribution',
     method: 'get',
     params
   })
@@ -70,7 +70,7 @@ export function getStorageInventorySkuDistribution(params) {
 //根据商品规格编号和仓库编号查对账
 export function getStorageInventoryWarehouseCheck(params) {
   return request({
-    url: '/pps/storage/inventory/warehouse/check',
+    url: '/main_store/storage/inventory/warehouse/check',
     method: 'get',
     params
   })

@@ -3,7 +3,7 @@ import request from '@/utils/request'
 // 获取商品分类
 export function getCommodityTypes(params) {
   return request({
-    url: '/pps/goods/types',
+    url: '/main_store/goods/types',
     method: 'get',
     params
   })
@@ -11,7 +11,7 @@ export function getCommodityTypes(params) {
 // 根据商品分类获取商品属性名
 export function getPropertiesKey(params, path) {
   return request({
-    url: '/pps/goods/types/properties/keys/' + path,
+    url: '/main_store/goods/types/properties/keys/' + path,
     method: 'get',
     params
   })
@@ -19,7 +19,7 @@ export function getPropertiesKey(params, path) {
 //
 export function getPropertiesAll(params) {
   return request({
-    url: '/pps/goods/types/properties',
+    url: '/main_store/goods/types/properties',
     method: 'get',
     params
   })
@@ -29,7 +29,7 @@ export function getPropertiesAll(params) {
 // 修改商品分类
 export function putCommodityTypes(data) {
   return request({
-    url: '/pps/goods/types',
+    url: '/main_store/goods/types',
     method: 'put',
     data
   })
@@ -38,7 +38,7 @@ export function putCommodityTypes(data) {
 
 export function putPropertiesKey(data) {
   return request({
-    url: '/pps/goods/types/properties/keys',
+    url: '/main_store/goods/types/properties/keys',
     method: 'put',
     data
   })
@@ -47,7 +47,7 @@ export function putPropertiesKey(data) {
 
 export function putPropertiesValue(data) {
   return request({
-    url: '/pps/goods/types/properties/values',
+    url: '/main_store/goods/types/properties/values',
     method: 'put',
     data
   })
@@ -57,7 +57,7 @@ export function putPropertiesValue(data) {
 // 添加商品分类
 export function postCommodityTypes(data) {
   return request({
-    url: '/pps/goods/types',
+    url: '/main_store/goods/types',
     method: 'post',
     data
   })
@@ -65,7 +65,7 @@ export function postCommodityTypes(data) {
 // 添加商品属性名
 export function postPropertiesKey(data) {
   return request({
-    url: '/pps/goods/types/properties/keys',
+    url: '/main_store/goods/types/properties/keys',
     method: 'post',
     data
   })
@@ -73,7 +73,7 @@ export function postPropertiesKey(data) {
 // 添加商品属性值
 export function postPropertiesValue(data) {
   return request({
-    url: '/pps/goods/types/properties/values',
+    url: '/main_store/goods/types/properties/values',
     method: 'post',
     data
   })
@@ -83,7 +83,7 @@ export function postPropertiesValue(data) {
 // 删除商品分类
 export function delCommodityTypes(params) {
   return request({
-    url: '/pps/goods/types',
+    url: '/main_store/goods/types',
     method: 'delete',
     params
   })
@@ -92,7 +92,7 @@ export function delCommodityTypes(params) {
 // 删除商品属性名
 export function delPropertiesKey(params) {
   return request({
-    url: '/pps/goods/types/properties/keys',
+    url: '/main_store/goods/types/properties/keys',
     method: 'delete',
     params
   })
@@ -101,7 +101,7 @@ export function delPropertiesKey(params) {
 // 删除商品属性值
 export function delPropertiesValue(params) {
   return request({
-    url: '/pps/goods/types/properties/values',
+    url: '/main_store/goods/types/properties/values',
     method: 'delete',
     params
   })

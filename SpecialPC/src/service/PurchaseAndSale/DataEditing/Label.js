@@ -2,14 +2,14 @@ import request from '@/utils/request'
 // get请求
 export function getGoodsLabels(params) {
   return request({
-    url: '/pps/goods/labels',
+    url: '/main_store/goods/labels',
     method: 'get',
     params
   })
 }
 export function getGoodsLabelsById(params,path) {
   return request({
-    url: '/pps/goods/labels/'+path,
+    url: '/main_store/goods/labels/'+path,
     method: 'get',
     params
   })
@@ -19,7 +19,7 @@ export function getGoodsLabelsById(params,path) {
 
 export function postGoodsLabels(data) {
   return request({
-    url: '/pps/goods/labels',
+    url: '/main_store/goods/labels',
     method: 'post',
     data
   })
@@ -27,7 +27,7 @@ export function postGoodsLabels(data) {
 // put 请求
 export function putGoodsLabels(data) {
   return request({
-    url: '/pps/goods/labels',
+    url: '/main_store/goods/labels',
     method: 'put',
     data
   })
@@ -35,7 +35,7 @@ export function putGoodsLabels(data) {
 // delete请求
 export function delGoodsLabels(params) {
   return request({
-    url: '/pps/goods/labels',
+    url: '/main_store/goods/labels',
     method: 'delete',
     params
   })

@@ -51,7 +51,7 @@
             <el-table-column
               v-for="(item2,index2) in data.title"
               :key="item2.key"
-              :min-width="index2==2?'230':index2==1?'120':''"
+              :min-width="index2==1?'120':''"
               :label="item2.name"
               align="center"
             >
@@ -62,21 +62,21 @@
           </el-table>
           <div style="font-size: 12px;display: flex;width: 100%;border: 1px solid black;border-top: 0;">
             <span
-              style="box-sizing:border-box;padding: 3px 0;width: 557px;text-align: right;padding-right: 4px;">本页小计：</span>
+              style="box-sizing:border-box;padding: 3px 0;width:494px;text-align: right;padding-right: 4px;">本页小计：</span>
             <span
-              style="box-sizing:border-box;padding: 3px 0;width: 80px;text-align: center;border-left: 1px solid black;">{{splitTotalArr[index1].quantityC}}</span>
+              style="box-sizing:border-box;padding: 3px 0;width: 101px;text-align: center;border-left: 1px solid black;">{{splitTotalArr[index1].quantityC}}</span>
             <span
-              style="box-sizing:border-box;padding: 3px 0;width: 81px;text-align: center;border-left: 1px solid black;border-right: 1px solid black;">{{splitTotalArr[index1].moneyC}}</span>
+              style="box-sizing:border-box;padding: 3px 0;width: 102px;text-align: center;border-left: 1px solid black;border-right: 1px solid black;">{{splitTotalArr[index1].moneyC}}</span>
           </div>
           <div style="font-size: 12px;display: flex;width: 100%;border: 1px solid black;border-top: 0;">
             <span
               style="box-sizing:border-box;padding: 3px 0;width: 195px;text-align: right;padding-right: 4px;border-right: 1px solid;">合计金额（大写）：</span>
-            <span style="box-sizing:border-box;padding: 3px 0;width: 362px;text-align: left;padding-right: 4px;">{{NumberToChinese(totalMoney.toFixed(2))}}</span>
+            <span style="box-sizing:border-box;padding: 3px 0;width: 299px;text-align: left;padding-right: 4px;">{{NumberToChinese(totalMoney.toFixed(2))}}</span>
             <span style="box-sizing:border-box;padding: 3px 0;flex: 1;text-align: center;border-left: 1px solid black;">{{'¥：'+totalMoney.toFixed(2)+'元'}}</span>
           </div>
         </div>
         <p class="footer">
-          <span>制单人：{{ name }}</span><span>业务员:</span>
+          <span>制单人：{{ name }}</span><span v-if="settlementType">结算方式:{{settlementType}}</span>
         </p>
         <p class="footer">
           <span>地址：{{ storeAddr }}</span><span>电话:{{ phone }}</span><span>一联：存根</span><span>二联：客户</span><span>三联：结账</span>
@@ -144,6 +144,7 @@
         clientName: this.$route.query.clientName,
         clientPhone: this.$route.query.clientPhone,
         clientAddr: this.$route.query.clientAddr,
+        settlementType:this.$route.query.settlementType,
         date: parseTime(new Date, '{y}-{m}-{d}'),
         splitArr: [],
         splitItem: {

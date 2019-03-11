@@ -64,6 +64,7 @@ export default {
   .input {
     flex: none;
     justify-content: flex-start;
+    display: flex;
     align-items: center;
     width: auto;
     font-size: 12px;

@@ -1,4 +1,4 @@
-  <template>
+<template>
   <div>
     <div class="search-bar">
       <el-input v-model="filterData.id" placeholder="请输入单据编号" size="mini">
@@ -128,6 +128,34 @@
         </el-button>
       </span>
     </el-dialog>
+    <el-dialog :close-on-click-modal="false" :visible.sync="orderVisible" title="订单详情" width="80%">
+      <el-table :data="orderDetails">
+        <el-table-column
+          type="index"
+          fixed
+          align="center"
+          width="20"
+        />
+        <el-table-column
+          v-for="(item,index) in orderDetailMap"
+          :key="index"
+          :fixed="index<1?true:false"
+          :show-overflow-tooltip="true"
+          :label="item.name"
+          resizable
+          align="center"
+          min-width="100"
+        >
+          <template slot-scope="scope">
+            <!--{{ orderDetails[] }}-->
+            <div>
+              {{ scope.row[item.key] }}
+            </div>
+          </template>
+        </el-table-column>
+      </el-table>
+    </el-dialog>
+
   </div>
 </template>
 
@@ -144,8 +172,10 @@
   import {
     getSuppliers, getClients
   } from '@/service/PurchaseAndSale/common'
-  import {statusMap} from '../../../config'
+  import {clearMap, statusMap} from '@/views/PurchaseAndSale/config.js'
   import {parseTime} from '@/utils'
+  import {dataFormat} from '@/utils/index.js'
+  import {orderDetailMap} from '@/views/PurchaseAndSale/config.js'
 
   export default {
     name: 'SOShipped',
@@ -178,7 +208,10 @@
         addDialog: false,
         payParams: {},
         dialogVisible: false,
-        orderDetail: []
+        orderDetail: [],
+        orderDetailMap,
+        orderDetails: [],
+        orderVisible: false
       }
     },
 
@@ -193,6 +226,35 @@
       searchBtn() {
         this.paginationData.page = 1
         this.getOrderStorageData()
+      },
+      readRow(index, row) {
+        const params = {
+          storeId: this.storeId
+        }
+        const path = row.id
+        getSellApplyDetails(params, path).then(res => {
+          const data = res.data.data
+          console.log(data)
+          data.orderStatus = statusMap[data.orderStatus]
+          data.clearStatus = clearMap[data.clearStatus]
+          data.details.forEach(v => {
+            v.goodsSkuSku = eval(v.goodsSkuSku)
+            let sku = ''
+            v.goodsSkuSku.forEach((item, index) => {
+              let _sku = ''
+              if (v.goodsSkuSku.length === index + 1) {
+                _sku = item.key + ':' + item.value
+              } else {
+                _sku = item.key + ':' + item.value + ','
+              }
+              sku += _sku
+            })
+            v.goodsSkuSku = sku
+          })
+          const _data = dataFormat(data)
+          this.orderDetails = _data
+          this.orderVisible = true
+        })
       },
       getSuppliersFun() {
         const params = {

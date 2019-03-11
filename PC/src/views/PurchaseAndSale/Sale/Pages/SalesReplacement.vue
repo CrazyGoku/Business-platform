@@ -75,14 +75,14 @@
             >
               删除
             </el-button>
-            <el-button
+            <!--<el-button
               type="text"
               size="small"
               :disabled="!(scope.row.status==1||scope.row.status==4||scope.row.status==7)"
               @click.native.prevent="editRow(scope.$index,scope.row)"
             >
               编辑
-            </el-button>
+            </el-button>-->
             <el-button
               type="text"
               size="small"
@@ -94,7 +94,7 @@
         </el-table-column>
       </select-table>
     </div>
-    <el-dialog :close-on-click-modal="false" :visible.sync="orderVisible" title="订单详情">
+    <el-dialog :close-on-click-modal="false" width="80%" :visible.sync="orderVisible" title="订单详情">
       <el-table :data="orderDetails">
         <el-table-column
           type="index"
@@ -127,7 +127,7 @@
         </el-button>
       </span>
     </el-dialog>
-    <el-dialog :close-on-click-modal="false" :visible.sync="addVisible" :title="isEdit?'编辑订单':'添加换货订单'">
+    <el-dialog :close-on-click-modal="false" width="80%" :visible.sync="addVisible" :title="isEdit?'编辑订单':'添加换货订单'">
       <div class="dialog-content-input">
         <el-input v-model="chioceSelect.remark" placeholder="请输入备注" size="mini">
           <template slot="prepend">
@@ -234,7 +234,7 @@ import {
   putSellApply
 } from '@/service/PurchaseAndSale/Sale/common.js'
 import SelectTable from '@/components/SelectTable/SelectTable'// 列表组件
-import { orderDetailMap } from '@/views/PurchaseAndSale/Purchase/config.js'
+import { orderDetailMap } from '@/views/PurchaseAndSale/Sale/config.js'
 import { dataFormat } from '@/utils/index.js'
 import salecommon from '../mixins/salecommon'
 import addMixin from '../mixins/addMixin'
@@ -281,12 +281,24 @@ export default {
       data.items = JSON.parse(JSON.stringify(this.orderDetails))
       data.title = [
         {key: 'goodsName', name: '商品名称'},
-        {key: 'goodsSkuSku', name: '商品规格'},
-        {key: 'goodsSkuPurchasePrice', name: '单价'},
+        {key: 'company', name: '单位'},
+        {key: 'unitPrice', name: '单价'},
         {key: 'quantity', name: '数量'},
         {key: 'money', name: '金额'},
         {key: 'remark', name: '备注'}
       ]
+      let reg = new RegExp(/单位/ig)
+      let company = ''
+      data.items.forEach(v=>{
+        v.unitPrice = (v.money/v.quantity).toFixed(2)
+        v.goodsSkuSku.split(',').forEach(v2=>{
+          if(reg.test(v2)) company = v2
+        })
+        let _company = company.split(':')
+        company = _company[_company.length-1]
+        v.company = company
+      })
+      console.log(data)
       window.localStorage.setItem('printData', JSON.stringify(data))
       let routeData = this.$router.resolve({
         name: 'PrintPage',
@@ -343,6 +355,14 @@ export default {
       getSellApply(params).then(res => {
         const data = res.data.data
 
+        data.title.forEach((v,index)=>{
+          if(v.key=='type') {
+            data.title.splice(index,1)
+          }
+          if(v.key=='prodcingWay'){
+            data.title.splice(index,1)
+          }
+        })
         data.items.forEach(item => {
           item.status = item.orderStatus
           item.orderStatus = statusMap[item.orderStatus]

@@ -2,7 +2,7 @@ import request from '@/utils/request'
 // get请求
 export function getSupplierData(params) {
   return request({
-    url: '/pps/suppliers',
+    url: '/main_store/suppliers',
     method: 'get',
     params
   })
@@ -12,7 +12,7 @@ export function getSupplierData(params) {
 
 export function postSupplierData(data) {
   return request({
-    url: '/pps/suppliers',
+    url: '/main_store/suppliers',
     method: 'post',
     data
   })
@@ -20,7 +20,7 @@ export function postSupplierData(data) {
 // put 请求
 export function putSupplierData(data) {
   return request({
-    url: '/pps/suppliers',
+    url: '/main_store/suppliers',
     method: 'put',
     data
   })
@@ -28,7 +28,7 @@ export function putSupplierData(data) {
 // delete请求
 export function delSupplierData(params) {
   return request({
-    url: '/pps/suppliers',
+    url: '/main_store/suppliers',
     method: 'delete',
     params
   })
@@ -37,7 +37,7 @@ export function delSupplierData(params) {
 // 通过id查询供应商
 export function findSupplierById(params, path) {
   return request({
-    url: '/pps/suppliers/' + path,
+    url: '/main_store/suppliers/' + path,
     method: 'get',
     params
   })

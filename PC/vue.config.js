@@ -17,7 +17,7 @@ module.exports = {
    * In most cases please use '/' !!!
    * Detail https://cli.vuejs.org/config/#baseurl
    */
-  baseUrl: '/',
+  baseUrl: process.env.NODE_ENV === 'production'? './' : '/',
   outputDir: 'dist',
   assetsDir: 'static',
   lintOnSave: process.env.NODE_ENV !== 'production',

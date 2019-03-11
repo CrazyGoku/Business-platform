@@ -79,7 +79,6 @@
         />
       </el-select>
       <el-select
-        v-model="addDetails.goodsSku"
         :disabled="!addDetails.good"
         size="mini"
         placeholder="请选择商品规格"
@@ -112,6 +111,11 @@
             </el-button>
           </template>
         </el-table-column>
+        <el-table-column label="赠品" width="180" align="center">
+          <template scope="scope">
+            <el-checkbox v-model="scope.row.isGift"></el-checkbox>
+          </template>
+        </el-table-column>
         <el-table-column
           prop="goodsName"
           align="center"
@@ -133,6 +137,11 @@
           prop="vipPrice"
           align="center"
           label="VIP价格"
+        />
+        <el-table-column
+          prop="bossPrice"
+          align="center"
+          label="老板价"
         />
         <el-table-column label="数量" width="180" align="center">
           <template scope="scope">
@@ -308,8 +317,9 @@
         </el-card>
       </el-col>
     </el-row>
-    <div style="margin-top: 10px;padding-bottom: 10px;">
-      <el-button style="float: right" type="primary" @click="addFun">收银</el-button>
+    <div style="margin-top: 10px;padding-bottom: 10px;" v-if="choiceGoodsSku.length>0">
+      <el-button style="float: right;margin-right: 10px;" icon="el-icon-printer" type="primary" @click="printFun">打印</el-button>
+      <el-button style="float: right;margin-right: 10px;" type="primary" @click="addFun">收银</el-button>
     </div>
     <el-dialog :close-on-click-modal="false" :visible.sync="settingVisible" title="零售设置">
       <div class="search-bar">
@@ -364,7 +374,8 @@
   import {
     canUse,
     getDiscountCouponCanUse,
-    postSellApply
+    postSellApply,
+    getSellApply
   } from '@/service/PurchaseAndSale/Sale/common.js'
 
   export default {
@@ -409,7 +420,8 @@
         money: '',
         couponAmount: 0,
         discountCoupon: {},
-        fundAdvance: 0
+        fundAdvance: 0,
+        printDetail:{}
       }
     },
     computed: {},
@@ -422,7 +434,6 @@
       },
       discountMoney() {
         this.watchChange()
-
       },
       discountCoupon: {
         deep: true,
@@ -441,6 +452,76 @@
       this.getDefaultRetailFun()
     },
     methods: {
+
+      printFun() {
+        const data = {}
+        if(this.addDetails.clientId){
+          this.printDetail = this.clientsList.filter(v=>{
+            return v.id = this.addDetails.clientId
+          })[0]
+        }else{
+          this.printDetail = {
+            address:'',
+            phone:'',
+            name: ''
+          }
+        }
+        let payTypeMap = {
+          1: '微信',
+          2: '支付宝',
+          3: '预收款',
+          4: '现金',
+          5: '银行转账'
+        }
+        let settlementType = ''
+        if(this.groupCheck){
+          this.checkList.forEach(v=>{
+            settlementType += ( payTypeMap[v] + ' '+this[this.payTypeMap[v]]+'元  ')
+          })
+        }else{
+          settlementType = payTypeMap[this.checkList[0]]
+        }
+        data.items = JSON.parse(JSON.stringify(this.choiceGoodsSku))
+        let reg = new RegExp(/单位/ig)
+        let company = ''
+        data.items.forEach(v=>{
+          v.goodsSkuPurchasePrice = (v.money*v.discountRate).toFixed(2)
+          v.money = (v.money*v.discountRate*v.quantity).toFixed(2)
+          v.sku.split(',').forEach(v2=>{
+            if(reg.test(v2)) company = v2
+          })
+          let _company = company.split(':')
+          company = _company[_company.length-1]
+          v.company = company
+        })
+        data.title = [
+          {key: 'goodsId', name: '商品编号'},
+          {key: 'goodsName', name: '商品名称'},
+          {key: 'company', name: '单位'},
+          {key: 'goodsSkuPurchasePrice', name: '单价'},
+          {key: 'quantity', name: '数量'},
+          {key: 'money', name: '金额'},
+          {key: 'remark', name: '备注'}
+        ]
+        window.localStorage.setItem('printData', JSON.stringify(data))
+        let routeData = this.$router.resolve({
+          name: 'PrintPage',
+          query: {
+            orderName: '零售订单',
+            orderTime: parseTime(new Date(),'{y}-{m}-{d} {h}:{i}  '),
+            clientName: this.printDetail.name,
+            clientPhone: this.printDetail.phone,
+            clientAddr: this.printDetail.address,
+            settlementType
+          }
+        })
+        window.open(routeData.href, '_blank')
+      },
+      deleteChoiceRow(index, row) {
+        this.choiceGoodsSku = this.choiceGoodsSku.filter(v => {
+          return v.id !== row.id
+        })
+      },
       watchChange() {
         this.totalInfo = {
           goodsTotal: 0,
@@ -449,9 +530,11 @@
         }
         let totalMoney = 0
         this.choiceGoodsSku.forEach(v => {
-          this.totalInfo.goodsTotal += Number(v.retailPrice)
-          this.totalInfo.vipPrice += Number((v.money * (1 - v.discountRate) * v.quantity).toFixed(2))
-          totalMoney += Number(Number(v.money * v.discountRate * v.quantity).toFixed(2))
+          if(!v.isGift){
+            this.totalInfo.goodsTotal += Number(v.retailPrice * v.quantity)
+            this.totalInfo.vipPrice += (Number(v.retailPrice -v.money) + Number((v.money * (1 - v.discountRate) * v.quantity).toFixed(2)))
+            totalMoney += Number(Number(v.money * v.discountRate * v.quantity).toFixed(2))
+          }
         })
         if (this.addDetails.discountCouponId) {
           if (this.discountCoupon.type == 1) {
@@ -566,19 +649,23 @@
               return v.id === value
             })[0].name
             console.log(v.sku)
-            v.sku = eval(v.sku)
-            let sku = ''
-            v.sku.forEach((item, index) => {
-              let _sku = ''
-              if (v.sku.length === index + 1) {
-                _sku = item.key + ':' + item.value
-              } else {
-                _sku = item.key + ':' + item.value + ','
-              }
-              sku += _sku
-            })
-            v.sku = sku
+            if(v.sku[0]=='['){
+              v.sku = eval(v.sku)
+              let sku = ''
+              v.sku.forEach((item, index) => {
+                let _sku = ''
+                if (v.sku.length === index + 1) {
+                  _sku = item.key + ':' + item.value
+                } else {
+                  _sku = item.key + ':' + item.value + ','
+                }
+                sku += _sku
+              })
+              v.sku = sku
+            }
           })
+
+          this.choiceGoodsSkuFun(this.goodsSkuVos[0].id)
         }
       },
       choiceGoodsSkuFun(value) {
@@ -600,17 +687,20 @@
           let money = 0
           let discountRate = 0
           if (JSON.stringify(this.choiceClient) !== '{}') {
-            money = this.choiceClient.clientLevel.priceType == 1 ? v.retailPrice : v.vipPrice
+            money = v[this.priceTypeMap[this.choiceClient.clientLevel.priceType]]
             discountRate = this.choiceClient.clientLevel.price
           } else {
             money = v.retailPrice
             discountRate = 1
           }
+          let quantity = 1
+          if(v.quantity>1) quantity = v.quantity
           this.$set(v, 'type', 1)
           this.$set(v, 'goodsSkuId', v.id)
-          this.$set(v, 'quantity', 1)
           this.$set(v, 'money', money)
+          this.$set(v, 'quantity', quantity)
           this.$set(v, 'discountMoney', 0)
+          this.$set(v, 'isGift', false)
           this.$set(v, 'discountRate', discountRate)
           this.$set(v, 'remark', '')
         })
@@ -637,6 +727,7 @@
           })
           this.choiceGoodsSku.forEach(v => {
             v.discountRate = this.choiceClient.clientLevel.price
+            v.money = v[this.priceTypeMap[this.choiceClient.clientLevel.priceType]]
           })
         } else {
           this.choiceGoodsSku.forEach(v => {
@@ -668,6 +759,7 @@
           })
           this.choiceGoodsSku.forEach(v => {
             v.discountRate = this.choiceClient.clientLevel.price
+            v.money = (v[this.priceTypeMap[this.choiceClient.clientLevel.priceType]]* this.choiceClient.clientLevel.price).toFixed(2)
           })
           this.addDetails.clientId = clientId
         } else {
@@ -724,20 +816,30 @@
         const mod = data.totalDiscountMoney % num
         const mon = parseInt(data.totalDiscountMoney / num)
         this.choiceGoodsSku.forEach((v, index) => {
-          if (index === num - 1) {
-            v.discountMoney = mon + mod
-          } else {
-            v.discountMoney = mon
-          }
-          data.outTotalQuantity += Number(v.quantity)
-          data.totalMoney += Number((v.money * v.discountRate).toFixed(2))
           let _detail = {}
-          _detail.type = 0
-          _detail.goodsSkuId = v.goodsSkuId
-          _detail.quantity = v.quantity
-          _detail.discountMoney = v.discountMoney
-          _detail.money = Number((v.money * v.discountRate).toFixed(2))
-          _detail.remark = v.remark
+          if(v.isGift){
+            data.outTotalQuantity += Number(v.quantity)
+            _detail.type = 0
+            _detail.goodsSkuId = v.goodsSkuId
+            _detail.quantity = v.quantity
+            _detail.discountMoney = 0
+            _detail.money = 0
+            _detail.remark = '赠品'
+          }else{
+            if (index === num - 1) {
+              v.discountMoney = mon + mod
+            } else {
+              v.discountMoney = mon
+            }
+            data.outTotalQuantity += Number(v.quantity)
+            data.totalMoney += Number((v.money * v.discountRate*v.quantity).toFixed(2))
+            _detail.type = 0
+            _detail.goodsSkuId = v.goodsSkuId
+            _detail.quantity = v.quantity
+            _detail.discountMoney = v.discountMoney
+            _detail.money = Number((v.money * v.discountRate*v.quantity ).toFixed(2))
+            _detail.remark = v.remark
+          }
           data.details.push(_detail)
         })
         data.orderMoney = data.totalMoney - data.totalDiscountMoney

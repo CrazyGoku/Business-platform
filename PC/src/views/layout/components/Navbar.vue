@@ -32,11 +32,11 @@
               {{ $t('navbar.dashboard') }}
             </el-dropdown-item>
           </router-link>
-          <router-link to="/StoreManager/Store">
-            <el-dropdown-item>
-              店铺管理
-            </el-dropdown-item>
-          </router-link>
+          <!--<router-link to="/StoreManager/Store">-->
+            <!--<el-dropdown-item>-->
+              <!--店铺管理-->
+            <!--</el-dropdown-item>-->
+          <!--</router-link>-->
             <el-dropdown-item>
               <span style="display:block;"  @click="rebuildSystem" >
                                           系统重建
@@ -48,11 +48,11 @@
                             系统开帐
             </span>
           </el-dropdown-item>
-          <el-dropdown-item>
-              <span style="display:block;"  @click="pushMoneyRate" >
-                            提成比例
-            </span>
-          </el-dropdown-item>
+          <!--<el-dropdown-item>-->
+              <!--<span style="display:block;"  @click="pushMoneyRate" >-->
+                            <!--提成比例-->
+            <!--</span>-->
+          <!--</el-dropdown-item>-->
           <el-dropdown-item divided>
             <span style="display:block;" @click="logout">
               {{ $t('navbar.logOut') }}
@@ -61,7 +61,7 @@
         </el-dropdown-menu>
       </el-dropdown>
     </div>
-    <el-dialog :close-on-click-modal="false"
+   <!-- <el-dialog :close-on-click-modal="false"
       class="dialog"
       title="提成比列"
       :visible.sync="dialogVisible"
@@ -70,7 +70,7 @@
       <span slot="footer" class="dialog-footer">
     <el-button type="primary" size="mini" @click="changeMoneyRate">修改</el-button>
   </span>
-    </el-dialog>
+    </el-dialog>-->
   </div>
 </template>
 
@@ -124,7 +124,7 @@
           type: 'warning'
         }).then(() => {
           let data = {
-            storeId: this.storeId
+            storeId: this.$store.getters.storeId
           }
           rebuild(data).then(res=>{
             if (res.data.code !== 1001) {
@@ -157,44 +157,44 @@
           location.reload()// In order to re-instantiate the vue-router object to avoid bugs
         })
       },
-      pushMoneyRate(){
-        getSystem().then(res=>{
-          this.moneyRate = res.data.data.pushMoneyRate
-          this.dialogVisible = true
-        })
-      },
-      changeMoneyRate(){
-        this.$prompt('请输入提成比列', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          inputPattern: /^(0|1|0.?[0-9]*)$/,
-          inputErrorMessage: '请输入0-1之间'
-        }).then(({ value }) => {
-          console.log(value)
-          let data ={
-            pushMoneyRate : value
-          }
-          putSystem(data).then(res=>{
-            if (res.data.code !== 1001) {
-              this.$message({
-                type: 'error',
-                message: res.data.message
-              });
-              return
-            }
-            this.$message({
-              type: 'success',
-              message: '修改成功!'
-            });
-            this.pushMoneyRate()
-          })
-        }).catch(() => {
-          this.$message({
-            type: 'info',
-            message: '取消输入'
-          });
-        });
-      },
+      // pushMoneyRate(){
+      //   getSystem().then(res=>{
+      //     this.moneyRate = res.data.data.pushMoneyRate
+      //     this.dialogVisible = true
+      //   })
+      // },
+      // changeMoneyRate(){
+      //   this.$prompt('请输入提成比列', '提示', {
+      //     confirmButtonText: '确定',
+      //     cancelButtonText: '取消',
+      //     inputPattern: /^(0|1|0.?[0-9]*)$/,
+      //     inputErrorMessage: '请输入0-1之间'
+      //   }).then(({ value }) => {
+      //     console.log(value)
+      //     let data ={
+      //       pushMoneyRate : value
+      //     }
+      //     putSystem(data).then(res=>{
+      //       if (res.data.code !== 1001) {
+      //         this.$message({
+      //           type: 'error',
+      //           message: res.data.message
+      //         });
+      //         return
+      //       }
+      //       this.$message({
+      //         type: 'success',
+      //         message: '修改成功!'
+      //       });
+      //       this.pushMoneyRate()
+      //     })
+      //   }).catch(() => {
+      //     this.$message({
+      //       type: 'info',
+      //       message: '取消输入'
+      //     });
+      //   });
+      // },
       openAccount() {
         getStartBill(this.$store.getters.storeId).then(res => {
           let data = res.data.data

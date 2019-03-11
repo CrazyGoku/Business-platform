@@ -38,7 +38,7 @@
             </el-dropdown-item>
           </router-link>
           <el-dropdown-item>
-              <span style="display:block;"  @click="pushMoneyRate" >
+              <span style="display:block;" @click="pushMoneyRate">
                             提成短信设置
             </span>
           </el-dropdown-item>
@@ -51,17 +51,60 @@
       </el-dropdown>
     </div>
     <el-dialog :close-on-click-modal="false"
-      class="dialog"
-      title="提成短信设置"
-      :visible.sync="dialogVisible"
-      width="30%">
-      <span>提成比列：{{moneyRate}}</span>
-
-      <el-input v-model="signature" placeholder="请输入短信签名" size="mini">
-        <template slot="prepend">
-          短信签名
-        </template>
-      </el-input>
+               class="dialog"
+               title="提成短信设置"
+               :visible.sync="dialogVisible"
+               width="50%">
+      <div class="dialog-content-input">
+        <NumberInput max="1" step="0.1" v-model="systemDetial.pushMoneyRate">
+          <template slot="prepend">
+            分店统一提成比例
+          </template>
+        </NumberInput>
+        <NumberInput v-model="systemDetial.membershipMembershipMoney">
+          <template slot="prepend">
+            会员推荐会员直接提成
+          </template>
+        </NumberInput>
+        <NumberInput max="1" step="0.1" v-model="systemDetial.membershipMembershipRate">
+          <template slot="prepend">
+            会员推荐会员提成比例
+          </template>
+        </NumberInput>
+        <NumberInput v-model="systemDetial.bossMembershipMoney">
+          <template slot="prepend">
+            店长推荐会员直接提成
+          </template>
+        </NumberInput>
+        <NumberInput max="1" step="0.1" v-model="systemDetial.membershipBossRate">
+          <template slot="prepend">
+            会员推荐店长提成比例
+          </template>
+        </NumberInput>
+        <NumberInput max="1" step="0.1" v-model="systemDetial.bossBossRate">
+          <template slot="prepend">
+            店长推荐店长提成比例
+          </template>
+        </NumberInput>
+        <el-select
+          v-model="systemDetial.defaultLevelId"
+          clearable
+          size="mini"
+          filterable placeholder="设置默认商城会员等级"
+        >
+          <el-option
+            v-for="item in clientLevelList"
+            :key="item.id"
+            :label="item.name"
+            :value="item.id"
+          />
+        </el-select>
+        <el-input v-model="systemDetial.signature" placeholder="请输入短信签名" size="mini">
+          <template slot="prepend">
+            短信签名
+          </template>
+        </el-input>
+      </div>
       <span slot="footer" class="dialog-footer">
     <el-button type="primary" size="mini" @click="changeMoneyRate">修改</el-button>
   </span>
@@ -78,8 +121,11 @@
   import SizeSelect from '@/components/SizeSelect'
   import LangSelect from '@/components/LangSelect'
   import ThemePicker from '@/components/ThemePicker'
-  import { getSystem,putSystem} from '@/service/common'
-
+  import {getSystem, putSystem} from '@/service/common'
+  import NumberInput from '@/components/NumberInput'
+  import {
+    getClientsLevels
+  } from '@/service/PurchaseAndSale/DataEditing/ClientsLevels.js'
   export default {
     components: {
       Breadcrumb,
@@ -88,7 +134,7 @@
       Screenfull,
       SizeSelect,
       LangSelect,
-      ThemePicker
+      ThemePicker, NumberInput
     },
     computed: {
       ...mapGetters([
@@ -100,75 +146,75 @@
     },
     data() {
       return {
-        moneyRate:0,
-        signature:'',
-        dialogVisible:false
+        moneyRate: 0,
+        signature: '',
+        dialogVisible: false,
+        systemDetial: {},
+        clientLevelList:[]
       }
     },
     mounted() {
     },
     methods: {
+      getClientsLevelsData(){
+        getClientsLevels().then(res=>{
+          this.clientLevelList = res.data.data
+        })
+      },
       toggleSideBar() {
         this.$store.dispatch('toggleSideBar')
       },
       logout() {
-        window.localStorage.setItem('id','')
-        this.$router.push({path:'/login'})
+        window.localStorage.setItem('id', '')
+        this.$router.push({path: '/login'})
       },
-      pushMoneyRate(){
-        getSystem().then(res=>{
-          this.moneyRate = res.data.data.pushMoneyRate
-          this.signature = res.data.data.signature
+      async pushMoneyRate() {
+        await this.getClientsLevelsData()
+        getSystem().then(res => {
+          this.systemDetial = res.data.data
           this.dialogVisible = true
         })
       },
-      changeMoneyRate(){
-        this.$prompt('请输入提成比列', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          inputPattern: /^(0|1|0.?[0-9]*)$/,
-          inputErrorMessage: '请输入0-1之间'
-        }).then(({ value }) => {
-          console.log(value)
-          let data ={
-            pushMoneyRate : value,
-            signature: this.signature
+      changeMoneyRate() {
+        for (let i in this.systemDetial){
+          if(this.systemDetial[i] == null){
+            delete this.systemDetial[i]
           }
-          putSystem(data).then(res=>{
-            if (res.data.code !== 1001) {
-              this.$message({
-                type: 'error',
-                message: res.data.message
-              });
-              return
-            }
+        }
+        let data = {
+          ...this.systemDetial
+        }
+        putSystem(data).then(res => {
+          if (res.data.code !== 1001) {
             this.$message({
-              type: 'success',
-              message: '修改成功!'
+              type: 'error',
+              message: res.data.message
             });
-            this.pushMoneyRate()
-          })
-        }).catch(() => {
+            return
+          }
           this.$message({
-            type: 'info',
-            message: '取消输入'
+            type: 'success',
+            message: '修改成功!'
           });
-        });
-      },
+          this.pushMoneyRate()
+          this.dialogVisible = false
+        })
+      }
     }
   }
 </script>
 
 <style rel="stylesheet/scss" lang="scss" scoped>
-  .dialog{
-    /deep/ .el-dialog__body{
+  .dialog {
+    /deep/ .el-dialog__body {
       padding: 10px;
 
     }
-    /deep/ .el-dialog__footer{
+    /deep/ .el-dialog__footer {
       padding: 10px;
     }
   }
+
   .navbar {
     height: 50px;
     line-height: 50px;

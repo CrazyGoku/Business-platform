@@ -335,8 +335,8 @@ export function downloadFile(url) {
 
   // action属性设置请求路径,(如有需要,可直接在路径后面跟参数)
   // 例如:htpp://127.0.0.1/test?id=123
-  alert(BASE_URL + '/pps/' + url)
-  form.setAttribute('action', BASE_URL + '/pps/' + url)
+  alert(BASE_URL + '/main_store/' + url)
+  form.setAttribute('action', BASE_URL + '/main_store/' + url)
 
   // 将表单放置在页面(body)中
   document.body.appendChild(form)

@@ -180,11 +180,11 @@
         <p>上传图片</p>
         <el-upload
           :show-file-list="false"
-          :action="BASE_URL+'/pps/file/upload?type=1'"
+          :action="BASE_URL+'/main_store/file/upload?type=1'"
           :on-success="uploadImageSuccess"
           class="dentity-uploader"
         >
-          <img v-if="commodityDetail.image" :src="BASE_URL+'/pps'+commodityDetail.image" class="dentity-card">
+          <img v-if="commodityDetail.image" :src="BASE_URL+'/main_store'+commodityDetail.image" class="dentity-card">
           <i v-else class="el-icon-plus dentity-uploader-icon" />
         </el-upload>
       </div>
@@ -563,7 +563,7 @@ export default {
           }
         }
         // url为对应的后端接口
-        vm.$http.post(BASE_URL + '/pps/goods/import?storeId=' + this.storeId, formData, config).then(function(res) {
+        vm.$http.post(BASE_URL + '/main_store/goods/import?storeId=' + this.storeId, formData, config).then(function(res) {
           if (res.data.code !== 1001) {
             vm.$message({
               showClose: true,

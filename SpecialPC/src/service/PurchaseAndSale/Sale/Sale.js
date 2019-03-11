@@ -2,7 +2,7 @@ import request from '@/utils/request'
 // get请求
 export function getSellResult(params) {
   return request({
-    url: '/pps/sell/result',
+    url: '/main_store/sell/result',
     method: 'get',
     params
   })
@@ -11,7 +11,7 @@ export function getSellResult(params) {
 // 查看结果详情
 export function getSellResultDetails(params, path) {
   return request({
-    url: '/pps/sell/result/detail/' + path,
+    url: '/main_store/sell/result/detail/' + path,
     method: 'get',
     params
   })
@@ -19,7 +19,7 @@ export function getSellResultDetails(params, path) {
 // 红冲销售结果订单
 export function postRedDashed(params) {
   return request({
-    url: '/pps/sell/result/redDashed',
+    url: '/main_store/sell/result/redDashed',
     method: 'post',
     params
   })

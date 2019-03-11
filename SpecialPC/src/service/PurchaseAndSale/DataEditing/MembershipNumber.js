@@ -3,7 +3,7 @@ import request from '@/utils/request'
 // 查找所有客户级别
 export function getClientsMembershipNumber(params,path) {
   return request({
-    url: '/pps/clients/membershipNumbers/'+path,
+    url: '/main_store/clients/membershipNumbers/'+path,
     method: 'get',
     params
   })
@@ -11,7 +11,7 @@ export function getClientsMembershipNumber(params,path) {
 // 新增所有客户级别
 export function postClientsMembershipNumber(data,path) {
   return request({
-    url: '/pps/clients/membershipNumbers/'+path,
+    url: '/main_store/clients/membershipNumbers/'+path,
     method: 'post',
     data
   })
@@ -19,7 +19,7 @@ export function postClientsMembershipNumber(data,path) {
 // 修改所有客户级别
 export function putClientsMembershipNumber(data,path) {
   return request({
-    url: '/pps/clients/membershipNumbers/'+path,
+    url: '/main_store/clients/membershipNumbers/'+path,
     method: 'put',
     data
   })
@@ -27,7 +27,7 @@ export function putClientsMembershipNumber(data,path) {
 // 删除客户级别
 export function delClientsMembershipNumber(params,path) {
   return request({
-    url: '/pps/clients/membershipNumbers/'+path,
+    url: '/main_store/clients/membershipNumbers/'+path,
     method: 'delete',
     params
   })

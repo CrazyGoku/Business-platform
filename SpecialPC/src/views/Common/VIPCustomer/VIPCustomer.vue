@@ -81,6 +81,13 @@
           <el-button
             type="text"
             size="small"
+            @click.native.prevent="deleteRow(scope.row,scope.$index)"
+          >
+            删除
+          </el-button>
+          <el-button
+            type="text"
+            size="small"
             @click.native.prevent="checkIntegral(scope.row,scope.$index)"
           >
             查看积分
@@ -200,7 +207,8 @@
     getLevelData,
     postClients,
     getClientsIntegral,
-    putClientsDisabled
+    putClientsDisabled,
+    delCustomer
   } from '@/service/PurchaseAndSale/DataEditing/VIPCustomer.js'
   import common from '@/mixins/common'
 
@@ -258,6 +266,57 @@
         this.paginationData.page = 1
         this.getCustomerDataFun()
       },
+      editRow(index, row) {
+        this.isEdit = true
+        this.dialogVisible = true
+        this.commodityDetail = row
+        this.goodsLabels = []
+        this.commodityDetail.goodsLabels.forEach(v => {
+          this.goodsLabels.push(v.id)
+        })
+        this.specifucatuibsList = []
+        this.specificationsFlag = true
+        this.changeAddType(row.typeId)
+        this.commodityDetail.goodsSkuVos.forEach(v => {
+          console.log(v)
+          const _skuKey = {}
+          eval(v.sku).forEach(v2 => {
+            Object.assign(_skuKey, { [v2.key]: v2.value })
+          })
+          this.specifucatuibsList.push({
+            'integral': v.integral,
+            'purchasePrice': v.purchasePrice,
+            'retailPrice': v.retailPrice,
+            'bossPrice': v.bossPrice,
+            'sku': _skuKey,
+            'vipPrice': v.vipPrice,
+            'isEdit': true,
+            'id': v.id
+          })
+        })
+      },
+      deleteRow(row,index) {
+        let params = {
+          ids:row.id
+        }
+        delCustomer(params, this.userId).then(res=>{
+          if (res.data.code !== 1001) {
+            this.$message({
+              showClose: true,
+              message: '删除失败',
+              type: 'error'
+            })
+            return
+          }
+          this.$message({
+            showClose: true,
+            message: '删除成功',
+            type: 'success'
+          })
+          this.getCustomerDataFun()
+        })
+      },
+
       banpickHanldle(row, index) {
         console.log(row)
         console.log(row.disabled)

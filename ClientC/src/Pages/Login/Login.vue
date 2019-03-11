@@ -25,7 +25,7 @@
 
 <script>
   import {login,getInfo} from '@/api/login'
-  import {setToken,setId} from '@/utils/auth'
+  import {setToken,setId,getId} from '@/utils/auth'
   import Page from '@/components/page/page'
   import header from '@/Pages/mixins/header'
   import {imgURI} from '../../api/constants.js'
@@ -55,12 +55,12 @@
         login(payload).then(res=>{
           console.log(res)
           if(res.code===1001){
-            console.log()
             this.set_Id(res.data.id)
             setId(res.data.id)
+            console.log(getId())
             let path = res.data.id
             getInfo(path).then(response => {
-              this.$router.push({name: 'BussinessHome'})
+              this.$router.push({name: 'BusinessHome'})
               console.log(1)
             }).catch(error => {
             })

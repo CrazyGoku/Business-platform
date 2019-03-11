@@ -129,7 +129,7 @@
       </el-table>
 
       <span slot="footer" class="dialog-footer">
-        <el-button icon="el-icon-printer" size="mini" type="primary" @click="printFun">
+        <el-button icon="el-icon-printer" size="mini" type="primary" @click="printDialog = true;payType=[]">
           打印
         </el-button>
       </span>
@@ -340,6 +340,46 @@
         </el-button>
       </div>
     </el-dialog>
+    <el-dialog
+      title="可选择结算方式"
+      :visible.sync="printDialog"
+      width="30%">
+
+      <el-select
+        v-model="payType"
+        size="mini"
+        multiple
+        collapse-tags
+        placeholder="可选择结算方式"
+        @change="choiceGoodsSkuFun"
+      >
+        <el-option
+          label="微信"
+          value="微信"
+        />
+        <el-option
+          label="支付宝"
+          value="支付宝"
+        />
+        <el-option
+          label="现金"
+          value="现金"
+        />
+        <el-option
+          label="预收/付款"
+          value="预收/付款"
+        />
+        <el-option
+          label="银行卡"
+          value="银行卡"
+        />
+      </el-select>
+      <span slot="footer" class="dialog-footer">
+    <el-button @click="printDialog = false;payType = []">取 消</el-button>
+    <el-button type="primary" @click="printFun">确 定</el-button>
+  </span>
+    </el-dialog>
+
   </div>
 </template>
 
@@ -359,6 +399,8 @@ export default {
   mixins: [common, salecommon, addMixin],
   data() {
     return {
+      payType:[],
+      printDialog:false,
       filterData: {},
       pickTime: '',
       suppliersList: [],
@@ -407,7 +449,8 @@ export default {
           orderTime: data.items[0].createTime,
           clientName: this.clientDetail.name,
           clientPhone: this.clientDetail.phone,
-          clientAddr: this.clientDetail.address
+          clientAddr: this.clientDetail.address,
+          settlementType: this.payType.join('  ')
         }
       })
       window.open(routeData.href, '_blank')

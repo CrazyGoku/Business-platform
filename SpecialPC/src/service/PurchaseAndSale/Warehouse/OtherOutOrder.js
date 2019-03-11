@@ -3,7 +3,7 @@ import request from '@/utils/request'
 // 获取供应商
 export function getSuppliers(params) {
   return request({
-    url: '/pps/suppliers',
+    url: '/main_store/suppliers',
     method: 'get',
     params
   })
@@ -12,7 +12,7 @@ export function getSuppliers(params) {
 
 export function getClients(params) {
   return request({
-    url: '/pps/clients',
+    url: '/main_store/clients',
     method: 'get',
     params
   })

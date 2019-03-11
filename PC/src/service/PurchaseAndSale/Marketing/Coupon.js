@@ -8,6 +8,14 @@ export function getDiscountCoupon(params) {
     params
   })
 }
+// 分页查询用户优惠券
+export function getDiscountCouponByClient(params) {
+  return request({
+    url: '/pps/marketing/discountCoupon/clientId',
+    method: 'get',
+    params
+  })
+}
 
 // 新增优惠券
 export function postDiscountCoupon(data) {
@@ -26,10 +34,18 @@ export function putDiscountCoupon(data) {
   })
 }
 
-// 新增优惠券
+//作废优惠券
 export function invalidDiscountCoupon(data) {
   return request({
     url: '/pps/marketing/discountCoupon/invalid',
+    method: 'put',
+    data
+  })
+}
+//发放优惠券
+export function giveDiscountCoupon(data) {
+  return request({
+    url: '/pps/marketing/discountCoupon/give',
     method: 'put',
     data
   })

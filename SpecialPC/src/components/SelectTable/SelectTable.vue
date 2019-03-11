@@ -43,7 +43,7 @@
             {{ scope.row[item.key.split('.')[0]][item.key.split('.')[1]][item.key.split('.')[2]] }}
           </p>
           <div v-else-if="/.(gif|jpg|jpeg|png|gif|jpg|png)$/.test(scope.row[item.key])" class="table-img" >
-            <img :src="BASE_URL+'/pps'+scope.row[item.key]" alt="">
+            <img :src="BASE_URL+'/main_store'+scope.row[item.key]" alt="">
           </div>
           <div v-else-if="(typeof scope.row[item.key]) === 'object'">
             <span v-for="(v,i) in scope.row[item.key]">

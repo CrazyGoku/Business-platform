@@ -75,6 +75,11 @@
             科目名称
           </template>
         </el-input>
+        <el-input v-model="incomeExpenseDetail.id" placeholder="请输入科目编号" size="mini">
+          <template slot="prepend">
+            科目编号
+          </template>
+        </el-input>
         <el-select
           v-model="incomeExpenseDetail.checkItem"
           clearable

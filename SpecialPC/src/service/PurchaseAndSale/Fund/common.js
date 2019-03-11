@@ -2,14 +2,14 @@ import request from '@/utils/request'
 // get请求
 export function getSuppliers(params) {
   return request({
-    url: '/pps/suppliers',
+    url: '/main_store/suppliers',
     method: 'get',
     params
   })
 }
 export function getOrderFund(params, path) {
   return request({
-    url: '/pps/fund/' + path,
+    url: '/main_store/fund/' + path,
     method: 'get',
     params
   })
@@ -17,7 +17,7 @@ export function getOrderFund(params, path) {
 //根据type查询其他收入单/费用单
 export function getFundResult(params, path) {
   return request({
-    url: '/pps/fund/result/' + path,
+    url: '/main_store/fund/result/' + path,
     method: 'get',
     params
   })
@@ -25,7 +25,7 @@ export function getFundResult(params, path) {
 //新增其他收入单/费用单
 export function postFundResult(data) {
   return request({
-    url: '/pps/fund/result',
+    url: '/main_store/fund/result',
     method: 'post',
     data
   })
@@ -34,7 +34,7 @@ export function postFundResult(data) {
 // 红冲资金
 export function postRedDashed(params) {
   return request({
-    url: '/pps/fund/result/redDashed',
+    url: '/main_store/fund/result/redDashed',
     method: 'post',
     params
   })
@@ -42,7 +42,7 @@ export function postRedDashed(params) {
 // 红冲资金
 export function postRedDashed2(params) {
   return request({
-    url: '/pps/fund/redDashed',
+    url: '/main_store/fund/redDashed',
     method: 'post',
     params
   })
@@ -51,7 +51,7 @@ export function postRedDashed2(params) {
 // 新增收/付款单、预收/付款单
 export function postFundOrder(data) {
   return request({
-    url: '/pps/fund',
+    url: '/main_store/fund',
     method: 'post',
     data
   })
@@ -59,7 +59,7 @@ export function postFundOrder(data) {
 // 获取账户
 export function getBankFund(params) {
   return request({
-    url: '/pps/bankAccounts',
+    url: '/main_store/bankAccounts',
     method: 'get',
     params
   })
@@ -67,7 +67,7 @@ export function getBankFund(params) {
 // 查询预收/付款余额
 export function getFundAdvance(params) {
   return request({
-    url: '/pps/fund/advance',
+    url: '/main_store/fund/advance',
     method: 'get',
     params
   })
@@ -75,7 +75,7 @@ export function getFundAdvance(params) {
 // 获取客户
 export function getClients(params) {
   return request({
-    url: '/pps/clients',
+    url: '/main_store/clients',
     method: 'get',
     params
   })
